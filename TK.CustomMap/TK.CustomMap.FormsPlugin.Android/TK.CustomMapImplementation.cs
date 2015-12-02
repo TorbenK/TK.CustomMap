@@ -123,6 +123,7 @@ namespace TK.CustomMap.Droid
                 }
                 markerWithIcon.SetIcon(bitmap);
                 markerWithIcon.Draggable(item.IsDraggable);
+                markerWithIcon.Visible(item.IsVisible);
 
                 if (this._firstUpdate)
                 {
@@ -133,9 +134,40 @@ namespace TK.CustomMap.Droid
             this._firstUpdate = false;
         }
 
-        private void OnItemPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private async void OnItemPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            throw new NotImplementedException();
+            var pin = sender as TKCustomMapPin;
+            if (pin == null) return;
+
+            var marker = this._markers[pin];
+            if (marker == null) return;
+
+            switch (e.PropertyName)
+            {
+                case TKCustomMapPin.TitlePropertyName:
+                    marker.Title = pin.Title;
+                    break;
+                case TKCustomMapPin.AddressPropertyName:
+                    marker.Snippet = pin.Subtitle;
+                    break;
+                case TKCustomMapPin.IconPropertyName:
+                    if (pin.Image != null)
+                    {
+                        var icon = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image, this.Context);
+                        marker.SetIcon(BitmapDescriptorFactory.FromBitmap(icon));
+                    }
+                    else
+                    {
+                        marker.SetIcon(BitmapDescriptorFactory.DefaultMarker());
+                    }
+                    break;
+                case TKCustomMapPin.PositionPropertyName:
+                    marker.Position = new LatLng(pin.Position.Latitude, pin.Position.Longitude);
+                    break;
+                case TKCustomMapPin.IsVisiblePropertyName:
+                    marker.Visible = pin.IsVisible;
+                    break;
+            }
         }
     }
 }
