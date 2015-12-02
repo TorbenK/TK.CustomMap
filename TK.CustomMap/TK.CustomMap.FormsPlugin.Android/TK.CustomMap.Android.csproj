@@ -103,12 +103,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TK.CustomMapImplementation.cs" />
-    <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Resources\AboutResources.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TK.CustomMap.FormsPlugin.Abstractions\TK.CustomMap.csproj">

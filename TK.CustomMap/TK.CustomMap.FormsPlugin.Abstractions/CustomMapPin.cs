@@ -1,6 +1,7 @@
 ﻿using PropertyChanged;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace TK.CustomMap
     /// A custom map pin
     /// </summary>
     [ImplementPropertyChanged]
-    public class TKCustomMapPin
+    public class TKCustomMapPin : INotifyPropertyChanged
     {
         public const string TitlePropertyName = "Title";
         public const string AddressPropertyName = "Address";
@@ -21,6 +22,9 @@ namespace TK.CustomMap
         public const string IconPropertyName = "Icon";
         public const string PinColorPropertyName = "PinColor";
         public const string IsVisiblePropertyName = "IsVisible";
+
+        /// <inheritdoc />
+        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
         /// Gets/Sets visibility of a pin
@@ -47,8 +51,8 @@ namespace TK.CustomMap
         /// </summary>
         public ImageSource Image { get; set; }
         /// <summary>
-        /// Gets/Sets if the pin is dragable
+        /// Gets/Sets if the pin is draggable
         /// </summary>
-        public bool Dragable { get; set; }
+        public bool IsDraggable { get; set; }
     }
 }
