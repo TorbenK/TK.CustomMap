@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:tkmap="clr-namespace:TK.CustomMap;assembly=TK.CustomMap"
+             x:Class="TK.CustomMap.Sample.SamplePage">
+  <StackLayout>
+    <SearchBar />
+    <tkmap:TKCustomMap 
+      CustomPins="{Binding Pins}" 
+      MapClickedCommand="{Binding MapClickedCommand}" 
+      MapLongPressCommand="{Binding MapLongPressCommand}" 
+      MapCenter="{Binding MapCenter}" />
+  </StackLayout>
+</ContentPage>
