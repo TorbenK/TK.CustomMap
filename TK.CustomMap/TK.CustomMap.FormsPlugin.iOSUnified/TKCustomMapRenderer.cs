@@ -121,6 +121,11 @@ namespace TK.CustomMap.iOSUnified
             var annotation = e.AnnotationView.Annotation as TKCustomMapAnnotation;
             if (annotation == null) return;
 
+            if (e.NewState == MKAnnotationViewDragState.Starting)
+            {
+                this._isDragging = true;
+            }
+
             if (e.NewState != MKAnnotationViewDragState.Ending &&
                 e.NewState != MKAnnotationViewDragState.Canceling &&
                 e.NewState != MKAnnotationViewDragState.None)
@@ -129,7 +134,12 @@ namespace TK.CustomMap.iOSUnified
             }
             else
             {
+                this._isDragging = false;
                 e.AnnotationView.DragState = MKAnnotationViewDragState.None;
+                if (this.FormsMap.PinDragEndCommand != null && this.FormsMap.PinDragEndCommand.CanExecute(annotation.CustomPin))
+                {
+                    this.FormsMap.PinDragEndCommand.Execute(annotation.CustomPin);
+                }
             }
         }
         /// <summary>
@@ -241,6 +251,11 @@ namespace TK.CustomMap.iOSUnified
                 this.Map.AddAnnotation(pin);
             }
             this._firstUpdate = false;
+
+            if (this.FormsMap.PinsReadyCommand != null && this.FormsMap.PinsReadyCommand.CanExecute(this.FormsMap))
+            {
+                this.FormsMap.PinsReadyCommand.Execute(this.FormsMap);
+            }
         }
         /// <summary>
         /// When a property of the pin changed
