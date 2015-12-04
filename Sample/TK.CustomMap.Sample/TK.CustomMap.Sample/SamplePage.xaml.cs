@@ -41,7 +41,7 @@ namespace TK.CustomMap.Sample
             this._baseLayout.Children.Add(
                 autoComplete,
                 Constraint.Constant(0),
-                Constraint.Constant(0));
+                Constraint.Constant(Device.OnPlatform(22, 0, 0)));
         }
     }
 }

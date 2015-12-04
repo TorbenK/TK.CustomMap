@@ -238,7 +238,7 @@ namespace TK.CustomMap.Droid
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-        private async void OnPinPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private async void OnPinPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var pin = sender as TKCustomMapPin;
             if (pin == null) return;
@@ -290,7 +290,6 @@ namespace TK.CustomMap.Droid
 
             if (items == null) return;
 
-            var imageSourceHandler = new ImageLoaderSourceHandler();
             foreach (var pin in items)
             {
                 await this.AddPin(pin);
@@ -321,7 +320,7 @@ namespace TK.CustomMap.Droid
             if (!string.IsNullOrWhiteSpace(pin.Subtitle))
                 markerWithIcon.SetSnippet(pin.Subtitle);
 
-            BitmapDescriptor bitmap = null;
+            BitmapDescriptor bitmap;
             try
             {
                 if (pin.Image != null)

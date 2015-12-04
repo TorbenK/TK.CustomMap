@@ -1,5 +1,5 @@
-﻿using TK.CustomMap;
-using System;
+﻿using System;
+using TK.CustomMap;
 using System.Linq;
 using Xamarin.Forms;
 using TK.CustomMap.iOSUnified;
@@ -8,7 +8,6 @@ using Xamarin.Forms.Maps.iOS;
 using MapKit;
 using System.ComponentModel;
 using UIKit;
-using System.Threading.Tasks;
 using System.Collections.Specialized;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
@@ -21,6 +20,7 @@ namespace TK.CustomMap.iOSUnified
     public class TKCustomMapRenderer : MapRenderer
     {
         private const string AnnotationIdentifier = "TKCustomAnnotation";
+        private const string AnnotationIdentifierDefaultPin = "TKCustomAnnotationDefaultPin";
 
         private bool _firstUpdate = true;
         private bool _isDragging;
@@ -126,17 +126,14 @@ namespace TK.CustomMap.iOSUnified
             {
                 this._isDragging = true;
             }
-
-            if (e.NewState != MKAnnotationViewDragState.Ending &&
-                e.NewState != MKAnnotationViewDragState.Canceling &&
-                e.NewState != MKAnnotationViewDragState.None)
+            else if (e.NewState == MKAnnotationViewDragState.Dragging)
             {
                 annotation.CustomPin.Position = e.AnnotationView.Annotation.Coordinate.ToPosition();
             }
-            else
+            else if (e.NewState == MKAnnotationViewDragState.Ending || e.NewState == MKAnnotationViewDragState.Canceling)
             {
-                this._isDragging = false;
                 e.AnnotationView.DragState = MKAnnotationViewDragState.None;
+                this._isDragging = false;
                 if (this.FormsMap.PinDragEndCommand != null && this.FormsMap.PinDragEndCommand.CanExecute(annotation.CustomPin))
                 {
                     this.FormsMap.PinDragEndCommand.Execute(annotation.CustomPin);
@@ -181,9 +178,9 @@ namespace TK.CustomMap.iOSUnified
             var pixelLocation = recognizer.LocationInView(this.Map);
             var coordinate = this.Map.ConvertPoint(pixelLocation, this.Map);
 
-            if (this.FormsMap.MapClickedCommand != null && this.FormsMap.MapClickedCommand.CanExecute(coordinate))
+            if (this.FormsMap.MapClickedCommand != null && this.FormsMap.MapClickedCommand.CanExecute(coordinate.ToPosition()))
             {
-                this.FormsMap.MapClickedCommand.Execute(coordinate);
+                this.FormsMap.MapClickedCommand.Execute(coordinate.ToPosition());
             }
 
         }
@@ -198,9 +195,9 @@ namespace TK.CustomMap.iOSUnified
             var pixelLocation = recognizer.LocationInView(this.Map);
             var coordinate = this.Map.ConvertPoint(pixelLocation, this.Map);
 
-            if (this.FormsMap.MapLongPressCommand != null && this.FormsMap.MapLongPressCommand.CanExecute(coordinate))
+            if (this.FormsMap.MapLongPressCommand != null && this.FormsMap.MapLongPressCommand.CanExecute(coordinate.ToPosition()))
             {
-                this.FormsMap.MapLongPressCommand.Execute(coordinate);
+                this.FormsMap.MapLongPressCommand.Execute(coordinate.ToPosition());
             }
         }
         /// <summary>
@@ -215,11 +212,18 @@ namespace TK.CustomMap.iOSUnified
 
             if (customAnnotation == null) return null;
 
-            var annotationView = mapView.DequeueReusableAnnotation(AnnotationIdentifier);
+            MKAnnotationView annotationView;
+            if(customAnnotation.CustomPin.Image != null)
+                annotationView = mapView.DequeueReusableAnnotation(AnnotationIdentifier);
+            else
+                annotationView = mapView.DequeueReusableAnnotation(AnnotationIdentifierDefaultPin);
 
             if (annotationView == null)
             {
-                annotationView = new MKAnnotationView(customAnnotation, AnnotationIdentifier);
+                if(customAnnotation.CustomPin.Image != null)
+                    annotationView = new MKAnnotationView();
+                else
+                    annotationView = new MKPinAnnotationView(customAnnotation, AnnotationIdentifier);
             }
             else 
             {
@@ -317,15 +321,31 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="pin">The forms pin</param>
         private async void UpdateImage(MKAnnotationView annotationView, TKCustomMapPin pin)
         {
-            UIImage image = null;
             if (pin.Image != null)
             {
-                image = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image);
+                // If this is the case, we need to get a whole new annotation view. 
+                if (annotationView.GetType() == typeof (MKPinAnnotationView))
+                {
+                    this.Map.RemoveAnnotation(annotationView.Annotation);
+                    this.Map.AddAnnotation(new TKCustomMapAnnotation(pin));
+                    return;
+                }
+
+                var image = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image);
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    annotationView.Image = image;
+                });
             }
-            Device.BeginInvokeOnMainThread(() =>
+            else
             {
-                annotationView.Image = image;
-            });
+                var pinAnnotationView = annotationView as MKPinAnnotationView;
+                if (pinAnnotationView != null)
+                {
+                    pinAnnotationView.AnimatesDrop = true;
+                    pinAnnotationView.PinTintColor = UIColor.Red;
+                }
+            }
         }
         /// <summary>
         /// Sets the selected pin

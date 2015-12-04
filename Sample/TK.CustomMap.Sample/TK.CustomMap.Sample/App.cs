@@ -11,7 +11,7 @@ namespace TK.CustomMap.Sample
     {
         public App()
         {
-            GmsPlace.Init("Your Google Places API Key");
+            GmsPlace.Init("AIzaSyCJN3Cd-Sp1a5V5OnkvTR-Gqhx7A3S-b6M");
 
             // The root page of your application
             MainPage = new SamplePage();

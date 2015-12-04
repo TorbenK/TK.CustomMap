@@ -10,6 +10,7 @@ namespace TK.CustomMap.iOSUnified
     /// <summary>
     /// Custom map annotation
     /// </summary>
+    [Preserve(AllMembers = true)]
     internal class TKCustomMapAnnotation : MKAnnotation
     {
         private readonly TKCustomMapPin _formsPin;
