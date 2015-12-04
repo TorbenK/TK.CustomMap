@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TK.CustomMap.Api.Google;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
@@ -76,6 +77,19 @@ namespace TK.CustomMap.Sample
                 return new Command<Position>((positon) => 
                 {
                     this.SelectedPin = null;
+                });
+            }
+        }
+        public Command<GmsPlacePrediction> PlaceSelectedCommand
+        {
+            get
+            {
+                return new Command<GmsPlacePrediction>(async p => 
+                {
+                    var position = await new Geocoder().GetPositionsForAddressAsync(p.Description);
+
+                    if(position != null && position.Any())
+                        this.MapCenter = position.First();
                 });
             }
         }

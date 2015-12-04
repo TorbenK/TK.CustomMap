@@ -3,13 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:tkmap="clr-namespace:TK.CustomMap;assembly=TK.CustomMap"
              x:Class="TK.CustomMap.Sample.SamplePage">
-  <StackLayout>
+
+  <RelativeLayout x:Name="_baseLayout" VerticalOptions="FillAndExpand" />
+  <!--<StackLayout>
     <SearchBar />
     <tkmap:TKCustomMap 
       CustomPins="{Binding Pins}" 
       MapClickedCommand="{Binding MapClickedCommand}" 
       MapLongPressCommand="{Binding MapLongPressCommand}" 
       MapCenter="{Binding MapCenter}" 
-      AnimateMapCenterChange="True" />
-  </StackLayout>
+      AnimateMapCenterChange="True" /> 
+  </StackLayout>-->
 </ContentPage>

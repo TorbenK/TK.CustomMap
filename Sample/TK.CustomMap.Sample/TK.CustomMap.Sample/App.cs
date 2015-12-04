@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using TK.CustomMap.Api.Google;
 using Xamarin.Forms;
 
 namespace TK.CustomMap.Sample
@@ -11,6 +11,8 @@ namespace TK.CustomMap.Sample
     {
         public App()
         {
+            GmsPlace.Init("Your Google Places API Key");
+
             // The root page of your application
             MainPage = new SamplePage();
         }
