@@ -57,6 +57,7 @@ namespace TK.CustomMap.iOSUnified
             this.SetMapCenter();
             this.FormsMap.PropertyChanged += OnMapPropertyChanged;
         }
+        
         /// <summary>
         /// When a property of the forms map changed
         /// </summary>

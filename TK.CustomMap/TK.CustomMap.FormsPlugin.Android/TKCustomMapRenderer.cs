@@ -20,6 +20,7 @@ namespace TK.CustomMap.Droid
       /// </summary>
     public class TKCustomMapRenderer : MapRenderer, IOnMapReadyCallback
     {
+        private bool _init = true;
 
         private readonly Dictionary<TKCustomMapPin, Marker> _markers = new Dictionary<TKCustomMapPin, Marker>();
         private Marker _selectedMarker;
@@ -53,6 +54,17 @@ namespace TK.CustomMap.Droid
                         this.FormsMap.CustomPins.CollectionChanged += OnCustomPinsCollectionChanged;
                     }
                 }
+            }
+        }
+        ///<inheritdoc/>
+        protected override void OnLayout(bool changed, int l, int t, int r, int b)
+        {
+            base.OnLayout(changed, l, t, r, b);
+
+            if (this._init)
+            {
+                this.MoveToCenter();
+                this._init = false;
             }
         }
         /// <summary>
@@ -379,7 +391,7 @@ namespace TK.CustomMap.Droid
             {
                 var cameraUpdate = CameraUpdateFactory.NewLatLng(this.FormsMap.MapCenter.ToLatLng());
 
-                if (this.FormsMap.AnimateMapCenterChange)
+                if (this.FormsMap.AnimateMapCenterChange && !this._init)
                 {
                     this._googleMap.AnimateCamera(cameraUpdate);
                 }
