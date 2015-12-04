@@ -29,6 +29,7 @@ namespace TK.CustomMap
         public const string ImagePropertyName = "Icon";
         public const string IsVisiblePropertyName = "IsVisible";
         public const string IsDraggablePropertyName = "IsDraggable";
+        public const string ShowCalloutPropertyName = "ShowCallout";
 
         /// <inheritdoc />
         public event PropertyChangedEventHandler PropertyChanged;

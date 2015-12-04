@@ -24,7 +24,8 @@ namespace TK.CustomMap
         public static readonly BindableProperty SelectedPinProperty = 
             BindableProperty.Create<TKCustomMap, TKCustomMapPin>(
                 p => p.SelectedPin,
-                null);
+                null,
+                BindingMode.TwoWay);
         /// <summary>
         /// Bindable Property of <see cref="PinSelectedCommand" />
         /// </summary>
@@ -66,7 +67,15 @@ namespace TK.CustomMap
         public static readonly BindableProperty MapCenterProperty =
             BindableProperty.Create<TKCustomMap, Position>(
                 p => p.MapCenter,
-                new Position(40.7142700, -74.0059700));
+                new Position(40.7142700, -74.0059700),
+                BindingMode.TwoWay);
+        /// <summary>
+        /// Bindable Property of <see cref="AnimateMapCenterChange"/>
+        /// </summary>
+        public static readonly BindableProperty AnimateMapCenterChangeProperty =
+            BindableProperty.Create<TKCustomMap, bool>(
+                p => p.AnimateMapCenterChange,
+                false);
         /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
@@ -130,6 +139,14 @@ namespace TK.CustomMap
         {
             get { return (Position)this.GetValue(MapCenterProperty); }
             set { this.SetValue(MapCenterProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets if a change of <see cref="MapCenter"/> should be animated
+        /// </summary>
+        public bool AnimateMapCenterChange
+        {
+            get { return (bool)this.GetValue(AnimateMapCenterChangeProperty); }
+            set { this.SetValue(AnimateMapCenterChangeProperty, value); }
         }
     }
 }

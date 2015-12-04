@@ -36,7 +36,9 @@
     <DocumentationFile>bin\iPhone\Release\TK.CustomMap.iOSUnified.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="TK.CustomMapImplementation.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="TKCustomMapAnnotation.cs" />
+    <Compile Include="TKCustomMapRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

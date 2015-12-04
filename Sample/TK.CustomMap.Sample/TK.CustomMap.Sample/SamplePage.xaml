@@ -9,6 +9,7 @@
       CustomPins="{Binding Pins}" 
       MapClickedCommand="{Binding MapClickedCommand}" 
       MapLongPressCommand="{Binding MapLongPressCommand}" 
-      MapCenter="{Binding MapCenter}" />
+      MapCenter="{Binding MapCenter}" 
+      AnimateMapCenterChange="True" />
   </StackLayout>
 </ContentPage>

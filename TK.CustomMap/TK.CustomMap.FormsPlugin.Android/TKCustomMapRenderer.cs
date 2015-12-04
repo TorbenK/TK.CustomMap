@@ -23,6 +23,7 @@ namespace TK.CustomMap.Droid
 
         private readonly Dictionary<TKCustomMapPin, Marker> _markers = new Dictionary<TKCustomMapPin, Marker>();
         private Marker _selectedMarker;
+        private bool _isDragging;
         private bool _firstUpdate = true;
 
         private GoogleMap _googleMap;
@@ -89,10 +90,33 @@ namespace TK.CustomMap.Droid
             this._googleMap.MapClick += OnMapClick;
             this._googleMap.MapLongClick += OnMapLongClick;
             this._googleMap.MarkerDragEnd += OnMarkerDragEnd;
+            this._googleMap.MarkerDrag += OnMarkerDrag;
             this._googleMap.CameraChange += OnCameraChange;
+            this._googleMap.MarkerDragStart += OnMarkerDragStart;
 
             this.MoveToCenter();
             this.UpdatePins();
+        }
+        /// <summary>
+        /// Dragging process
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnMarkerDrag(object sender, GoogleMap.MarkerDragEventArgs e)
+        {
+            var item = this._markers.SingleOrDefault(i => i.Value.Id.Equals(e.Marker.Id));
+            if (item.Key == null) return;
+
+            item.Key.Position = e.Marker.Position.ToPosition();
+        }
+        /// <summary>
+        /// When a dragging starts
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnMarkerDragStart(object sender, GoogleMap.MarkerDragStartEventArgs e)
+        {
+            this._isDragging = true;
         }
         /// <summary>
         /// When the camera position changed
@@ -128,12 +152,14 @@ namespace TK.CustomMap.Droid
         /// <param name="e">Event Arguments</param>
         private void OnMarkerDragEnd(object sender, GoogleMap.MarkerDragEndEventArgs e)
         {
-            if (this.FormsMap == null || this.FormsMap.PinDragEndCommand == null) return;
+            this._isDragging = false;
+
+            if (this.FormsMap == null) return;
 
             var pin = this._markers.SingleOrDefault(i => i.Value.Id.Equals(e.Marker.Id));
             if (pin.Key == null) return;
 
-            if (this.FormsMap.PinDragEndCommand.CanExecute(pin.Key))
+            if (this.FormsMap.PinDragEndCommand != null && this.FormsMap.PinDragEndCommand.CanExecute(pin.Key))
             {
                 this.FormsMap.PinDragEndCommand.Execute(pin.Key);
             }
@@ -228,7 +254,10 @@ namespace TK.CustomMap.Droid
                     }
                     break;
                 case TKCustomMapPin.PositionPropertyName:
-                    marker.Position = new LatLng(pin.Position.Latitude, pin.Position.Longitude);
+                    if (!this._isDragging)
+                    {
+                        marker.Position = new LatLng(pin.Position.Latitude, pin.Position.Longitude);
+                    }
                     break;
                 case TKCustomMapPin.IsVisiblePropertyName:
                     marker.Visible = pin.IsVisible;
@@ -346,8 +375,19 @@ namespace TK.CustomMap.Droid
         /// </summary>
         private void MoveToCenter()
         {
-            if(!this.FormsMap.MapCenter.Equals(this._googleMap.CameraPosition.Target.ToPosition()))
-                this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLng(this.FormsMap.MapCenter.ToLatLng()));
+            if (!this.FormsMap.MapCenter.Equals(this._googleMap.CameraPosition.Target.ToPosition()))
+            {
+                var cameraUpdate = CameraUpdateFactory.NewLatLng(this.FormsMap.MapCenter.ToLatLng());
+
+                if (this.FormsMap.AnimateMapCenterChange)
+                {
+                    this._googleMap.AnimateCamera(cameraUpdate);
+                }
+                else
+                {
+                    this._googleMap.MoveCamera(cameraUpdate);
+                }
+            }
         }
     }
 }
