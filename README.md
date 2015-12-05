@@ -2,7 +2,7 @@
 
 ## NuGet
 
------
+```https://www.nuget.org/packages/TK.CustomMap/```
 
 ## Features
 
