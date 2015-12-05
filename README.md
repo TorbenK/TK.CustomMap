@@ -1,8 +1,99 @@
 # Extended Map Control for Xamarin Forms Maps
 
-### NuGet
+## NuGet
 
 -----
 
-### Features
+## Features
 
+* Bindable Pins
+ * Change Image of Pins
+ * Make Pins Draggable
+ * Hide Pins
+* Bindable Selected Pin
+* Bindable Map Center
+* Map Commands
+  * Long Press
+  * Click
+  * Pin Selected
+  * Drag End
+  * Pins Ready
+
+### Example
+
+#### XAML
+
+```XAML
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:tkmap="clr-namespace:TK.CustomMap;assembly=TK.CustomMap"
+             x:Class="TK.CustomMap.Sample.SamplePage">
+  <StackLayout>
+    <SearchBar />
+    <tkmap:TKCustomMap 
+      CustomPins="{Binding Pins}" 
+      MapClickedCommand="{Binding MapClickedCommand}" 
+      MapLongPressCommand="{Binding MapLongPressCommand}" 
+      MapCenter="{Binding MapCenter}" 
+      AnimateMapCenterChange="True" /> 
+  </StackLayout>
+</ContentPage>
+```
+
+
+```C#
+var mapView = new TKCustomMap();
+mapView.SetBinding(TKCustomMap.CustomPinsProperty, "Pins");
+mapView.SetBinding(TKCustomMap.MapClickedCommandProperty, "MapClickedCommand");
+mapView.SetBinding(TKCustomMap.MapLongPressCommandProperty, "MapLongPressCommand");
+mapView.SetBinding(TKCustomMap.MapCenterProperty, "MapCenter");
+mapView.SetBinding(TKCustomMap.PinSelectedCommandProperty, "PinSelectedCommand");
+mapView.SetBinding(TKCustomMap.SelectedPinProperty, "SelectedPin");
+mapView.AnimateMapCenterChange = true;
+```
+
+### Extra Features
+
+* Google Maps Places API Wrapper(API Key needed)
+ * Get Place predictions
+ * Get Plade details
+
+
+### Example
+
+#### Set API Key
+
+You need to set your Google Maps Places API Key before you can perform any call. You only need to do this once. An appropriate place would be your App constructor.
+
+```C#
+public App()
+{
+    GmsPlace.Init("AIzaSyCJN3Cd-Sp1a5V5OnkvTR-Gqhx7A3S-b6M");
+
+    // The root page of your application
+    MainPage = new SamplePage();
+}
+```
+
+#### Predictions and Details
+
+To get a list of predictions(to fill an Autocomplete for example):
+
+```C#
+GmsPlaceResult predictions = await GmsPlace.Instance.GetPredictions("Sydney");
+```
+
+To get the details of a prediction:
+
+```C#
+GmsDetailsResult details = await GmsPlace.Instance.GetDetails(predictions.Predictions[0].PlaceId);
+```
+
+## Video
+
+### iOS
+
+### Android
+
+[!(http://i.imgur.com/HDrntbk.png)(https://www.youtube.com/watch?v=fNcpbqqNUfQ)]
