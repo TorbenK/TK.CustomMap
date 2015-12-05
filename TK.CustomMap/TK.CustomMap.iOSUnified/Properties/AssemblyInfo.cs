@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TK.CustomMap.FormsPlugin.iOSUnified")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("TK.CustomMap.iOSUnified")]
+[assembly: AssemblyDescription("Custom Map Control for Xamarin.Forms.Maps.Map")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TK.CustomMap.FormsPlugin.iOSUnified")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
+[assembly: AssemblyProduct("TK.CustomMap.iOSUnified")]
+[assembly: AssemblyCopyright("Copyright ©  2015 - Torben Kruse")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

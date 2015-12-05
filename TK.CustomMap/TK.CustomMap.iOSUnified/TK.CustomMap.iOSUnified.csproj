@@ -28,12 +28,12 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\iPhone\Release</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <CodesignKey>iPhone Developer</CodesignKey>
-    <DocumentationFile>bin\iPhone\Release\TK.CustomMap.iOSUnified.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\TK.CustomMap.iOSUnified.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Extensions.cs" />
@@ -42,7 +42,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TK.CustomMap.FormsPlugin.Abstractions\TK.CustomMap.csproj">
+    <ProjectReference Include="..\TK.CustomMap\TK.CustomMap.csproj">
       <Project>{14c534b6-1984-41a9-a384-d3a5508588e3}</Project>
       <Name>TK.CustomMap</Name>
     </ProjectReference>

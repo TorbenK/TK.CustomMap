@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap", "TK.CustomMap\TK.CustomMap.FormsPlugin.Abstractions\TK.CustomMap.csproj", "{14C534B6-1984-41A9-A384-D3A5508588E3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap", "TK.CustomMap\TK.CustomMap\TK.CustomMap.csproj", "{14C534B6-1984-41A9-A384-D3A5508588E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.iOSUnified", "TK.CustomMap\TK.CustomMap.FormsPlugin.iOSUnified\TK.CustomMap.iOSUnified.csproj", "{D525F236-6A2D-4010-B1CC-4A4B8581C90B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.iOSUnified", "TK.CustomMap\TK.CustomMap.iOSUnified\TK.CustomMap.iOSUnified.csproj", "{D525F236-6A2D-4010-B1CC-4A4B8581C90B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{1FDEEB2F-C0DF-4CBB-A587-627E54BC7B12}"
 EndProject
@@ -13,9 +13,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.Sample", "Samp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.Sample.iOS", "Sample\TK.CustomMap.Sample\TK.CustomMap.Sample.iOS\TK.CustomMap.Sample.iOS.csproj", "{AEC1EF18-E62F-4DB0-B94D-4CBF9F191192}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.Android", "TK.CustomMap\TK.CustomMap.FormsPlugin.Android\TK.CustomMap.Android.csproj", "{AD2D2DB4-E781-4CF1-9B62-3AAD264F196D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.Android", "TK.CustomMap\TK.CustomMap.Android\TK.CustomMap.Android.csproj", "{AD2D2DB4-E781-4CF1-9B62-3AAD264F196D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.Sample.Droid", "Sample\TK.CustomMap.Sample\TK.CustomMap.Sample.Droid\TK.CustomMap.Sample.Droid.csproj", "{5AA8381E-2CC7-46FD-93A2-00B03041F113}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{4BA2E698-66AC-425C-9F86-833DBE24B353}"
+	ProjectSection(SolutionItems) = preProject
+		TK.CustomMap.nuspec = TK.CustomMap.nuspec
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
