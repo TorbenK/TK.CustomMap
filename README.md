@@ -21,6 +21,27 @@
 
 ### Example
 
+#### Android
+
+Make sure you have set the following permissions included in the manifest:
+
+```XML
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+```
+
+Set your Google Maps API Key:
+```XML
+<application>
+		<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="YOUR API KEY" />
+</application>
+```
+
+#### iOS
+
+Make sure you call ```C# TKCustomMapRenderer.InitMapRenderer();```
+
 #### XAML
 
 ```XAML
