@@ -40,7 +40,7 @@ Set your Google Maps API Key:
 
 #### iOS
 
-Make sure you call ```C# TKCustomMapRenderer.InitMapRenderer();```
+Make sure you call ```TKCustomMapRenderer.InitMapRenderer();```
 
 #### XAML
 
