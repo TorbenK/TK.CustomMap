@@ -9,6 +9,7 @@ using MapKit;
 using System.ComponentModel;
 using UIKit;
 using System.Collections.Specialized;
+using Foundation;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 
@@ -37,6 +38,7 @@ namespace TK.CustomMap.iOSUnified
         /// <summary>
         /// Dummy function to avoid linker.
         /// </summary>
+        [Preserve]
         public static void InitMapRenderer()
         { }
         /// <inheritdoc/>
