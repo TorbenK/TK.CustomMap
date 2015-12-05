@@ -69,7 +69,7 @@ You need to set your Google Maps Places API Key before you can perform any call.
 ```C#
 public App()
 {
-    GmsPlace.Init("AIzaSyCJN3Cd-Sp1a5V5OnkvTR-Gqhx7A3S-b6M");
+    GmsPlace.Init("Your API Key");
 
     // The root page of your application
     MainPage = new SamplePage();
