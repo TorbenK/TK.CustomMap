@@ -96,4 +96,4 @@ GmsDetailsResult details = await GmsPlace.Instance.GetDetails(predictions.Predic
 
 ### Android
 
-[!(http://i.imgur.com/HDrntbk.png)(https://www.youtube.com/watch?v=fNcpbqqNUfQ)]
+[!(http://i.imgur.com/HDrntbk.png)](https://www.youtube.com/watch?v=fNcpbqqNUfQ)
