@@ -379,6 +379,10 @@ namespace TK.CustomMap.Droid
                 {
                     selectedPin.ShowInfoWindow();
                 }
+                if (this.FormsMap.PinSelectedCommand != null && this.FormsMap.PinSelectedCommand.CanExecute(null))
+                {
+                    this.FormsMap.PinSelectedCommand.Execute(null);
+                }
             }
         }
         /// <summary>

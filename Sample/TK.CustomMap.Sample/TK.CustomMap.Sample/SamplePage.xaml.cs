@@ -28,6 +28,8 @@ namespace TK.CustomMap.Sample
             mapView.SetBinding(TKCustomMap.MapClickedCommandProperty, "MapClickedCommand");
             mapView.SetBinding(TKCustomMap.MapLongPressCommandProperty, "MapLongPressCommand");
             mapView.SetBinding(TKCustomMap.MapCenterProperty, "MapCenter");
+            mapView.SetBinding(TKCustomMap.PinSelectedCommandProperty, "PinSelectedCommand");
+            mapView.SetBinding(TKCustomMap.SelectedPinProperty, "SelectedPin");
             mapView.AnimateMapCenterChange = true;
 
 

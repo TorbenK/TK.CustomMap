@@ -36,6 +36,9 @@
     <DocumentationFile>bin\Release\TK.CustomMap.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Api\Google\GmsDetailsResult.cs" />
+    <Compile Include="Api\Google\GmsDetailsResultItem.cs" />
+    <Compile Include="Api\Google\GmsDetailsResultStatus.cs" />
     <Compile Include="Api\Google\GmsPlace.cs" />
     <Compile Include="Api\Google\GmsPlacePrediction.cs" />
     <Compile Include="Api\Google\GmsPlaceResult.cs" />

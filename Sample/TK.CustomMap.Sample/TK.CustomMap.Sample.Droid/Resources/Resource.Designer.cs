@@ -2488,32 +2488,32 @@ namespace TK.CustomMap.Sample.Droid
 		public partial class Color
 		{
 			
-			// aapt resource value: 0x7f060051
-			public const int abc_background_cache_hint_selector_material_dark = 2131099729;
+			// aapt resource value: 0x7f060055
+			public const int abc_background_cache_hint_selector_material_dark = 2131099733;
 			
-			// aapt resource value: 0x7f060052
-			public const int abc_background_cache_hint_selector_material_light = 2131099730;
+			// aapt resource value: 0x7f060056
+			public const int abc_background_cache_hint_selector_material_light = 2131099734;
 			
-			// aapt resource value: 0x7f060053
-			public const int abc_color_highlight_material = 2131099731;
+			// aapt resource value: 0x7f060057
+			public const int abc_color_highlight_material = 2131099735;
 			
 			// aapt resource value: 0x7f06000e
 			public const int abc_input_method_navigation_guard = 2131099662;
 			
-			// aapt resource value: 0x7f060054
-			public const int abc_primary_text_disable_only_material_dark = 2131099732;
-			
-			// aapt resource value: 0x7f060055
-			public const int abc_primary_text_disable_only_material_light = 2131099733;
-			
-			// aapt resource value: 0x7f060056
-			public const int abc_primary_text_material_dark = 2131099734;
-			
-			// aapt resource value: 0x7f060057
-			public const int abc_primary_text_material_light = 2131099735;
-			
 			// aapt resource value: 0x7f060058
-			public const int abc_search_url_text = 2131099736;
+			public const int abc_primary_text_disable_only_material_dark = 2131099736;
+			
+			// aapt resource value: 0x7f060059
+			public const int abc_primary_text_disable_only_material_light = 2131099737;
+			
+			// aapt resource value: 0x7f06005a
+			public const int abc_primary_text_material_dark = 2131099738;
+			
+			// aapt resource value: 0x7f06005b
+			public const int abc_primary_text_material_light = 2131099739;
+			
+			// aapt resource value: 0x7f06005c
+			public const int abc_search_url_text = 2131099740;
 			
 			// aapt resource value: 0x7f06000f
 			public const int abc_search_url_text_normal = 2131099663;
@@ -2524,11 +2524,14 @@ namespace TK.CustomMap.Sample.Droid
 			// aapt resource value: 0x7f060011
 			public const int abc_search_url_text_selected = 2131099665;
 			
-			// aapt resource value: 0x7f060059
-			public const int abc_secondary_text_material_dark = 2131099737;
+			// aapt resource value: 0x7f06005d
+			public const int abc_secondary_text_material_dark = 2131099741;
 			
-			// aapt resource value: 0x7f06005a
-			public const int abc_secondary_text_material_light = 2131099738;
+			// aapt resource value: 0x7f06005e
+			public const int abc_secondary_text_material_light = 2131099742;
+			
+			// aapt resource value: 0x7f060053
+			public const int accent = 2131099731;
 			
 			// aapt resource value: 0x7f060012
 			public const int accent_material_dark = 2131099666;
@@ -2614,11 +2617,11 @@ namespace TK.CustomMap.Sample.Droid
 			// aapt resource value: 0x7f060005
 			public const int common_signin_btn_light_text_pressed = 2131099653;
 			
-			// aapt resource value: 0x7f06005b
-			public const int common_signin_btn_text_dark = 2131099739;
+			// aapt resource value: 0x7f06005f
+			public const int common_signin_btn_text_dark = 2131099743;
 			
-			// aapt resource value: 0x7f06005c
-			public const int common_signin_btn_text_light = 2131099740;
+			// aapt resource value: 0x7f060060
+			public const int common_signin_btn_text_light = 2131099744;
 			
 			// aapt resource value: 0x7f060048
 			public const int design_fab_shadow_end_color = 2131099720;
@@ -2713,6 +2716,12 @@ namespace TK.CustomMap.Sample.Droid
 			// aapt resource value: 0x7f060035
 			public const int material_grey_900 = 2131099701;
 			
+			// aapt resource value: 0x7f060051
+			public const int primary = 2131099729;
+			
+			// aapt resource value: 0x7f060052
+			public const int primaryDark = 2131099730;
+			
 			// aapt resource value: 0x7f060036
 			public const int primary_dark_material_dark = 2131099702;
 			
@@ -2761,17 +2770,20 @@ namespace TK.CustomMap.Sample.Droid
 			// aapt resource value: 0x7f060045
 			public const int switch_thumb_disabled_material_light = 2131099717;
 			
-			// aapt resource value: 0x7f06005d
-			public const int switch_thumb_material_dark = 2131099741;
+			// aapt resource value: 0x7f060061
+			public const int switch_thumb_material_dark = 2131099745;
 			
-			// aapt resource value: 0x7f06005e
-			public const int switch_thumb_material_light = 2131099742;
+			// aapt resource value: 0x7f060062
+			public const int switch_thumb_material_light = 2131099746;
 			
 			// aapt resource value: 0x7f060046
 			public const int switch_thumb_normal_material_dark = 2131099718;
 			
 			// aapt resource value: 0x7f060047
 			public const int switch_thumb_normal_material_light = 2131099719;
+			
+			// aapt resource value: 0x7f060054
+			public const int window_background = 2131099732;
 			
 			static Color()
 			{
@@ -3430,58 +3442,61 @@ namespace TK.CustomMap.Sample.Droid
 			public const int ic_pause_light = 2130837611;
 			
 			// aapt resource value: 0x7f02006c
-			public const int ic_play_dark = 2130837612;
+			public const int ic_place_black_24dp = 2130837612;
 			
 			// aapt resource value: 0x7f02006d
-			public const int ic_play_light = 2130837613;
+			public const int ic_play_dark = 2130837613;
 			
 			// aapt resource value: 0x7f02006e
-			public const int ic_setting_dark = 2130837614;
+			public const int ic_play_light = 2130837614;
 			
 			// aapt resource value: 0x7f02006f
-			public const int ic_setting_light = 2130837615;
+			public const int ic_setting_dark = 2130837615;
 			
 			// aapt resource value: 0x7f020070
-			public const int icon = 2130837616;
+			public const int ic_setting_light = 2130837616;
 			
 			// aapt resource value: 0x7f020071
-			public const int mr_ic_cast_dark = 2130837617;
+			public const int icon = 2130837617;
 			
 			// aapt resource value: 0x7f020072
-			public const int mr_ic_cast_light = 2130837618;
+			public const int mr_ic_cast_dark = 2130837618;
 			
 			// aapt resource value: 0x7f020073
-			public const int mr_ic_media_route_connecting_mono_dark = 2130837619;
+			public const int mr_ic_cast_light = 2130837619;
 			
 			// aapt resource value: 0x7f020074
-			public const int mr_ic_media_route_connecting_mono_light = 2130837620;
+			public const int mr_ic_media_route_connecting_mono_dark = 2130837620;
 			
 			// aapt resource value: 0x7f020075
-			public const int mr_ic_media_route_mono_dark = 2130837621;
+			public const int mr_ic_media_route_connecting_mono_light = 2130837621;
 			
 			// aapt resource value: 0x7f020076
-			public const int mr_ic_media_route_mono_light = 2130837622;
+			public const int mr_ic_media_route_mono_dark = 2130837622;
 			
 			// aapt resource value: 0x7f020077
-			public const int mr_ic_pause_dark = 2130837623;
+			public const int mr_ic_media_route_mono_light = 2130837623;
 			
 			// aapt resource value: 0x7f020078
-			public const int mr_ic_pause_light = 2130837624;
+			public const int mr_ic_pause_dark = 2130837624;
 			
 			// aapt resource value: 0x7f020079
-			public const int mr_ic_play_dark = 2130837625;
+			public const int mr_ic_pause_light = 2130837625;
 			
 			// aapt resource value: 0x7f02007a
-			public const int mr_ic_play_light = 2130837626;
+			public const int mr_ic_play_dark = 2130837626;
 			
 			// aapt resource value: 0x7f02007b
-			public const int mr_ic_settings_dark = 2130837627;
+			public const int mr_ic_play_light = 2130837627;
 			
 			// aapt resource value: 0x7f02007c
-			public const int mr_ic_settings_light = 2130837628;
+			public const int mr_ic_settings_dark = 2130837628;
 			
 			// aapt resource value: 0x7f02007d
-			public const int notification_template_icon_bg = 2130837629;
+			public const int mr_ic_settings_light = 2130837629;
+			
+			// aapt resource value: 0x7f02007e
+			public const int notification_template_icon_bg = 2130837630;
 			
 			static Drawable()
 			{
@@ -3817,6 +3832,9 @@ namespace TK.CustomMap.Sample.Droid
 			// aapt resource value: 0x7f0b0017
 			public const int showTitle = 2131427351;
 			
+			// aapt resource value: 0x7f0b0086
+			public const int sliding_tabs = 2131427462;
+			
 			// aapt resource value: 0x7f0b006a
 			public const int snackbar_action = 2131427434;
 			
@@ -3876,6 +3894,9 @@ namespace TK.CustomMap.Sample.Droid
 			
 			// aapt resource value: 0x7f0b0049
 			public const int title_template = 2131427401;
+			
+			// aapt resource value: 0x7f0b0087
+			public const int toolbar = 2131427463;
 			
 			// aapt resource value: 0x7f0b0035
 			public const int top = 2131427381;
@@ -4088,6 +4109,12 @@ namespace TK.CustomMap.Sample.Droid
 			
 			// aapt resource value: 0x7f03002f
 			public const int support_simple_spinner_dropdown_item = 2130903087;
+			
+			// aapt resource value: 0x7f030030
+			public const int tabs = 2130903088;
+			
+			// aapt resource value: 0x7f030031
+			public const int toolbar = 2130903089;
 			
 			static Layout()
 			{
@@ -4750,6 +4777,12 @@ namespace TK.CustomMap.Sample.Droid
 			
 			// aapt resource value: 0x7f090006
 			public const int CardView_Light = 2131296262;
+			
+			// aapt resource value: 0x7f090144
+			public const int MyTheme = 2131296580;
+			
+			// aapt resource value: 0x7f090145
+			public const int MyTheme_Base = 2131296581;
 			
 			// aapt resource value: 0x7f090016
 			public const int Platform_AppCompat = 2131296278;

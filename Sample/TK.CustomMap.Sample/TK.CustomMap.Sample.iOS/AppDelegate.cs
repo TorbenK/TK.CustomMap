@@ -24,7 +24,7 @@ namespace TK.CustomMap.Sample.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             global::Xamarin.Forms.Forms.Init();
-            var dummy = new TKCustomMapRenderer();
+            TKCustomMapRenderer.InitMapRenderer();
             Xamarin.FormsMaps.Init();
             LoadApplication(new App());
             return base.FinishedLaunching(app, options);

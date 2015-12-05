@@ -34,6 +34,11 @@ namespace TK.CustomMap.iOSUnified
         {
             get { return this.Element as TKCustomMap; }
         }
+        /// <summary>
+        /// Dummy function to avoid linker.
+        /// </summary>
+        public static void InitMapRenderer()
+        { }
         /// <inheritdoc/>
         protected override void OnElementChanged(ElementChangedEventArgs<View> e)
         {
@@ -377,6 +382,11 @@ namespace TK.CustomMap.iOSUnified
                         annotationView.Selected = true;
                     }
                     this._selectedAnnotation = selectedAnnotation;
+
+                    if (this.FormsMap.PinSelectedCommand != null && this.FormsMap.PinSelectedCommand.CanExecute(null))
+                    {
+                        this.FormsMap.PinSelectedCommand.Execute(null);
+                    }
                 }
             }
         }

@@ -48,11 +48,10 @@ namespace TK.CustomMap.Sample
             };
             this._autoCompleteListView.ItemTemplate = new DataTemplate(() =>
             {
-                var imgCell = new ImageCell();
-                imgCell.SetBinding(ImageCell.TextProperty, "Description");
-                imgCell.ImageSource = Device.OnPlatform("ic_place.png", "ic_place_24dp.png", string.Empty);
+                var cell = new TextCell();
+                cell.SetBinding(ImageCell.TextProperty, "Description");
 
-                return imgCell;
+                return cell;
             });
 
             this._searchBar = new SearchBar

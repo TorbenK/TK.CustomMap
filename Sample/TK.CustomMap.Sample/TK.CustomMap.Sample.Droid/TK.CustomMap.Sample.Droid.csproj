@@ -120,6 +120,12 @@
     <None Include="packages.config" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
+    <AndroidResource Include="Resources\layout\tabs.axml">
+      <SubType>AndroidResource</SubType>
+    </AndroidResource>
+    <AndroidResource Include="Resources\layout\toolbar.axml">
+      <SubType>AndroidResource</SubType>
+    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\icon.png" />
@@ -129,6 +135,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Properties\AndroidManifest.xml" />
+    <AndroidResource Include="Resources\values\colors.xml" />
+    <AndroidResource Include="Resources\values\style.xml" />
+    <AndroidResource Include="Resources\values-v21\style.xml" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_place_black_24dp.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_place_black_24dp.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_place_black_24dp.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_place_black_24dp.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\TK.CustomMap\TK.CustomMap\TK.CustomMap.csproj">

@@ -64,7 +64,8 @@ namespace TK.CustomMap.Sample
                     {
                         Position = position,
                         Title = string.Format("Pin {0}, {1}", position.Latitude, position.Longitude),
-                        ShowCallout = true
+                        ShowCallout = true,
+                        IsDraggable = true
                     });
                     this.MapCenter = position;
                 });
@@ -84,12 +85,23 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return new Command<GmsPlacePrediction>(async p => 
+                return new Command<GmsPlacePrediction>(async p =>
                 {
-                    var position = await new Geocoder().GetPositionsForAddressAsync(p.Description);
+                    var details = await GmsPlace.Instance.GetDetails(p.PlaceId);
 
-                    if(position != null && position.Any())
-                        this.MapCenter = position.First();
+                    if (details.Status == GmsDetailsResultStatus.Ok)
+                        this.MapCenter = details.Item.Geometry.Location.ToPosition();
+                });
+            }
+        }
+
+        public Command PinSelectedCommand
+        {
+            get
+            {
+                return new Command(() =>
+                {
+                    this.MapCenter = this.SelectedPin.Position;
                 });
             }
         }
