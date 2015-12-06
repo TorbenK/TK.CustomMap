@@ -79,7 +79,7 @@ mapView.AnimateMapCenterChange = true;
 
 * Google Maps Places API Wrapper(API Key needed)
  * Get Place predictions
- * Get Plade details
+ * Get Place details
 
 
 ### Example
