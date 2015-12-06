@@ -62,7 +62,7 @@ Make sure you call ```TKCustomMapRenderer.InitMapRenderer();```
 </ContentPage>
 ```
 
-#### C#
+#### CSharp
 
 ```C#
 var mapView = new TKCustomMap();
