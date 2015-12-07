@@ -20,8 +20,8 @@ namespace TK.CustomMap.Sample
 
         private void CreateView()
         {
-            var autoComplete = new GooglePlacesAutoComplete();
-            autoComplete.SetBinding(GooglePlacesAutoComplete.PlaceSelectedCommandProperty, "PlaceSelectedCommand");
+            var autoComplete = new PlacesAutoComplete { ApiToUse = PlacesAutoComplete.PlacesApi.Osm };
+            autoComplete.SetBinding(PlacesAutoComplete.PlaceSelectedCommandProperty, "PlaceSelectedCommand");
 
             var mapView = new TKCustomMap();
             mapView.SetBinding(TKCustomMap.CustomPinsProperty, "Pins");

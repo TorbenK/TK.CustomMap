@@ -5,7 +5,7 @@ namespace TK.CustomMap.Api.Google
     /// <summary>
     /// Prediction result of the Google Place API call
     /// </summary>
-    public struct GmsPlacePrediction
+    public class GmsPlacePrediction : IPlaceResult
     {
         [JsonProperty("description")]
         public string Description { get; set; }

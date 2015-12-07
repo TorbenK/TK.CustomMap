@@ -3,30 +3,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TK.CustomMap.Api;
 using TK.CustomMap.Api.Google;
+using TK.CustomMap.Api.OSM;
 using Xamarin.Forms;
 
 namespace TK.CustomMap.Sample
 {
-    public class GooglePlacesAutoComplete : RelativeLayout
+    public class PlacesAutoComplete : RelativeLayout
     {
         // TODO: SUMMARIES
+
+        public enum PlacesApi
+        { 
+            Google,
+            Osm
+        }
 
         private bool _textChangeItemSelected;
 
         private readonly SearchBar _searchBar;
         private readonly ListView _autoCompleteListView;
 
-        private IEnumerable<GmsPlacePrediction> _predictions;
+        private IEnumerable<IPlaceResult> _predictions;
+
+        public PlacesApi ApiToUse { get; set; }
 
         public static readonly BindableProperty PlaceSelectedCommandProperty =
-            BindableProperty.Create<GooglePlacesAutoComplete, Command<GmsPlacePrediction>>(
+            BindableProperty.Create<PlacesAutoComplete, Command<IPlaceResult>>(
                 p => p.PlaceSelectedCommand,
                 null);
 
-        public Command<GmsPlacePrediction> PlaceSelectedCommand
+        public Command<IPlaceResult> PlaceSelectedCommand
         {
-            get { return (Command<GmsPlacePrediction>)this.GetValue(PlaceSelectedCommandProperty); }
+            get { return (Command<IPlaceResult>)this.GetValue(PlaceSelectedCommandProperty); }
             set { this.SetValue(PlaceSelectedCommandProperty, value); }
         }
         public double HeightOfSearchBar
@@ -37,7 +47,7 @@ namespace TK.CustomMap.Sample
             }
         }
 
-        public GooglePlacesAutoComplete()
+        public PlacesAutoComplete()
         {
             this._autoCompleteListView = new ListView
             {
@@ -105,13 +115,25 @@ namespace TK.CustomMap.Sample
                     return;
                 }
 
-                var result = await GmsPlace.Instance.GetPredictions(this._searchBar.Text);
+                IEnumerable<IPlaceResult> result = null;
 
-                if (result != null && result.Predictions != null && result.Predictions.Any())
+                if (this.ApiToUse == PlacesApi.Google)
                 {
-                    this._predictions = result.Predictions;
+                    var apiResult = await GmsPlace.Instance.GetPredictions(this._searchBar.Text);
 
-                    this._autoCompleteListView.HeightRequest = result.Predictions.Count() * 40;
+                    if (apiResult != null)
+                        result = apiResult.Predictions;
+                }
+                else
+                {
+                    result = await OsmNominatim.Instance.GetPredictions(this._searchBar.Text);
+                }
+
+                if (result != null && result.Any())
+                {
+                    this._predictions = result;
+
+                    this._autoCompleteListView.HeightRequest = result.Count() * 40;
                     this._autoCompleteListView.IsVisible = true;
                     this._autoCompleteListView.ItemsSource = this._predictions;
                 }
@@ -129,12 +151,12 @@ namespace TK.CustomMap.Sample
         private void ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             if (e.SelectedItem == null) return;
-            var prediction = (GmsPlacePrediction)e.SelectedItem;
+            var prediction = (IPlaceResult)e.SelectedItem;
 
             this.HandleItemSelected(prediction);
         }
 
-        private void HandleItemSelected(GmsPlacePrediction prediction)
+        private void HandleItemSelected(IPlaceResult prediction)
         {
             if (this.PlaceSelectedCommand != null && this.PlaceSelectedCommand.CanExecute(this))
             {
