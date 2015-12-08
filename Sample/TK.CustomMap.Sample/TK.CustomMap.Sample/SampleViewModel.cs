@@ -20,6 +20,7 @@ namespace TK.CustomMap.Sample
         private TKCustomMapPin _selectedPin;
         private ObservableCollection<TKCustomMapPin> _pins;
         private ObservableCollection<TKRoute> _routes;
+        private ObservableCollection<TKCircle> _circles;
 
         Dictionary<TKCustomMapPin, TKRoute> _pinRoutes = new Dictionary<TKCustomMapPin, TKRoute>();
 
@@ -44,6 +45,18 @@ namespace TK.CustomMap.Sample
                 {
                     this._routes = value;
                     this.OnPropertyChanged("Routes");
+                }
+            }
+        }
+        public ObservableCollection<TKCircle> Circles
+        {
+            get { return this._circles; }
+            set
+            {
+                if (this._circles != value)
+                {
+                    this._circles = value;
+                    this.OnPropertyChanged("Circles");
                 }
             }
         }
@@ -200,6 +213,15 @@ namespace TK.CustomMap.Sample
                     Image = "https://maps.gstatic.com/mapfiles/ms2/micons/purple.png",
                     IsDraggable = false,
                     Title = "New York"
+                }
+            });
+            this._circles = new ObservableCollection<TKCircle>(new TKCircle[] 
+            {
+                new TKCircle
+                {
+                    Center = new Position(40.7142700, -74.0059700),
+                    Color = Color.FromRgba(99, 0, 0, 80),
+                    Radius = 1000
                 }
             });
         }

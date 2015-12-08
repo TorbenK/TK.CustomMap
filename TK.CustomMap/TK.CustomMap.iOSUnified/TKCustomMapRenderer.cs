@@ -12,6 +12,7 @@ using UIKit;
 using System.Collections.Specialized;
 using Foundation;
 using TK.CustomMap.Overlays;
+using System.Collections.ObjectModel;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 
@@ -26,6 +27,7 @@ namespace TK.CustomMap.iOSUnified
         private const string AnnotationIdentifierDefaultPin = "TKCustomAnnotationDefaultPin";
 
         private readonly Dictionary<MKPolyline, TKRoute> _routes = new Dictionary<MKPolyline, TKRoute>();
+        private readonly Dictionary<MKCircle, TKCircle> _circles = new Dictionary<MKCircle, TKCircle>();
         private bool _firstUpdate = true;
         private bool _isDragging;
         private IMKAnnotation _selectedAnnotation;
@@ -66,6 +68,7 @@ namespace TK.CustomMap.iOSUnified
                 this.FormsMap.CustomPins.CollectionChanged += OnCollectionChanged;
             }
             this.SetMapCenter();
+            this.UpdateRoutes();
             this.FormsMap.PropertyChanged += OnMapPropertyChanged;
         } 
         /// <summary>
@@ -77,7 +80,6 @@ namespace TK.CustomMap.iOSUnified
         private MKOverlayRenderer GetOverlayRenderer(MKMapView mapView, IMKOverlay overlay)
         {
             var polyline = overlay as MKPolyline;
-
             if (polyline != null)
             {
                 var route = this._routes[polyline];
@@ -86,6 +88,19 @@ namespace TK.CustomMap.iOSUnified
                     FillColor = route.LineColor.ToUIColor(),
                     LineWidth = route.LineWidth,
                     StrokeColor = route.LineColor.ToUIColor(),
+                };
+            }
+
+            var mkCircle = overlay as MKCircle;
+            if (mkCircle != null)
+            {
+                var circle = this._circles[mkCircle];
+
+                return new MKCircleRenderer(mkCircle)
+                {
+                    FillColor = circle.Color.ToUIColor(),
+                    StrokeColor = circle.StrokeColor.ToUIColor(),
+                    LineWidth = circle.StrokeWidth
                 };
             }
             return null;
@@ -109,6 +124,10 @@ namespace TK.CustomMap.iOSUnified
             else if (e.PropertyName == TKCustomMap.MapCenterProperty.PropertyName)
             {
                 this.SetMapCenter();
+            }
+            else if (e.PropertyName == TKCustomMap.RoutesProperty.PropertyName)
+            {
+                this.UpdateRoutes();
             }
         }
         /// <summary>
@@ -294,20 +313,155 @@ namespace TK.CustomMap.iOSUnified
                 this.FormsMap.PinsReadyCommand.Execute(this.FormsMap);
             }
         }
+        /// <summary>
+        /// Creates the routes
+        /// </summary>
         private void UpdateRoutes()
         {
+            if (!this._routes.Any()) return;
+
             this.Map.RemoveOverlays(this._routes.Select(i => i.Key).ToArray());
 
             if (this.FormsMap.Routes == null) return;
 
             foreach (var route in this.FormsMap.Routes)
             {
-                var polyLine = MKPolyline.FromCoordinates(route.RouteCoordinates.Select(i => i.ToLocationCoordinate()).ToArray());
-                this._routes.Add(polyLine, route);
-                this.Map.AddOverlay(polyLine);
-
-                route.PropertyChanged += OnRoutePropertyChanged;
+                this.AddRoute(route);
             }
+
+            var observAble = this.FormsMap.Routes as ObservableCollection<TKRoute>;
+            if (observAble != null)
+            {
+                observAble.CollectionChanged += OnRouteCollectionChanged;
+            }
+        }
+        private void UpdateCircles()
+        {
+            if (!this._circles.Any()) return;
+
+            this.Map.RemoveOverlays(this._circles.Select(i => i.Key).ToArray());
+
+            if (this.FormsMap.Circles == null) return;
+
+            foreach (var circle in this.FormsMap.Circles)
+            {
+                this.AddCircle(circle);
+            }
+
+            var observAble = this.FormsMap.Circles as ObservableCollection<TKCircle>;
+            if (observAble != null)
+            {
+                observAble.CollectionChanged += OnCirclesCollectionChanged;
+            }
+        }
+        /// <summary>
+        /// When the circles collection changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnCirclesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (TKCircle circle in e.NewItems)
+                {
+                    this.AddCircle(circle);
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (TKCircle circle in e.OldItems)
+                {
+                    if (!this.FormsMap.Circles.Contains(circle))
+                    {
+                        circle.PropertyChanged -= OnCirclePropertyChanged;
+
+                        var item = this._circles.SingleOrDefault(i => i.Value.Equals(circle));
+                        if (item.Key != null)
+                        {
+                            this.Map.RemoveOverlay(item.Key);
+                            this._circles.Remove(item.Key);
+                        }
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// When the route collection changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnRouteCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (TKRoute route in e.NewItems)
+                {
+                    this.AddRoute(route);
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (TKRoute route in e.OldItems)
+                {
+                    if (!this.FormsMap.Routes.Contains(route))
+                    {
+                        route.PropertyChanged -= OnRoutePropertyChanged;
+
+                        var item = this._routes.SingleOrDefault(i => i.Value.Equals(route));
+                        if (item.Key != null)
+                        {
+                            this.Map.RemoveOverlay(item.Key);
+                            this._routes.Remove(item.Key);
+                        }
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Adds a route
+        /// </summary>
+        /// <param name="route">The route to add</param>
+        private void AddRoute(TKRoute route)
+        {
+            var polyLine = MKPolyline.FromCoordinates(route.RouteCoordinates.Select(i => i.ToLocationCoordinate()).ToArray());
+            this._routes.Add(polyLine, route);
+            this.Map.AddOverlay(polyLine);
+
+            route.PropertyChanged += OnRoutePropertyChanged;
+        }
+        /// <summary>
+        /// Adds a circle to the map
+        /// </summary>
+        /// <param name="circle">The circle to add</param>
+        private void AddCircle(TKCircle circle)
+        {
+            var mkCircle = MKCircle.Circle(circle.Center.ToLocationCoordinate(), circle.Radius);
+            this._circles.Add(mkCircle, circle);
+            this.Map.AddOverlay(mkCircle);
+
+            circle.PropertyChanged += OnCirclePropertyChanged;
+        }
+        /// <summary>
+        /// When a property of a circle changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnCirclePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var circle = (TKCircle)sender;
+
+            if (circle == null) return;
+
+            var item = this._circles.SingleOrDefault(i => i.Value.Equals(circle));
+            if (item.Key == null) return;
+
+            this.Map.RemoveOverlay(item.Key);
+            this._circles.Remove(item.Key);
+
+            var mkCircle = MKCircle.Circle(circle.Center.ToLocationCoordinate(), circle.Radius);
+            this._circles.Add(mkCircle, circle);
+            this.Map.AddOverlay(mkCircle);
         }
         /// <summary>
         /// When a property of the route changes, re-add the <see cref="MKPolyline"/>

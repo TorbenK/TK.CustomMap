@@ -86,6 +86,13 @@ namespace TK.CustomMap
                 p => p.Routes,
                 null);
         /// <summary>
+        /// Bindable Property of <see cref="Circles"/>
+        /// </summary>
+        public static readonly BindableProperty CirclesProperty =
+            BindableProperty.Create<TKCustomMap, IEnumerable<TKCircle>>(
+                p => p.Circles,
+                null);
+        /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
         public ObservableCollection<TKCustomMapPin> CustomPins
@@ -164,6 +171,14 @@ namespace TK.CustomMap
         {
             get { return (IEnumerable<TKRoute>)this.GetValue(RoutesProperty); }
             set { this.SetValue(RoutesProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the circles to display on the map
+        /// </summary>
+        public IEnumerable<TKCircle> Circles
+        {
+            get { return (IEnumerable<TKCircle>)this.GetValue(CirclesProperty); }
+            set { this.SetValue(CirclesProperty, value); }
         }
     }
 }

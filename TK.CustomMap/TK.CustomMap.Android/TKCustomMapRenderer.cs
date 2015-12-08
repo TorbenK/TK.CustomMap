@@ -25,6 +25,7 @@ namespace TK.CustomMap.Droid
         private bool _init = true;
 
         private readonly Dictionary<TKRoute, Polyline> _routes = new Dictionary<TKRoute, Polyline>();
+        private readonly Dictionary<TKCircle, Circle> _circles = new Dictionary<TKCircle, Circle>();
         private readonly Dictionary<TKCustomMapPin, Marker> _markers = new Dictionary<TKCustomMapPin, Marker>();
         private Marker _selectedMarker;
         private bool _isDragging;
@@ -96,6 +97,10 @@ namespace TK.CustomMap.Droid
             {
                 this.UpdateRoutes();
             }
+            else if (e.PropertyName == TKCustomMap.CirclesProperty.PropertyName)
+            {
+                this.UpdateCircles();
+            }
         }
         /// <summary>
         /// When the map is ready to use
@@ -116,6 +121,7 @@ namespace TK.CustomMap.Droid
             this.MoveToCenter();
             this.UpdatePins();
             this.UpdateRoutes();
+            this.UpdateCircles();
         }
         /// <summary>
         /// Dragging process
@@ -494,6 +500,108 @@ namespace TK.CustomMap.Droid
                 {
                     observAble.CollectionChanged += RouteCollectionChanged;
                 }
+            }
+        }
+        /// <summary>
+        /// Updates all circles
+        /// </summary>
+        private void UpdateCircles()
+        {
+            if (this._googleMap == null) return;
+
+            foreach (var i in this._circles)
+            {
+                i.Key.PropertyChanged -= CirclePropertyChanged;
+                i.Value.Remove();
+            }
+            if (this.FormsMap.Circles != null)
+            {
+                foreach (var circle in this.FormsMap.Circles)
+                {
+                    this.AddCircle(circle);
+                }
+                var observAble = this.FormsMap.Circles as ObservableCollection<TKCircle>;
+                if (observAble != null)
+                {
+                    observAble.CollectionChanged += CirclesCollectionChanged;
+                }
+            }
+        }
+        /// <summary>
+        /// When the circle collection changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void CirclesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if(e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (TKCircle circle in e.NewItems)
+                {
+                    this.AddCircle(circle);
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (TKCircle circle in e.OldItems)
+                {
+                    if (!this.FormsMap.Circles.Contains(circle))
+                    {
+                        circle.PropertyChanged -= CirclePropertyChanged;
+                        this._circles[circle].Remove();
+                        this._circles.Remove(circle);
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Adds a circle to the map
+        /// </summary>
+        /// <param name="circle">The circle to add</param>
+        private void AddCircle(TKCircle circle)
+        {
+            circle.PropertyChanged += CirclePropertyChanged;
+
+            var circleOptions = new CircleOptions();
+
+            circleOptions.InvokeRadius(circle.Radius);
+            circleOptions.InvokeCenter(circle.Center.ToLatLng());
+
+            if (circle.Color != Color.Default)
+            {
+                circleOptions.InvokeFillColor(circle.Color.ToAndroid().ToArgb());
+            }
+            if (circle.StrokeColor != Color.Default)
+            {
+                circleOptions.InvokeStrokeColor(circle.StrokeColor.ToAndroid().ToArgb());
+            }
+            circleOptions.InvokeStrokeWidth(circle.StrokeWidth);
+            this._circles.Add(circle, this._googleMap.AddCircle(circleOptions));
+        }
+        /// <summary>
+        /// When a property of a <see cref="TKCircle"/> changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void CirclePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var tkCircle = (TKCircle)sender;
+            var circle = this._circles[tkCircle];
+
+            switch(e.PropertyName)
+            {
+                case TKCircle.RadiusPropertyName:
+                    circle.Radius = tkCircle.Radius;
+                    break;
+                case TKCircle.CenterPropertyName:
+                    circle.Center = tkCircle.Center.ToLatLng();
+                    break;
+                case TKCircle.ColorPropertyName:
+                    circle.FillColor = tkCircle.Color.ToAndroid().ToArgb();
+                    break;
+                case TKCircle.StrokeColorPropertyName:
+                    circle.StrokeColor = tkCircle.StrokeColor.ToAndroid().ToArgb();
+                    break;
             }
         }
         /// <summary>

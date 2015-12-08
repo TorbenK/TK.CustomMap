@@ -58,7 +58,8 @@
     <Compile Include="Api\OSM\OsmNominatim.cs" />
     <Compile Include="Api\OSM\OsmNominatimResult.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="Overlays\Route.cs" />
+    <Compile Include="Overlays\TKCircle.cs" />
+    <Compile Include="Overlays\TKRoute.cs" />
     <Compile Include="TKBase.cs" />
     <Compile Include="TKCustomMap.cs" />
     <Compile Include="TKCustomMapPin.cs" />
