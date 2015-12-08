@@ -30,6 +30,8 @@ namespace TK.CustomMap.Sample
             mapView.SetBinding(TKCustomMap.MapCenterProperty, "MapCenter");
             mapView.SetBinding(TKCustomMap.PinSelectedCommandProperty, "PinSelectedCommand");
             mapView.SetBinding(TKCustomMap.SelectedPinProperty, "SelectedPin");
+            mapView.SetBinding(TKCustomMap.RoutesProperty, "Routes");
+            mapView.SetBinding(TKCustomMap.PinDragEndCommandProperty, "DragEndCommand");
             mapView.AnimateMapCenterChange = true;
 
 

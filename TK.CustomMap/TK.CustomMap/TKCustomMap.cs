@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using TK.CustomMap.Overlays;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
@@ -77,6 +79,13 @@ namespace TK.CustomMap
                 p => p.AnimateMapCenterChange,
                 false);
         /// <summary>
+        /// Bindable Property of <see cref="Routes"/>
+        /// </summary>
+        public static readonly BindableProperty RoutesProperty =
+            BindableProperty.Create<TKCustomMap, IEnumerable<TKRoute>>(
+                p => p.Routes,
+                null);
+        /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
         public ObservableCollection<TKCustomMapPin> CustomPins
@@ -147,6 +156,14 @@ namespace TK.CustomMap
         {
             get { return (bool)this.GetValue(AnimateMapCenterChangeProperty); }
             set { this.SetValue(AnimateMapCenterChangeProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the routes to display on the map
+        /// </summary>
+        public IEnumerable<TKRoute> Routes
+        {
+            get { return (IEnumerable<TKRoute>)this.GetValue(RoutesProperty); }
+            set { this.SetValue(RoutesProperty, value); }
         }
     }
 }

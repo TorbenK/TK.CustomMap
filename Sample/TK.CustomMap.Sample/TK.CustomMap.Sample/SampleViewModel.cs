@@ -5,7 +5,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TK.CustomMap.Api;
 using TK.CustomMap.Api.Google;
+using TK.CustomMap.Api.OSM;
+using TK.CustomMap.Overlays;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
@@ -16,6 +19,9 @@ namespace TK.CustomMap.Sample
         private Position _mapCenter;
         private TKCustomMapPin _selectedPin;
         private ObservableCollection<TKCustomMapPin> _pins;
+        private ObservableCollection<TKRoute> _routes;
+
+        Dictionary<TKCustomMapPin, TKRoute> _pinRoutes = new Dictionary<TKCustomMapPin, TKRoute>();
 
         public ObservableCollection<TKCustomMapPin> Pins
         {
@@ -26,6 +32,18 @@ namespace TK.CustomMap.Sample
                 {
                     this._pins = value;
                     this.OnPropertyChanged("Pins");
+                }
+            }
+        }
+        public ObservableCollection<TKRoute> Routes
+        {
+            get { return this._routes; }
+            set
+            {
+                if (this._routes != value)
+                {
+                    this._routes = value;
+                    this.OnPropertyChanged("Routes");
                 }
             }
         }
@@ -58,16 +76,44 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return new Command<Position>((position) => 
+                return new Command<Position>(async position => 
                 {
-                    this._pins.Add(new TKCustomMapPin 
+                    var pin = new TKCustomMapPin 
                     {
                         Position = position,
                         Title = string.Format("Pin {0}, {1}", position.Latitude, position.Longitude),
                         ShowCallout = true,
                         IsDraggable = true
-                    });
+                    };
+
+                    this._pins.Add(pin);
                     this.MapCenter = position;
+
+
+
+                    if (this._routes == null)
+                    {
+                        this.Routes = new ObservableCollection<TKRoute>();
+                    }
+
+                    var routeResult = await GmsDirection.Instance.CalculateRoute(
+                        this._pins.First().Position, 
+                        pin.Position, 
+                        GmsDirectionTravelMode.Driving, 
+                        "de");
+
+                    if (routeResult != null && routeResult.Status == GmsDirectionResultStatus.Ok)
+                    {
+                        var route = new TKRoute
+                        {
+                            LineWidth = 3,
+                            LineColor = Color.Blue,
+                            RouteCoordinates = new List<Position>(routeResult.Routes.First().Polyline.Positions)
+                        };
+                        this._routes.Add(route);
+
+                        this._pinRoutes.Add(pin, route);
+                    }
                 });
             }
         }
@@ -81,16 +127,29 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
-        public Command<GmsPlacePrediction> PlaceSelectedCommand
+        public Command<IPlaceResult> PlaceSelectedCommand
         {
             get
             {
-                return new Command<GmsPlacePrediction>(async p =>
+                return new Command<IPlaceResult>(async p =>
                 {
-                    var details = await GmsPlace.Instance.GetDetails(p.PlaceId);
+                    var googlePlace = p as GmsPlacePrediction;
 
-                    if (details.Status == GmsDetailsResultStatus.Ok)
-                        this.MapCenter = details.Item.Geometry.Location.ToPosition();
+                    if (googlePlace != null)
+                    {
+                        var details = await GmsPlace.Instance.GetDetails(p.PlaceId);
+
+                        if (details.Status == GmsDetailsResultStatus.Ok)
+                            this.MapCenter = details.Item.Geometry.Location.ToPosition();
+
+                        return;
+                    }
+
+                    var osmPlace = p as OsmNominatimResult;
+                    if (osmPlace != null)
+                    {
+                        this.MapCenter = new Position(osmPlace.Latitude, osmPlace.Longitude);
+                    }
                 });
             }
         }
@@ -105,6 +164,29 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+        public Command<TKCustomMapPin> DragEndCommand
+        {
+            get 
+            {
+                return new Command<TKCustomMapPin>(async pin => 
+                {
+                    if (this._routes == null) return;
+
+                    var route = this._pinRoutes[pin];
+
+                    var routeResult = await GmsDirection.Instance.CalculateRoute(
+                       this._pins.First().Position,
+                       pin.Position,
+                       GmsDirectionTravelMode.Driving,
+                       "de");
+
+                    if (routeResult != null)
+                    {
+                        route.RouteCoordinates = new List<Position>(routeResult.Routes.First().Polyline.Positions);
+                    }
+                });
+            }
+        }
 
         public SampleViewModel()
         {
@@ -116,7 +198,7 @@ namespace TK.CustomMap.Sample
                     Position = new Position(40.7142700, -74.0059700),
                     ShowCallout = false,
                     Image = "https://maps.gstatic.com/mapfiles/ms2/micons/purple.png",
-                    IsDraggable = true,
+                    IsDraggable = false,
                     Title = "New York"
                 }
             });

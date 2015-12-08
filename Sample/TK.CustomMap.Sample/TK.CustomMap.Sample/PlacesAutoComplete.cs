@@ -49,6 +49,8 @@ namespace TK.CustomMap.Sample
 
         public PlacesAutoComplete()
         {
+            OsmNominatim.Instance.CountryCodes.Add("de");
+
             this._autoCompleteListView = new ListView
             {
                 IsVisible = false,

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TK.CustomMap;
 using System.Linq;
 using Xamarin.Forms;
@@ -10,6 +11,7 @@ using System.ComponentModel;
 using UIKit;
 using System.Collections.Specialized;
 using Foundation;
+using TK.CustomMap.Overlays;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 
@@ -23,6 +25,7 @@ namespace TK.CustomMap.iOSUnified
         private const string AnnotationIdentifier = "TKCustomAnnotation";
         private const string AnnotationIdentifierDefaultPin = "TKCustomAnnotationDefaultPin";
 
+        private readonly Dictionary<MKPolyline, TKRoute> _routes = new Dictionary<MKPolyline, TKRoute>();
         private bool _firstUpdate = true;
         private bool _isDragging;
         private IMKAnnotation _selectedAnnotation;
@@ -49,6 +52,7 @@ namespace TK.CustomMap.iOSUnified
             if (e.OldElement != null || this.FormsMap == null || this.Map == null) return;
 
             this.Map.GetViewForAnnotation = this.GetViewForAnnotation;
+            this.Map.OverlayRenderer = this.GetOverlayRenderer; 
             this.Map.DidSelectAnnotationView += OnDidSelectAnnotationView;
             this.Map.RegionChanged += OnMapRegionChanged;
             this.Map.ChangedDragState += OnChangedDragState;
@@ -63,8 +67,29 @@ namespace TK.CustomMap.iOSUnified
             }
             this.SetMapCenter();
             this.FormsMap.PropertyChanged += OnMapPropertyChanged;
+        } 
+        /// <summary>
+        /// Get the overlay renderer
+        /// </summary>
+        /// <param name="mapView">The <see cref="MKMapView"/></param>
+        /// <param name="overlay">The overlay to render</param>
+        /// <returns>The overlay renderer</returns>
+        private MKOverlayRenderer GetOverlayRenderer(MKMapView mapView, IMKOverlay overlay)
+        {
+            var polyline = overlay as MKPolyline;
+
+            if (polyline != null)
+            {
+                var route = this._routes[polyline];
+                return new MKPolylineRenderer(polyline) 
+                {
+                    FillColor = route.LineColor.ToUIColor(),
+                    LineWidth = route.LineWidth,
+                    StrokeColor = route.LineColor.ToUIColor(),
+                };
+            }
+            return null;
         }
-        
         /// <summary>
         /// When a property of the forms map changed
         /// </summary>
@@ -268,6 +293,42 @@ namespace TK.CustomMap.iOSUnified
             {
                 this.FormsMap.PinsReadyCommand.Execute(this.FormsMap);
             }
+        }
+        private void UpdateRoutes()
+        {
+            this.Map.RemoveOverlays(this._routes.Select(i => i.Key).ToArray());
+
+            if (this.FormsMap.Routes == null) return;
+
+            foreach (var route in this.FormsMap.Routes)
+            {
+                var polyLine = MKPolyline.FromCoordinates(route.RouteCoordinates.Select(i => i.ToLocationCoordinate()).ToArray());
+                this._routes.Add(polyLine, route);
+                this.Map.AddOverlay(polyLine);
+
+                route.PropertyChanged += OnRoutePropertyChanged;
+            }
+        }
+        /// <summary>
+        /// When a property of the route changes, re-add the <see cref="MKPolyline"/>
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnRoutePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var route = (TKRoute)sender;
+
+            if(route == null) return;
+
+            var item = this._routes.SingleOrDefault(i => i.Value.Equals(route));
+            if (item.Key == null) return;
+
+            this.Map.RemoveOverlay(item.Key);
+            this._routes.Remove(item.Key);
+
+            var polyLine = MKPolyline.FromCoordinates(route.RouteCoordinates.Select(i => i.ToLocationCoordinate()).ToArray());
+            this._routes.Add(polyLine, route);
+            this.Map.AddOverlay(polyLine);
         }
         /// <summary>
         /// When a property of the pin changed
