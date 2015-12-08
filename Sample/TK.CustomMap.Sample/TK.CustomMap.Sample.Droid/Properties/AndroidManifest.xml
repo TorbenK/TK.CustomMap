@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 	<uses-sdk android:minSdkVersion="15" />
 	<application>
-		<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyCpAu6gru_MOol9M3Kg4ZNIMrEnRl9JS6A" />
+		<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="YOUR API KEY" />
 	</application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
