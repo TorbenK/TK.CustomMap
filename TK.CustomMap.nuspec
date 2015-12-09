@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <title>Custom Map Control for Xamarin Forms</title>
     <authors>Torben Kruse</authors>
     <owners>Torben Kruse</owners>
@@ -55,8 +55,16 @@
       </group>
     </dependencies>
     <releaseNotes>
-      [1.0.0] 
+      [1.1.0] 
       Beta Release
+      
+      New:
+      - OSM Nominatim API Wrapper
+      - Google Maps Directions API Wrapper
+      - Adding Circles, Routes and Polygons to the map
+      - Callouts can be clicked
+      Fixed:
+      - Clearing an observable Collection of Pins will now update the map correctly
     </releaseNotes>
   </metadata>
   <files>

@@ -18,13 +18,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{4BA2E6
 		TK.CustomMap.nuspec = TK.CustomMap.nuspec
 	EndProjectSection
 EndProject
-<<<<<<< HEAD
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.Sample.Droid", "Sample\TK.CustomMap.Sample\TK.CustomMap.Sample.Droid\TK.CustomMap.Sample.Droid.csproj", "{5AA8381E-2CC7-46FD-93A2-00B03041F113}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.Android", "TK.CustomMap\TK.CustomMap.Android\TK.CustomMap.Android.csproj", "{AD2D2DB4-E781-4CF1-9B62-3AAD264F196D}"
 EndProject
-=======
->>>>>>> origin/master
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Ad-Hoc|Any CPU = Ad-Hoc|Any CPU
