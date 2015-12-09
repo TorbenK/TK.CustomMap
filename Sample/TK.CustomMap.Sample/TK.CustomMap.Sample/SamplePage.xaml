@@ -3,8 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:tkmap="clr-namespace:TK.CustomMap;assembly=TK.CustomMap"
              x:Class="TK.CustomMap.Sample.SamplePage">
-
-  <RelativeLayout x:Name="_baseLayout" VerticalOptions="FillAndExpand" />
+  <StackLayout>
+    <Grid VerticalOptions="FillAndExpand">
+      <RelativeLayout x:Name="_baseLayout" VerticalOptions="FillAndExpand" />
+    </Grid>
+    <StackLayout Orientation="Horizontal">
+      <Button Command="{Binding ClearEverythingCommand}" Text="Clear Map" />
+      <Button Command="{Binding AddCircleCommand}" Text="Add Circle" />
+    </StackLayout>
+  </StackLayout>
   <!--<StackLayout>
     <SearchBar />
     <tkmap:TKCustomMap 

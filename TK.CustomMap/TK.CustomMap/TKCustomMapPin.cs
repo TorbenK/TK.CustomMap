@@ -24,15 +24,12 @@ namespace TK.CustomMap
         private bool _isDraggable;
 
         public const string TitlePropertyName = "Title";
-        public const string SubititlePropertyName = "Address";
+        public const string SubititlePropertyName = "Subtitle";
         public const string PositionPropertyName = "Position";
-        public const string ImagePropertyName = "Icon";
+        public const string ImagePropertyName = "Image";
         public const string IsVisiblePropertyName = "IsVisible";
         public const string IsDraggablePropertyName = "IsDraggable";
         public const string ShowCalloutPropertyName = "ShowCallout";
-
-        /// <inheritdoc />
-        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
         /// Gets/Sets visibility of a pin

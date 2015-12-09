@@ -21,9 +21,22 @@ namespace TK.CustomMap.Sample
         private ObservableCollection<TKCustomMapPin> _pins;
         private ObservableCollection<TKRoute> _routes;
         private ObservableCollection<TKCircle> _circles;
+        private ObservableCollection<TKPolygon> _polygons;
 
         Dictionary<TKCustomMapPin, TKRoute> _pinRoutes = new Dictionary<TKCustomMapPin, TKRoute>();
 
+        public ObservableCollection<TKPolygon> Polygons
+        {
+            get { return this._polygons; }
+            set
+            {
+                if (this._polygons != value)
+                {
+                    this._polygons = value;
+                    this.OnPropertyChanged("Polygons");
+                }
+            }
+        }
         public ObservableCollection<TKCustomMapPin> Pins
         {
             get { return this._pins; }
@@ -100,9 +113,22 @@ namespace TK.CustomMap.Sample
                     };
 
                     this._pins.Add(pin);
+
+                    if (this._pins.Count == 4)
+                    {
+                        this._polygons.Add(new TKPolygon 
+                        {
+                            Coordinates = this._pins.Select(i => i.Position).ToList(),
+                            FillColor = Color.FromRgba(0, 0, 120, 80),
+                            StrokeColor = Color.Navy,
+                            StrokeWidth = 0.2f
+                        });
+                    }
+
                     this.MapCenter = position;
 
 
+                    if (this._pins.Count == 1) return;
 
                     if (this._routes == null)
                     {
@@ -184,6 +210,7 @@ namespace TK.CustomMap.Sample
                 return new Command<TKCustomMapPin>(async pin => 
                 {
                     if (this._routes == null) return;
+                    if (!this._pinRoutes.ContainsKey(pin)) return;
 
                     var route = this._pinRoutes[pin];
 
@@ -197,6 +224,48 @@ namespace TK.CustomMap.Sample
                     {
                         route.RouteCoordinates = new List<Position>(routeResult.Routes.First().Polyline.Positions);
                     }
+                });
+            }
+        }
+        public Command ClearEverythingCommand
+        {
+            get
+            {
+                return new Command(() => 
+                {
+                    this.Pins.Clear();
+                    if(this.Routes != null)
+                        this.Routes.Clear();
+                    this.Circles.Clear();
+                });
+            }
+        }
+        public Command CalloutClickedCommand
+        {
+            get
+            {
+                return new Command(() => 
+                {
+                    Application.Current.MainPage.DisplayAlert(
+                        "Callout Clicked",
+                        string.Format("Callout of pin {0} clicked", this.SelectedPin.Title),
+                        "Cool story bro");
+                });
+            }
+        }
+        public Command AddCircleCommand
+        {
+            get
+            {
+                return new Command(() => 
+                {
+                    this._circles.Add(new TKCircle 
+                    {
+                        Color = Color.FromRgba(0, 150, 0, 80),
+                        Center = this.MapCenter,
+                        StrokeWidth = 0,
+                        Radius = 1000
+                    });
                 });
             }
         }
@@ -215,6 +284,7 @@ namespace TK.CustomMap.Sample
                     Title = "New York"
                 }
             });
+            this._polygons = new ObservableCollection<TKPolygon>();
             this._circles = new ObservableCollection<TKCircle>(new TKCircle[] 
             {
                 new TKCircle

@@ -20,6 +20,7 @@ namespace TK.CustomMap.Sample
 
         private void CreateView()
         {
+
             var autoComplete = new PlacesAutoComplete { ApiToUse = PlacesAutoComplete.PlacesApi.Osm };
             autoComplete.SetBinding(PlacesAutoComplete.PlaceSelectedCommandProperty, "PlaceSelectedCommand");
 
@@ -33,6 +34,8 @@ namespace TK.CustomMap.Sample
             mapView.SetBinding(TKCustomMap.RoutesProperty, "Routes");
             mapView.SetBinding(TKCustomMap.PinDragEndCommandProperty, "DragEndCommand");
             mapView.SetBinding(TKCustomMap.CirclesProperty, "Circles");
+            mapView.SetBinding(TKCustomMap.CalloutClickedCommandProperty, "CalloutClickedCommand");
+            mapView.SetBinding(TKCustomMap.PolygonsProperty, "Polygons");
             mapView.AnimateMapCenterChange = true;
 
 

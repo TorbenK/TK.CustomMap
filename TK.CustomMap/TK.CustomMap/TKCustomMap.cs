@@ -93,6 +93,20 @@ namespace TK.CustomMap
                 p => p.Circles,
                 null);
         /// <summary>
+        /// Bindable Property of <see cref="CustomInfoWindow"/>
+        /// </summary>
+        public static readonly BindableProperty CalloutClickedCommandProperty =
+            BindableProperty.Create<TKCustomMap, Command>(
+                p => p.CalloutClickedCommand,
+                null);
+        /// <summary>
+        /// Bindable Property of <see cref="Rectangles"/>
+        /// </summary>
+        public static readonly BindableProperty PolygonsProperty =
+            BindableProperty.Create<TKCustomMap, IEnumerable<TKPolygon>>(
+                p => p.Polygons,
+                null);
+        /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
         public ObservableCollection<TKCustomMapPin> CustomPins
@@ -179,6 +193,23 @@ namespace TK.CustomMap
         {
             get { return (IEnumerable<TKCircle>)this.GetValue(CirclesProperty); }
             set { this.SetValue(CirclesProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the command when a callout gets clicked. When this is set, there will be an accessory button visible inside the callout on iOS.
+        /// Android will simply raise the command by clicking anywhere inside the callout, since Android simply renders a bitmap
+        /// </summary>
+        public Command CalloutClickedCommand
+        {
+            get { return (Command)this.GetValue(CalloutClickedCommandProperty); }
+            set { this.SetValue(CalloutClickedCommandProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the rectangles to display on the map
+        /// </summary>
+        public IEnumerable<TKPolygon> Polygons
+        {
+            get { return (IEnumerable<TKPolygon>)this.GetValue(PolygonsProperty); }
+            set { this.SetValue(PolygonsProperty, value); }
         }
     }
 }
