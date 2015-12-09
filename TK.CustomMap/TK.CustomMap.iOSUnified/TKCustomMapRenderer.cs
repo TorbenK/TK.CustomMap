@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TK.CustomMap;
 using System.Linq;
 using Xamarin.Forms;
@@ -10,6 +11,8 @@ using System.ComponentModel;
 using UIKit;
 using System.Collections.Specialized;
 using Foundation;
+using TK.CustomMap.Overlays;
+using System.Collections.ObjectModel;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 
@@ -22,6 +25,10 @@ namespace TK.CustomMap.iOSUnified
     {
         private const string AnnotationIdentifier = "TKCustomAnnotation";
         private const string AnnotationIdentifierDefaultPin = "TKCustomAnnotationDefaultPin";
+
+        private readonly Dictionary<MKPolyline, TKRoute> _routes = new Dictionary<MKPolyline, TKRoute>();
+        private readonly Dictionary<MKCircle, TKCircle> _circles = new Dictionary<MKCircle, TKCircle>();
+        private readonly Dictionary<MKPolygon, TKPolygon> _polygons = new Dictionary<MKPolygon, TKPolygon>();
 
         private bool _firstUpdate = true;
         private bool _isDragging;
@@ -49,9 +56,11 @@ namespace TK.CustomMap.iOSUnified
             if (e.OldElement != null || this.FormsMap == null || this.Map == null) return;
 
             this.Map.GetViewForAnnotation = this.GetViewForAnnotation;
+            this.Map.OverlayRenderer = this.GetOverlayRenderer; 
             this.Map.DidSelectAnnotationView += OnDidSelectAnnotationView;
             this.Map.RegionChanged += OnMapRegionChanged;
             this.Map.ChangedDragState += OnChangedDragState;
+            this.Map.CalloutAccessoryControlTapped += OnMapCalloutAccessoryControlTapped;
 
             this.Map.AddGestureRecognizer(new UILongPressGestureRecognizer(this.OnMapLongPress));
             this.Map.AddGestureRecognizer(new UITapGestureRecognizer(this.OnMapClicked));
@@ -62,9 +71,60 @@ namespace TK.CustomMap.iOSUnified
                 this.FormsMap.CustomPins.CollectionChanged += OnCollectionChanged;
             }
             this.SetMapCenter();
+            this.UpdateRoutes();
+            this.UpdateCircles();
+            this.UpdatePolygons();
             this.FormsMap.PropertyChanged += OnMapPropertyChanged;
         }
-        
+
+        /// <summary>
+        /// Get the overlay renderer
+        /// </summary>
+        /// <param name="mapView">The <see cref="MKMapView"/></param>
+        /// <param name="overlay">The overlay to render</param>
+        /// <returns>The overlay renderer</returns>
+        private MKOverlayRenderer GetOverlayRenderer(MKMapView mapView, IMKOverlay overlay)
+        {
+            var polyline = overlay as MKPolyline;
+            if (polyline != null)
+            {
+                var route = this._routes[polyline];
+
+                return new MKPolylineRenderer(polyline) 
+                {
+                    FillColor = route.LineColor.ToUIColor(),
+                    LineWidth = route.LineWidth,
+                    StrokeColor = route.LineColor.ToUIColor(),
+                };
+            }
+
+            var mkCircle = overlay as MKCircle;
+            if (mkCircle != null)
+            {
+                var circle = this._circles[mkCircle];
+
+                return new MKCircleRenderer(mkCircle)
+                {
+                    FillColor = circle.Color.ToUIColor(),
+                    StrokeColor = circle.StrokeColor.ToUIColor(),
+                    LineWidth = circle.StrokeWidth
+                };
+            }
+
+            var mkPolygon = overlay as MKPolygon;
+            if (mkPolygon != null)
+            {
+                var polygon = this._polygons[mkPolygon];
+
+                return new MKPolygonRenderer(mkPolygon) 
+                {
+                    FillColor = polygon.FillColor.ToUIColor(),
+                    StrokeColor = polygon.StrokeColor.ToUIColor(),
+                    LineWidth = polygon.StrokeWidth
+                };
+            }
+            return null;
+        }
         /// <summary>
         /// When a property of the forms map changed
         /// </summary>
@@ -84,6 +144,18 @@ namespace TK.CustomMap.iOSUnified
             else if (e.PropertyName == TKCustomMap.MapCenterProperty.PropertyName)
             {
                 this.SetMapCenter();
+            }
+            else if (e.PropertyName == TKCustomMap.RoutesProperty.PropertyName)
+            {
+                this.UpdateRoutes();
+            }
+            else if (e.PropertyName == TKCustomMap.CalloutClickedCommandProperty.PropertyName)
+            {
+                this.UpdatePins();
+            }
+            else if(e.PropertyName == TKCustomMap.PolygonsProperty.PropertyName)
+            {
+                this.UpdatePolygons();
             }
         }
         /// <summary>
@@ -118,7 +190,28 @@ namespace TK.CustomMap.iOSUnified
                     }
                 }
             }
+            else if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                foreach (TKCustomMapAnnotation annotation in this.Map.Annotations)
+                {
+                    annotation.CustomPin.PropertyChanged -= OnPinPropertyChanged;
+                }
+                this._firstUpdate = true;
+                this.UpdatePins();
+            }
         }
+        /// <summary>
+        /// When the accessory control of a callout gets tapped
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnMapCalloutAccessoryControlTapped(object sender, MKMapViewAccessoryTappedEventArgs e)
+        {
+            if (this.FormsMap.CalloutClickedCommand.CanExecute(null))
+            {
+                this.FormsMap.CalloutClickedCommand.Execute(null);
+            }
+        } 
         /// <summary>
         /// When the drag state changed
         /// </summary>
@@ -224,7 +317,7 @@ namespace TK.CustomMap.iOSUnified
                 annotationView = mapView.DequeueReusableAnnotation(AnnotationIdentifier);
             else
                 annotationView = mapView.DequeueReusableAnnotation(AnnotationIdentifierDefaultPin);
-
+            
             if (annotationView == null)
             {
                 if(customAnnotation.CustomPin.Image != null)
@@ -241,6 +334,15 @@ namespace TK.CustomMap.iOSUnified
             annotationView.Selected = this._selectedAnnotation != null && customAnnotation.Equals(this._selectedAnnotation);
             this.SetAnnotationViewVisibility(annotationView, customAnnotation.CustomPin);
             this.UpdateImage(annotationView, customAnnotation.CustomPin);
+
+            if (FormsMap.CalloutClickedCommand != null)
+            {
+                var button = new UIButton(UIButtonType.DetailDisclosure);
+                button.Frame = new CoreGraphics.CGRect(0, 0, 23, 23);
+                button.HorizontalAlignment = UIControlContentHorizontalAlignment.Center;
+                button.VerticalAlignment = UIControlContentVerticalAlignment.Center;
+                annotationView.DetailCalloutAccessoryView = button;
+            }
             
             return annotationView;
         }
@@ -251,7 +353,7 @@ namespace TK.CustomMap.iOSUnified
         {
             this.Map.RemoveAnnotations(this.Map.Annotations);
 
-            if (this.FormsMap.CustomPins == null) return;
+            if (this.FormsMap.CustomPins == null || !this.FormsMap.CustomPins.Any()) return;
 
             foreach (var i in FormsMap.CustomPins)
             {
@@ -268,6 +370,297 @@ namespace TK.CustomMap.iOSUnified
             {
                 this.FormsMap.PinsReadyCommand.Execute(this.FormsMap);
             }
+        }
+        /// <summary>
+        /// Creates the routes
+        /// </summary>
+        private void UpdateRoutes(bool firstUpdate = true)
+        {
+            if (!this._routes.Any()) return;
+
+            this.Map.RemoveOverlays(this._routes.Select(i => i.Key).ToArray());
+            this._routes.Clear();
+
+            if (this.FormsMap.Routes == null) return;
+
+            foreach (var route in this.FormsMap.Routes)
+            {
+                this.AddRoute(route);
+            }
+
+            if (firstUpdate)
+            {
+                var observAble = this.FormsMap.Routes as ObservableCollection<TKRoute>;
+                if (observAble != null)
+                {
+                    observAble.CollectionChanged += OnRouteCollectionChanged;
+                }
+            }
+        }
+        /// <summary>
+        /// Creates the circles on the map
+        /// </summary>
+        private void UpdateCircles(bool firstUpdate = true)
+        {
+            if (!this._circles.Any()) return;
+
+            this.Map.RemoveOverlays(this._circles.Select(i => i.Key).ToArray());
+            this._circles.Clear();
+
+            if (this.FormsMap.Circles == null) return;
+
+            foreach (var circle in this.FormsMap.Circles)
+            {
+                this.AddCircle(circle);
+            }
+            if (firstUpdate)
+            {
+                var observAble = this.FormsMap.Circles as ObservableCollection<TKCircle>;
+                if (observAble != null)
+                {
+                    observAble.CollectionChanged += OnCirclesCollectionChanged;
+                }
+            }
+        }
+        private void UpdatePolygons(bool firstUpdate = true)
+        {
+            if (!this._polygons.Any()) return;
+
+            this.Map.RemoveOverlays(this._polygons.Select(i => i.Key).ToArray());
+            this._polygons.Clear();
+
+            if (this.FormsMap.Polygons == null) return;
+
+            foreach (var poly in this.FormsMap.Polygons)
+            {
+                this.AddPolygon(poly);
+            }
+            if (firstUpdate)
+            {
+                var observAble = this.FormsMap.Polygons as ObservableCollection<TKPolygon>;
+                if (observAble != null)
+                {
+                    observAble.CollectionChanged += OnPolygonsCollectionChanged;
+                }
+            }
+        }
+        /// <summary>
+        /// When the collection of polygons changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnPolygonsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (TKPolygon poly in e.NewItems)
+                {
+                    this.AddPolygon(poly);
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (TKPolygon poly in e.OldItems)
+                {
+                    if (!this.FormsMap.Polygons.Contains(poly))
+                    {
+                        poly.PropertyChanged -= OnPolygonPropertyChanged;
+
+                        var item = this._polygons.SingleOrDefault(i => i.Value.Equals(poly));
+                        if (item.Key != null)
+                        {
+                            this.Map.RemoveOverlay(item.Key);
+                            this._polygons.Remove(item.Key);
+                        }
+                    }
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                foreach (var poly in this._polygons)
+                {
+                    poly.Value.PropertyChanged -= OnPolygonPropertyChanged;
+                }
+                this.UpdatePolygons(false);
+            }
+        }
+        /// <summary>
+        /// Adds a polygon to the map
+        /// </summary>
+        /// <param name="polygon">Polygon to add</param>
+        private void AddPolygon(TKPolygon polygon)
+        {
+            var mkPolygin = MKPolygon.FromCoordinates(polygon.Coordinates.Select(i => i.ToLocationCoordinate()).ToArray());
+            this.Map.AddOverlay(mkPolygin);
+
+            polygon.PropertyChanged += OnPolygonPropertyChanged;
+        }
+        /// <summary>
+        /// When a property of a polygon changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnPolygonPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var poly = (TKPolygon)sender;
+
+            if (poly == null) return;
+
+            var item = this._polygons.SingleOrDefault(i => i.Value.Equals(poly));
+            if (item.Key == null) return;
+
+            this.Map.RemoveOverlay(item.Key);
+            this._polygons.Remove(item.Key);
+
+            var mkPolygon = MKPolygon.FromCoordinates(poly.Coordinates.Select(i => i.ToLocationCoordinate()).ToArray());
+            this._polygons.Add(mkPolygon, poly);
+            this.Map.AddOverlay(mkPolygon);
+        }
+        /// <summary>
+        /// When the circles collection changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnCirclesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (TKCircle circle in e.NewItems)
+                {
+                    this.AddCircle(circle);
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (TKCircle circle in e.OldItems)
+                {
+                    if (!this.FormsMap.Circles.Contains(circle))
+                    {
+                        circle.PropertyChanged -= OnCirclePropertyChanged;
+
+                        var item = this._circles.SingleOrDefault(i => i.Value.Equals(circle));
+                        if (item.Key != null)
+                        {
+                            this.Map.RemoveOverlay(item.Key);
+                            this._circles.Remove(item.Key);
+                        }
+                    }
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                foreach (var circle in this._circles)
+                {
+                    circle.Value.PropertyChanged -= OnCirclePropertyChanged;
+                }
+                this.UpdateCircles(false);
+            }
+        }
+        /// <summary>
+        /// When the route collection changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnRouteCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (TKRoute route in e.NewItems)
+                {
+                    this.AddRoute(route);
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (TKRoute route in e.OldItems)
+                {
+                    if (!this.FormsMap.Routes.Contains(route))
+                    {
+                        route.PropertyChanged -= OnRoutePropertyChanged;
+
+                        var item = this._routes.SingleOrDefault(i => i.Value.Equals(route));
+                        if (item.Key != null)
+                        {
+                            this.Map.RemoveOverlay(item.Key);
+                            this._routes.Remove(item.Key);
+                        }
+                    }
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                foreach (var route in this._routes)
+                {
+                    route.Value.PropertyChanged -= OnRoutePropertyChanged;
+                }
+                this.UpdateRoutes(false);
+            }
+        }
+        /// <summary>
+        /// Adds a route
+        /// </summary>
+        /// <param name="route">The route to add</param>
+        private void AddRoute(TKRoute route)
+        {
+            var polyLine = MKPolyline.FromCoordinates(route.RouteCoordinates.Select(i => i.ToLocationCoordinate()).ToArray());
+            this._routes.Add(polyLine, route);
+            this.Map.AddOverlay(polyLine);
+
+            route.PropertyChanged += OnRoutePropertyChanged;
+        }
+        /// <summary>
+        /// Adds a circle to the map
+        /// </summary>
+        /// <param name="circle">The circle to add</param>
+        private void AddCircle(TKCircle circle)
+        {
+            var mkCircle = MKCircle.Circle(circle.Center.ToLocationCoordinate(), circle.Radius);
+            this._circles.Add(mkCircle, circle);
+            this.Map.AddOverlay(mkCircle);
+
+            circle.PropertyChanged += OnCirclePropertyChanged;
+        }
+        /// <summary>
+        /// When a property of a circle changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnCirclePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var circle = (TKCircle)sender;
+
+            if (circle == null) return;
+
+            var item = this._circles.SingleOrDefault(i => i.Value.Equals(circle));
+            if (item.Key == null) return;
+
+            this.Map.RemoveOverlay(item.Key);
+            this._circles.Remove(item.Key);
+
+            var mkCircle = MKCircle.Circle(circle.Center.ToLocationCoordinate(), circle.Radius);
+            this._circles.Add(mkCircle, circle);
+            this.Map.AddOverlay(mkCircle);
+        }
+        /// <summary>
+        /// When a property of the route changes, re-add the <see cref="MKPolyline"/>
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnRoutePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var route = (TKRoute)sender;
+
+            if(route == null) return;
+
+            var item = this._routes.SingleOrDefault(i => i.Value.Equals(route));
+            if (item.Key == null) return;
+
+            this.Map.RemoveOverlay(item.Key);
+            this._routes.Remove(item.Key);
+
+            var polyLine = MKPolyline.FromCoordinates(route.RouteCoordinates.Select(i => i.ToLocationCoordinate()).ToArray());
+            this._routes.Add(polyLine, route);
+            this.Map.AddOverlay(polyLine);
         }
         /// <summary>
         /// When a property of the pin changed

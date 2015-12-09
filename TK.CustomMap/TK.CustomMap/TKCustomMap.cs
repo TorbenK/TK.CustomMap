@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using TK.CustomMap.Overlays;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
@@ -77,6 +79,34 @@ namespace TK.CustomMap
                 p => p.AnimateMapCenterChange,
                 false);
         /// <summary>
+        /// Bindable Property of <see cref="Routes"/>
+        /// </summary>
+        public static readonly BindableProperty RoutesProperty =
+            BindableProperty.Create<TKCustomMap, IEnumerable<TKRoute>>(
+                p => p.Routes,
+                null);
+        /// <summary>
+        /// Bindable Property of <see cref="Circles"/>
+        /// </summary>
+        public static readonly BindableProperty CirclesProperty =
+            BindableProperty.Create<TKCustomMap, IEnumerable<TKCircle>>(
+                p => p.Circles,
+                null);
+        /// <summary>
+        /// Bindable Property of <see cref="CustomInfoWindow"/>
+        /// </summary>
+        public static readonly BindableProperty CalloutClickedCommandProperty =
+            BindableProperty.Create<TKCustomMap, Command>(
+                p => p.CalloutClickedCommand,
+                null);
+        /// <summary>
+        /// Bindable Property of <see cref="Rectangles"/>
+        /// </summary>
+        public static readonly BindableProperty PolygonsProperty =
+            BindableProperty.Create<TKCustomMap, IEnumerable<TKPolygon>>(
+                p => p.Polygons,
+                null);
+        /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
         public ObservableCollection<TKCustomMapPin> CustomPins
@@ -147,6 +177,39 @@ namespace TK.CustomMap
         {
             get { return (bool)this.GetValue(AnimateMapCenterChangeProperty); }
             set { this.SetValue(AnimateMapCenterChangeProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the routes to display on the map
+        /// </summary>
+        public IEnumerable<TKRoute> Routes
+        {
+            get { return (IEnumerable<TKRoute>)this.GetValue(RoutesProperty); }
+            set { this.SetValue(RoutesProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the circles to display on the map
+        /// </summary>
+        public IEnumerable<TKCircle> Circles
+        {
+            get { return (IEnumerable<TKCircle>)this.GetValue(CirclesProperty); }
+            set { this.SetValue(CirclesProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the command when a callout gets clicked. When this is set, there will be an accessory button visible inside the callout on iOS.
+        /// Android will simply raise the command by clicking anywhere inside the callout, since Android simply renders a bitmap
+        /// </summary>
+        public Command CalloutClickedCommand
+        {
+            get { return (Command)this.GetValue(CalloutClickedCommandProperty); }
+            set { this.SetValue(CalloutClickedCommandProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the rectangles to display on the map
+        /// </summary>
+        public IEnumerable<TKPolygon> Polygons
+        {
+            get { return (IEnumerable<TKPolygon>)this.GetValue(PolygonsProperty); }
+            set { this.SetValue(PolygonsProperty, value); }
         }
     }
 }

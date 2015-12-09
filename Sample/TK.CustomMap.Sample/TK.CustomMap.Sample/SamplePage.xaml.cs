@@ -20,8 +20,9 @@ namespace TK.CustomMap.Sample
 
         private void CreateView()
         {
-            var autoComplete = new GooglePlacesAutoComplete();
-            autoComplete.SetBinding(GooglePlacesAutoComplete.PlaceSelectedCommandProperty, "PlaceSelectedCommand");
+
+            var autoComplete = new PlacesAutoComplete { ApiToUse = PlacesAutoComplete.PlacesApi.Osm };
+            autoComplete.SetBinding(PlacesAutoComplete.PlaceSelectedCommandProperty, "PlaceSelectedCommand");
 
             var mapView = new TKCustomMap();
             mapView.SetBinding(TKCustomMap.CustomPinsProperty, "Pins");
@@ -30,6 +31,11 @@ namespace TK.CustomMap.Sample
             mapView.SetBinding(TKCustomMap.MapCenterProperty, "MapCenter");
             mapView.SetBinding(TKCustomMap.PinSelectedCommandProperty, "PinSelectedCommand");
             mapView.SetBinding(TKCustomMap.SelectedPinProperty, "SelectedPin");
+            mapView.SetBinding(TKCustomMap.RoutesProperty, "Routes");
+            mapView.SetBinding(TKCustomMap.PinDragEndCommandProperty, "DragEndCommand");
+            mapView.SetBinding(TKCustomMap.CirclesProperty, "Circles");
+            mapView.SetBinding(TKCustomMap.CalloutClickedCommandProperty, "CalloutClickedCommand");
+            mapView.SetBinding(TKCustomMap.PolygonsProperty, "Polygons");
             mapView.AnimateMapCenterChange = true;
 
 

@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Collections.ObjectModel;
+using TK.CustomMap.Overlays;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 namespace TK.CustomMap.Droid
@@ -22,6 +24,11 @@ namespace TK.CustomMap.Droid
     {
         private bool _init = true;
 
+        private IVisualElementRenderer _customInfoRenderer;
+
+        private readonly Dictionary<TKRoute, Polyline> _routes = new Dictionary<TKRoute, Polyline>();
+        private readonly Dictionary<TKCircle, Circle> _circles = new Dictionary<TKCircle, Circle>();
+        private readonly Dictionary<TKPolygon, Polygon> _polygons = new Dictionary<TKPolygon, Polygon>();
         private readonly Dictionary<TKCustomMapPin, Marker> _markers = new Dictionary<TKCustomMapPin, Marker>();
         private Marker _selectedMarker;
         private bool _isDragging;
@@ -89,6 +96,18 @@ namespace TK.CustomMap.Droid
             {
                 this.MoveToCenter();
             }
+            else if (e.PropertyName == TKCustomMap.RoutesProperty.PropertyName)
+            {
+                this.UpdateRoutes();
+            }
+            else if (e.PropertyName == TKCustomMap.CirclesProperty.PropertyName)
+            {
+                this.UpdateCircles();
+            }
+            else if (e.PropertyName == TKCustomMap.PolygonsProperty.PropertyName)
+            {
+                this.UpdatePolygons();
+            }
         }
         /// <summary>
         /// When the map is ready to use
@@ -105,9 +124,25 @@ namespace TK.CustomMap.Droid
             this._googleMap.MarkerDrag += OnMarkerDrag;
             this._googleMap.CameraChange += OnCameraChange;
             this._googleMap.MarkerDragStart += OnMarkerDragStart;
+            this._googleMap.InfoWindowClick += OnInfoWindowClick;
 
             this.MoveToCenter();
             this.UpdatePins();
+            this.UpdateRoutes();
+            this.UpdateCircles();
+            this.UpdatePolygons();
+        }
+        /// <summary>
+        /// When the info window gets clicked
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnInfoWindowClick(object sender, GoogleMap.InfoWindowClickEventArgs e)
+        {
+            if (this.FormsMap.CalloutClickedCommand != null && this.FormsMap.CalloutClickedCommand.CanExecute(null))
+            {
+                this.FormsMap.CalloutClickedCommand.Execute(null);
+            }
         }
         /// <summary>
         /// Dragging process
@@ -232,6 +267,15 @@ namespace TK.CustomMap.Droid
                     }
                 }
             }
+            else if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                foreach (var item in this._markers)
+                {
+                    item.Key.PropertyChanged -= OnPinPropertyChanged;
+                }
+                this._firstUpdate = true;
+                this.UpdatePins();
+            }
         }
         /// <summary>
         /// When a property of a pin changed
@@ -277,6 +321,66 @@ namespace TK.CustomMap.Droid
             }
         }
         /// <summary>
+        /// Collection of routes changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnRouteCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (TKRoute route in e.NewItems)
+                {
+                    this.AddRoute(route);
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (TKRoute route in e.OldItems)
+                {
+                    if (!this.FormsMap.Routes.Contains(route))
+                    {
+                        this._routes[route].Remove();
+                        route.PropertyChanged -= OnRoutePropertyChanged;
+                        this._routes.Remove(route);
+                    }
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                this.UpdateRoutes(false);
+            }
+        }
+        /// <summary>
+        /// A property of a route changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnRoutePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var route = (TKRoute)sender;
+
+            if (e.PropertyName == TKRoute.RouteCoordinatesPropertyName)
+            {
+                if (route.RouteCoordinates != null && route.RouteCoordinates.Count > 1)
+                {
+                    this._routes[route].Points = new List<LatLng>(route.RouteCoordinates.Select(i => i.ToLatLng()));
+                }
+                else
+                {
+                    this._routes[route].Points = null;
+                }
+            }
+            else if (e.PropertyName == TKRoute.LineColorPropertyName)
+            {
+                this._routes[route].Color = route.LineColor.ToAndroid().ToArgb();
+            }
+            else if (e.PropertyName == TKRoute.LineWidthProperty)
+            {
+                this._routes[route].Width = route.LineWidth;
+            }
+        }
+        /// <summary>
         /// Creates all Markers on the map
         /// </summary>
         private async void UpdatePins()
@@ -288,7 +392,7 @@ namespace TK.CustomMap.Droid
 
             var items = this.FormsMap.CustomPins;
 
-            if (items == null) return;
+            if (items == null || !items.Any()) return;
 
             foreach (var pin in items)
             {
@@ -404,5 +508,282 @@ namespace TK.CustomMap.Droid
                 }
             }
         }
+        /// <summary>
+        /// Creates the routes on the map
+        /// </summary>
+        private void UpdateRoutes(bool firstUpdate = true)
+        {
+            if (this._googleMap == null) return;
+
+            foreach (var i in this._routes)
+            {
+                i.Key.PropertyChanged -= OnRoutePropertyChanged;
+                i.Value.Remove();
+            }
+            this._routes.Clear();
+
+            if (this.FormsMap.Routes != null)
+            {
+                foreach (var route in this.FormsMap.Routes)
+                {
+                    this.AddRoute(route);
+                }
+
+                if (firstUpdate)
+                {
+                    var observAble = this.FormsMap.Routes as ObservableCollection<TKRoute>;
+                    if (observAble != null)
+                    {
+                        observAble.CollectionChanged += OnRouteCollectionChanged;
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Updates all circles
+        /// </summary>
+        private void UpdateCircles(bool firstUpdate = true)
+        {
+            if (this._googleMap == null) return;
+
+            foreach (var i in this._circles)
+            {
+                i.Key.PropertyChanged -= CirclePropertyChanged;
+                i.Value.Remove();
+            }
+            if (this.FormsMap.Circles != null)
+            {
+                foreach (var circle in this.FormsMap.Circles)
+                {
+                    this.AddCircle(circle);
+                }
+                if (firstUpdate)
+                {
+                    var observAble = this.FormsMap.Circles as ObservableCollection<TKCircle>;
+                    if (observAble != null)
+                    {
+                        observAble.CollectionChanged += CirclesCollectionChanged;
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Creates the polygones on the map
+        /// </summary>
+        /// <param name="firstUpdate">If the collection updates the first time</param>
+        private void UpdatePolygons(bool firstUpdate = true)
+        {
+            if (this._googleMap == null) return;
+
+            foreach (var i in this._polygons)
+            {
+                i.Key.PropertyChanged -= OnPolygonPropertyChanged;
+                i.Value.Remove();
+            }
+            if (this.FormsMap.Polygons != null)
+            {
+                foreach (var i in this.FormsMap.Polygons)
+                {
+                    this.AddPolygon(i);
+                }
+                if (firstUpdate)
+                {
+                    var observAble = this.FormsMap.Polygons as ObservableCollection<TKPolygon>;
+                    if (observAble != null)
+                    {
+                        observAble.CollectionChanged += OnPolygonsCollectionChanged;
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// When the polygon collection changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnPolygonsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (TKPolygon poly in e.NewItems)
+                {
+                    this.AddPolygon(poly);
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (TKPolygon poly in e.OldItems)
+                {
+                    if (!this.FormsMap.Polygons.Contains(poly))
+                    {
+                        this._polygons[poly].Remove();
+                        poly.PropertyChanged -= OnPolygonPropertyChanged;
+                        this._polygons.Remove(poly);
+                    }
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                this.UpdatePolygons(false);
+            }
+        }
+        /// <summary>
+        /// Adds a polygon to the map
+        /// </summary>
+        /// <param name="polygon">The polygon to add</param>
+        private void AddPolygon(TKPolygon polygon)
+        {
+            polygon.PropertyChanged += OnPolygonPropertyChanged;
+
+            var polygonOptions = new PolygonOptions();
+
+            if (polygon.Coordinates != null && polygon.Coordinates.Any())
+            {
+                polygonOptions.Add(polygon.Coordinates.Select(i => i.ToLatLng()).ToArray());
+            }
+            if (polygon.FillColor != Color.Default)
+            {
+                polygonOptions.InvokeFillColor(polygon.FillColor.ToAndroid().ToArgb());
+            }
+            if (polygon.StrokeColor != Color.Default)
+            {
+                polygonOptions.InvokeStrokeColor(polygon.StrokeColor.ToAndroid().ToArgb());
+            }
+            polygonOptions.InvokeStrokeWidth(polygonOptions.StrokeWidth);
+
+            this._polygons.Add(polygon, this._googleMap.AddPolygon(polygonOptions));
+        }
+        /// <summary>
+        /// When a property of a <see cref="TKPolygon"/> changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnPolygonPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var tkPolygon = (TKPolygon)sender;
+
+            switch (e.PropertyName)
+            {
+                case TKPolygon.CoordinatesPropertyName:
+                    this._polygons[tkPolygon].Points = tkPolygon.Coordinates.Select(i => i.ToLatLng()).ToList();
+                    break;
+                case TKPolygon.FillColorPropertyName:
+                    this._polygons[tkPolygon].FillColor = tkPolygon.FillColor.ToAndroid().ToArgb();
+                    break;
+                case TKPolygon.StrokeColorPropertyName:
+                    this._polygons[tkPolygon].StrokeColor = tkPolygon.StrokeColor.ToAndroid().ToArgb();
+                    break;
+                case TKPolygon.StrokeWidthPropertyName:
+                    this._polygons[tkPolygon].StrokeWidth = tkPolygon.StrokeWidth;
+                    break;
+            }
+        }
+        /// <summary>
+        /// When the circle collection changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void CirclesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if(e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (TKCircle circle in e.NewItems)
+                {
+                    this.AddCircle(circle);
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (TKCircle circle in e.OldItems)
+                {
+                    if (!this.FormsMap.Circles.Contains(circle))
+                    {
+                        circle.PropertyChanged -= CirclePropertyChanged;
+                        this._circles[circle].Remove();
+                        this._circles.Remove(circle);
+                    }
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                this.UpdateCircles(false);
+            }
+        }
+        /// <summary>
+        /// Adds a circle to the map
+        /// </summary>
+        /// <param name="circle">The circle to add</param>
+        private void AddCircle(TKCircle circle)
+        {
+            circle.PropertyChanged += CirclePropertyChanged;
+
+            var circleOptions = new CircleOptions();
+
+            circleOptions.InvokeRadius(circle.Radius);
+            circleOptions.InvokeCenter(circle.Center.ToLatLng());
+
+            if (circle.Color != Color.Default)
+            {
+                circleOptions.InvokeFillColor(circle.Color.ToAndroid().ToArgb());
+            }
+            if (circle.StrokeColor != Color.Default)
+            {
+                circleOptions.InvokeStrokeColor(circle.StrokeColor.ToAndroid().ToArgb());
+            }
+            circleOptions.InvokeStrokeWidth(circle.StrokeWidth);
+            this._circles.Add(circle, this._googleMap.AddCircle(circleOptions));
+        }
+        /// <summary>
+        /// When a property of a <see cref="TKCircle"/> changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void CirclePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var tkCircle = (TKCircle)sender;
+            var circle = this._circles[tkCircle];
+
+            switch(e.PropertyName)
+            {
+                case TKCircle.RadiusPropertyName:
+                    circle.Radius = tkCircle.Radius;
+                    break;
+                case TKCircle.CenterPropertyName:
+                    circle.Center = tkCircle.Center.ToLatLng();
+                    break;
+                case TKCircle.ColorPropertyName:
+                    circle.FillColor = tkCircle.Color.ToAndroid().ToArgb();
+                    break;
+                case TKCircle.StrokeColorPropertyName:
+                    circle.StrokeColor = tkCircle.StrokeColor.ToAndroid().ToArgb();
+                    break;
+            }
+        }
+        /// <summary>
+        /// Adds a route to the map
+        /// </summary>
+        /// <param name="route">The route to add</param>
+        private void AddRoute(TKRoute route)
+        {
+            route.PropertyChanged += OnRoutePropertyChanged;
+
+            var polylineOptions = new PolylineOptions();
+            if (route.LineColor != Color.Default)
+            {
+                polylineOptions.InvokeColor(route.LineColor.ToAndroid().ToArgb());
+            }
+            if (route.LineWidth > 0)
+            {
+                polylineOptions.InvokeWidth(route.LineWidth);
+            }
+
+            if (route.RouteCoordinates != null)
+            {
+                polylineOptions.Add(route.RouteCoordinates.Select(i => i.ToLatLng()).ToArray());
+            }
+
+            this._routes.Add(route, this._googleMap.AddPolyline(polylineOptions));
+        }
+
     }
 }

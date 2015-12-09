@@ -12,6 +12,7 @@ namespace TK.CustomMap.Sample
         public App()
         {
             GmsPlace.Init("YOUR API KEY");
+            GmsDirection.Init("YOUR API KEY");
 
             // The root page of your application
             MainPage = new SamplePage();

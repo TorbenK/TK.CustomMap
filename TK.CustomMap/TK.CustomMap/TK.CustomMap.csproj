@@ -36,12 +36,32 @@
     <DocumentationFile>bin\Release\TK.CustomMap.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Api\Google\GmsDetailsResult.cs" />
-    <Compile Include="Api\Google\GmsDetailsResultItem.cs" />
-    <Compile Include="Api\Google\GmsDetailsResultStatus.cs" />
-    <Compile Include="Api\Google\GmsPlace.cs" />
-    <Compile Include="Api\Google\GmsPlacePrediction.cs" />
-    <Compile Include="Api\Google\GmsPlaceResult.cs" />
+    <Compile Include="Api\Google\Directions\GmsDirectionResultBounds.cs" />
+    <Compile Include="Api\Google\Directions\GmsDirectionResultLeg.cs" />
+    <Compile Include="Api\Google\Directions\GmsDirectionResultLegStep.cs" />
+    <Compile Include="Api\Google\Directions\GmsDirectionResultStatus.cs" />
+    <Compile Include="Api\Google\Directions\GmsDirectionTravelMode.cs" />
+    <Compile Include="Api\Google\GmsLocation.cs" />
+    <Compile Include="Api\Google\GmsTextValue.cs" />
+    <Compile Include="Api\Google\Places\GmsDetailsResult.cs" />
+    <Compile Include="Api\Google\Places\GmsDetailsResultItem.cs" />
+    <Compile Include="Api\Google\Places\GmsDetailsResultStatus.cs" />
+    <Compile Include="Api\Google\Directions\GmsDirection.cs" />
+    <Compile Include="Api\Google\Directions\GmsDirectionResult.cs" />
+    <Compile Include="Api\Google\Places\GmsPlace.cs" />
+    <Compile Include="Api\Google\Places\GmsPlacePrediction.cs" />
+    <Compile Include="Api\Google\Places\GmsPlaceResult.cs" />
+    <Compile Include="Api\Google\Directions\GmsPolyline.cs" />
+    <Compile Include="Api\Google\Directions\GmsRouteResult.cs" />
+    <Compile Include="Api\Google\Directions\GooglePoints.cs" />
+    <Compile Include="Api\IPlaceResult.cs" />
+    <Compile Include="Api\OSM\OsmNominatim.cs" />
+    <Compile Include="Api\OSM\OsmNominatimResult.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Overlays\TKCircle.cs" />
+    <Compile Include="Overlays\TKPolygon.cs" />
+    <Compile Include="Overlays\TKRoute.cs" />
+    <Compile Include="TKBase.cs" />
     <Compile Include="TKCustomMap.cs" />
     <Compile Include="TKCustomMapPin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

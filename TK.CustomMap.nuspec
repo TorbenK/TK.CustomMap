@@ -14,19 +14,26 @@
       TK.CustomMap provides the following enhancements to the Xamarin.Forms.Maps.Map:
       
       - Bindable Pins
-      - Bindable Map Center
+        - Change Image of Pins
+        - Make Pins Draggable
+        - Hide Pins
       - Bindable Selected Pin
-      - Hide Pins
-      - Change Icons of pins
-      - Make Pins draggable
-      - Map Long Press Command
-      - Map Clicked Command
-      - Drag End Command
+      - Bindable Map Center
+      - Bindable Routes
+      - Bindable Circles
+      - Bindable Polygons
+      - Map Commands
+        - Long Press
+        - Click
+        - Pin Selected
+        - Drag End
+        - Pins Ready
+        - Callout click
       
       TK.CustomMap also provides the possiblitly to send requests to the Google Places API to get place predictions.
     </description>
     <summary>Extended Map Control of the Xamarin.Forms.Maps.Map</summary>
-    <tags>xamarin, pcl, xam.pcl, plugin for xamarin, plugin, map, android, xamarin.forms, ios, monoandroid, monodroid, monotouch</tags>
+    <tags>xamarin, pcl, xam.pcl, plugin for xamarin, plugin, map, android, xamarin.forms, xamarin.forms.maps, extended map, custom map, ios, monoandroid, monodroid, monotouch</tags>
     <dependencies>
       <group>
         <dependency id="Xamarin.Forms" version="2.0.0.6490" />
