@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TK.CustomMap.Api.Google;
+﻿using TK.CustomMap.Api.Google;
 using Xamarin.Forms;
 
 namespace TK.CustomMap.Sample
@@ -12,7 +8,7 @@ namespace TK.CustomMap.Sample
         public App()
         {
             GmsPlace.Init("YOUR API KEY");
-            GmsDirection.Init("YOUR API KEY");
+            GmsDirection.Init("AIzaSyCpAu6gru_MOol9M3Kg4ZNIMrEnRl9JS6A");
 
             // The root page of your application
             MainPage = new SamplePage();

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TK.CustomMap.Api;
 using TK.CustomMap.Api.Google;
 using TK.CustomMap.Api.OSM;
@@ -237,6 +234,7 @@ namespace TK.CustomMap.Sample
                     if(this.Routes != null)
                         this.Routes.Clear();
                     this.Circles.Clear();
+                    this.Polygons.Clear();
                 });
             }
         }
