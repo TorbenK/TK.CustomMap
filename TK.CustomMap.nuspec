@@ -26,7 +26,7 @@
       TK.CustomMap also provides the possiblitly to send requests to the Google Places API to get place predictions.
     </description>
     <summary>Extended Map Control of the Xamarin.Forms.Maps.Map</summary>
-    <tags>xamarin, pcl, xam.pcl, plugin for xamarin, plugin, map, android, xamarin.forms, ios, monoandroid, monodroid, monotouch</tags>
+    <tags>xamarin, pcl, xam.pcl, plugin for xamarin, plugin, map, android, xamarin.forms, xamarin.forms.maps, extended map, custom map, ios, monoandroid, monodroid, monotouch</tags>
     <dependencies>
       <group>
         <dependency id="Xamarin.Forms" version="2.0.0.6490" />
