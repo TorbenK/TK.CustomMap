@@ -1,8 +1,8 @@
-﻿using ModernHttpClient;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ModernHttpClient;
+using Newtonsoft.Json;
 
 namespace TK.CustomMap.Api.Google
 {

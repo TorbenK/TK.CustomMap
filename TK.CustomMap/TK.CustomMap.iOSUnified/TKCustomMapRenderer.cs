@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using TK.CustomMap;
-using System.Linq;
-using Xamarin.Forms;
-using TK.CustomMap.iOSUnified;
-using Xamarin.Forms.Platform.iOS;
-using Xamarin.Forms.Maps.iOS;
-using MapKit;
-using System.ComponentModel;
-using UIKit;
-using System.Collections.Specialized;
-using Foundation;
-using TK.CustomMap.Overlays;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Linq;
+using CoreGraphics;
+using Foundation;
+using MapKit;
+using TK.CustomMap;
+using TK.CustomMap.iOSUnified;
+using TK.CustomMap.Overlays;
+using UIKit;
+using Xamarin.Forms;
+using Xamarin.Forms.Maps.iOS;
+using Xamarin.Forms.Platform.iOS;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 
@@ -163,7 +163,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event sender</param>
         /// <param name="e">Event arguments</param>
-        private void OnCollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
@@ -337,11 +337,11 @@ namespace TK.CustomMap.iOSUnified
 
             if (FormsMap.CalloutClickedCommand != null)
             {
-                var button = new UIButton(UIButtonType.DetailDisclosure);
-                button.Frame = new CoreGraphics.CGRect(0, 0, 23, 23);
+                var button = new UIButton(UIButtonType.InfoLight);
+                button.Frame = new CGRect(0, 0, 23, 23);
                 button.HorizontalAlignment = UIControlContentHorizontalAlignment.Center;
                 button.VerticalAlignment = UIControlContentVerticalAlignment.Center;
-                annotationView.DetailCalloutAccessoryView = button;
+                annotationView.RightCalloutAccessoryView = button;
             }
             
             return annotationView;
@@ -376,10 +376,11 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         private void UpdateRoutes(bool firstUpdate = true)
         {
-            if (!this._routes.Any()) return;
-
-            this.Map.RemoveOverlays(this._routes.Select(i => i.Key).ToArray());
-            this._routes.Clear();
+            if (this._routes.Any())
+            {
+                this.Map.RemoveOverlays(this._routes.Select(i => i.Key).ToArray());
+                this._routes.Clear();
+            }
 
             if (this.FormsMap.Routes == null) return;
 
@@ -402,10 +403,11 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         private void UpdateCircles(bool firstUpdate = true)
         {
-            if (!this._circles.Any()) return;
-
-            this.Map.RemoveOverlays(this._circles.Select(i => i.Key).ToArray());
-            this._circles.Clear();
+            if (this._circles.Any())
+            {
+                this.Map.RemoveOverlays(this._circles.Select(i => i.Key).ToArray());
+                this._circles.Clear();
+            }
 
             if (this.FormsMap.Circles == null) return;
 
@@ -422,12 +424,17 @@ namespace TK.CustomMap.iOSUnified
                 }
             }
         }
+        /// <summary>
+        /// Create the polygons
+        /// </summary>
+        /// <param name="firstUpdate">If the collection updates the first time</param>
         private void UpdatePolygons(bool firstUpdate = true)
         {
-            if (!this._polygons.Any()) return;
-
-            this.Map.RemoveOverlays(this._polygons.Select(i => i.Key).ToArray());
-            this._polygons.Clear();
+            if (this._polygons.Any())
+            {
+                this.Map.RemoveOverlays(this._polygons.Select(i => i.Key).ToArray());
+                this._polygons.Clear();
+            }
 
             if (this.FormsMap.Polygons == null) return;
 
@@ -490,8 +497,9 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="polygon">Polygon to add</param>
         private void AddPolygon(TKPolygon polygon)
         {
-            var mkPolygin = MKPolygon.FromCoordinates(polygon.Coordinates.Select(i => i.ToLocationCoordinate()).ToArray());
-            this.Map.AddOverlay(mkPolygin);
+            var mkPolygon = MKPolygon.FromCoordinates(polygon.Coordinates.Select(i => i.ToLocationCoordinate()).ToArray());
+            this._polygons.Add(mkPolygon, polygon);
+            this.Map.AddOverlay(mkPolygon);
 
             polygon.PropertyChanged += OnPolygonPropertyChanged;
         }

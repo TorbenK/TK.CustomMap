@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TK.CustomMap.Api;
 using TK.CustomMap.Api.Google;
 using TK.CustomMap.Api.OSM;
