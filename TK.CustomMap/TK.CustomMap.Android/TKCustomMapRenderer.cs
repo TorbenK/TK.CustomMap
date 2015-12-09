@@ -1,18 +1,18 @@
 using System;
-using System.Linq;
-using Android.Gms.Maps;
-using Xamarin.Forms;
-using Xamarin.Forms.Maps.Android;
-using TK.CustomMap;
-using Xamarin.Forms.Platform.Android;
-using TK.CustomMap.Droid;
-using Android.Gms.Maps.Model;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using Android.Gms.Maps;
+using Android.Gms.Maps.Model;
+using TK.CustomMap;
+using TK.CustomMap.Droid;
 using TK.CustomMap.Overlays;
+using Xamarin.Forms;
+using Xamarin.Forms.Maps.Android;
+using Xamarin.Forms.Platform.Android;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 namespace TK.CustomMap.Droid

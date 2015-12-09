@@ -1,9 +1,6 @@
 ﻿using CoreLocation;
 using Foundation;
 using MapKit;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace TK.CustomMap.iOSUnified
 {

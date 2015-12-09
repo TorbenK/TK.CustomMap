@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TK.CustomMap.Api.Google;
+﻿using TK.CustomMap.Api.Google;
 using Xamarin.Forms;
 
 namespace TK.CustomMap.Sample
