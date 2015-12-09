@@ -12,16 +12,12 @@ https://www.nuget.org/packages/TK.CustomMap/
  * Hide Pins
 * Bindable Selected Pin
 * Bindable Map Center
-* Bindable Routes
-* Bindable Circles
-* Bindable Polygons
 * Map Commands
   * Long Press
   * Click
   * Pin Selected
   * Drag End
   * Pins Ready
-  * Callout click
 
 ### Example
 
@@ -38,7 +34,7 @@ Make sure you have set the following permissions included in the manifest:
 Set your Google Maps API Key:
 ```XML
 <application>
-	<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="YOUR API KEY" />
+		<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="YOUR API KEY" />
 </application>
 ```
 
@@ -76,23 +72,15 @@ mapView.SetBinding(TKCustomMap.MapLongPressCommandProperty, "MapLongPressCommand
 mapView.SetBinding(TKCustomMap.MapCenterProperty, "MapCenter");
 mapView.SetBinding(TKCustomMap.PinSelectedCommandProperty, "PinSelectedCommand");
 mapView.SetBinding(TKCustomMap.SelectedPinProperty, "SelectedPin");
-mapView.SetBinding(TKCustomMap.RoutesProperty, "Routes");
-mapView.SetBinding(TKCustomMap.PinDragEndCommandProperty, "DragEndCommand");
-mapView.SetBinding(TKCustomMap.CirclesProperty, "Circles");
-mapView.SetBinding(TKCustomMap.CalloutClickedCommandProperty, "CalloutClickedCommand");
-mapView.SetBinding(TKCustomMap.PolygonsProperty, "Polygons");
 mapView.AnimateMapCenterChange = true;
 ```
 
 ### Extra Features
 
-* Google Maps Places API Wrapper(API Key needed) https://developers.google.com/places/
+* Google Maps Places API Wrapper(API Key needed)
  * Get Place predictions
  * Get Place details
-* Google Maps Directions API Wrapper(API Key needed) https://developers.google.com/maps/documentation/directions/
- * Calculate Routes
-* OSM Nominatim API Wrapper http://wiki.openstreetmap.org/wiki/Nominatim
- * Get Place predictions
+
 
 ### Example
 
@@ -104,7 +92,6 @@ You need to set your Google Maps Places API Key before you can perform any call.
 public App()
 {
     GmsPlace.Init("Your API Key");
-    GmsDirection.Init("YOUR API KEY");
 
     // The root page of your application
     MainPage = new SamplePage();
@@ -116,10 +103,7 @@ public App()
 To get a list of predictions(to fill an Autocomplete for example):
 
 ```C#
-// Google Maps Places
 GmsPlaceResult predictions = await GmsPlace.Instance.GetPredictions("Sydney");
-// OSM Nominatim
-IEnumerable<OsmNominatimResult> predictions = await OsmNominatim.Instance.GetPredictions("Sydney");
 ```
 
 To get the details of a prediction:
