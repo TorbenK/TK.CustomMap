@@ -38,7 +38,7 @@ Make sure you have set the following permissions included in the manifest:
 Set your Google Maps API Key:
 ```XML
 <application>
-		<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="YOUR API KEY" />
+	<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="YOUR API KEY" />
 </application>
 ```
 
@@ -86,12 +86,12 @@ mapView.AnimateMapCenterChange = true;
 
 ### Extra Features
 
-* Google Maps Places API Wrapper(API Key needed)
+* Google Maps Places API Wrapper(API Key needed) https://developers.google.com/places/
  * Get Place predictions
  * Get Place details
-* Google Maps Directions API Wrapper(API Key needed)
+* Google Maps Directions API Wrapper(API Key needed) https://developers.google.com/maps/documentation/directions/
  * Calculate Routes
-* OSM Nominatim API Wrapper
+* OSM Nominatim API Wrapper http://wiki.openstreetmap.org/wiki/Nominatim
  * Get Place predictions
 
 ### Example
