@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <title>Custom Map Control for Xamarin Forms</title>
     <authors>Torben Kruse</authors>
     <owners>Torben Kruse</owners>
@@ -30,7 +30,14 @@
         - Pins Ready
         - Callout click
       
-      TK.CustomMap also provides the possiblitly to send requests to the Google Places API to get place predictions.
+      Extra Features:
+      - Google Maps Places API Wrapper(API Key needed) https://developers.google.com/places/
+        - Get Place predictions
+        - Get Place details
+      Google Maps Directions API Wrapper(API Key needed) https://developers.google.com/maps/documentation/directions/
+        - Calculate Routes
+      OSM Nominatim API Wrapper http://wiki.openstreetmap.org/wiki/Nominatim
+        - Get Place predictions
     </description>
     <summary>Extended Map Control of the Xamarin.Forms.Maps.Map</summary>
     <tags>xamarin, pcl, xam.pcl, plugin for xamarin, plugin, map, android, xamarin.forms, xamarin.forms.maps, extended map, custom map, ios, monoandroid, monodroid, monotouch</tags>
@@ -48,8 +55,16 @@
       </group>
     </dependencies>
     <releaseNotes>
-      [1.0.0] 
+      [1.1.0] 
       Beta Release
+      
+      New:
+      - OSM Nominatim API Wrapper
+      - Google Maps Directions API Wrapper
+      - Adding Circles, Routes and Polygons to the map
+      - Callouts can be clicked
+      Fixed:
+      - Clearing an observable Collection of Pins will now update the map correctly
     </releaseNotes>
   </metadata>
   <files>

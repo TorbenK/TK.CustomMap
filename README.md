@@ -61,7 +61,14 @@ Make sure you call ```TKCustomMapRenderer.InitMapRenderer();```
       MapClickedCommand="{Binding MapClickedCommand}" 
       MapLongPressCommand="{Binding MapLongPressCommand}" 
       MapCenter="{Binding MapCenter}" 
-      AnimateMapCenterChange="True" /> 
+      AnimateMapCenterChange="True"
+      PinSelectedCommand="{Binding PinSelectedCommand}"
+      SelectedPin="{Binding SelectedPin}"
+      Routes="{Binding Routes}"
+      PinDragEndCommand="{Binding DragEndCommand}"
+      Circles="{Binding Circles}"
+      CalloutClickedCommand="{Binding CalloutClickedCommand}"
+      Polygons="{Binding Polygons}"/> 
   </StackLayout>
 </ContentPage>
 ```
@@ -132,8 +139,8 @@ GmsDetailsResult details = await GmsPlace.Instance.GetDetails(predictions.Predic
 
 ### Android
 
-[![Android](http://i.imgur.com/HDrntbk.png)](https://www.youtube.com/watch?v=fNcpbqqNUfQ "Android")
+[![Android](http://i.imgur.com/HDrntbk.png)](http://youtu.be/r2Sm6F15nMU "Android")
 
 ### iOS
 
-[![iOS](http://i.imgur.com/q8uuh7q.png)](https://youtu.be/e1k6nnYtZ8w "iOS")
+[![iOS](http://i.imgur.com/q8uuh7q.png)](https://youtu.be/J7Ud6JHmWUM "iOS")
