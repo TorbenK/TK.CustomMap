@@ -12,12 +12,16 @@ https://www.nuget.org/packages/TK.CustomMap/
  * Hide Pins
 * Bindable Selected Pin
 * Bindable Map Center
+* Bindable Routes
+* Bindable Circles
+* Bindable Polygons
 * Map Commands
   * Long Press
   * Click
   * Pin Selected
   * Drag End
   * Pins Ready
+  * Callout click
 
 ### Example
 
@@ -72,6 +76,11 @@ mapView.SetBinding(TKCustomMap.MapLongPressCommandProperty, "MapLongPressCommand
 mapView.SetBinding(TKCustomMap.MapCenterProperty, "MapCenter");
 mapView.SetBinding(TKCustomMap.PinSelectedCommandProperty, "PinSelectedCommand");
 mapView.SetBinding(TKCustomMap.SelectedPinProperty, "SelectedPin");
+mapView.SetBinding(TKCustomMap.RoutesProperty, "Routes");
+mapView.SetBinding(TKCustomMap.PinDragEndCommandProperty, "DragEndCommand");
+mapView.SetBinding(TKCustomMap.CirclesProperty, "Circles");
+mapView.SetBinding(TKCustomMap.CalloutClickedCommandProperty, "CalloutClickedCommand");
+mapView.SetBinding(TKCustomMap.PolygonsProperty, "Polygons");
 mapView.AnimateMapCenterChange = true;
 ```
 
@@ -80,7 +89,10 @@ mapView.AnimateMapCenterChange = true;
 * Google Maps Places API Wrapper(API Key needed)
  * Get Place predictions
  * Get Place details
-
+* Google Maps Directions API Wrapper(API Key needed)
+ * Calculate Routes
+* OSM Nominatim API Wrapper
+ * Get Place predictions
 
 ### Example
 
@@ -92,6 +104,7 @@ You need to set your Google Maps Places API Key before you can perform any call.
 public App()
 {
     GmsPlace.Init("Your API Key");
+    GmsDirection.Init("YOUR API KEY");
 
     // The root page of your application
     MainPage = new SamplePage();
@@ -103,7 +116,10 @@ public App()
 To get a list of predictions(to fill an Autocomplete for example):
 
 ```C#
+// Google Maps Places
 GmsPlaceResult predictions = await GmsPlace.Instance.GetPredictions("Sydney");
+// OSM Nominatim
+IEnumerable<OsmNominatimResult> predictions = await OsmNominatim.Instance.GetPredictions("Sydney");
 ```
 
 To get the details of a prediction:
