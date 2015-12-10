@@ -13,6 +13,7 @@ using TK.CustomMap.Overlays;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps.Android;
 using Xamarin.Forms.Platform.Android;
+using Xamarin.Forms.Maps;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 namespace TK.CustomMap.Droid
@@ -23,8 +24,6 @@ namespace TK.CustomMap.Droid
     public class TKCustomMapRenderer : MapRenderer, IOnMapReadyCallback
     {
         private bool _init = true;
-
-        private IVisualElementRenderer _customInfoRenderer;
 
         private readonly Dictionary<TKRoute, Polyline> _routes = new Dictionary<TKRoute, Polyline>();
         private readonly Dictionary<TKCircle, Circle> _circles = new Dictionary<TKCircle, Circle>();
@@ -48,7 +47,7 @@ namespace TK.CustomMap.Droid
 
             MapView mapView = this.Control as MapView;
             if (mapView == null) return;
-
+            
             if (this.FormsMap != null && this._googleMap == null)
             {
                 mapView.GetMapAsync(this);
@@ -371,9 +370,9 @@ namespace TK.CustomMap.Droid
                     this._routes[route].Points = null;
                 }
             }
-            else if (e.PropertyName == TKRoute.LineColorPropertyName)
+            else if (e.PropertyName == TKRoute.ColorPropertyName)
             {
-                this._routes[route].Color = route.LineColor.ToAndroid().ToArgb();
+                this._routes[route].Color = route.Color.ToAndroid().ToArgb();
             }
             else if (e.PropertyName == TKRoute.LineWidthProperty)
             {
@@ -494,6 +493,8 @@ namespace TK.CustomMap.Droid
         /// </summary>
         private void MoveToCenter()
         {
+            if (this._googleMap == null) return;
+
             if (!this.FormsMap.MapCenter.Equals(this._googleMap.CameraPosition.Target.ToPosition()))
             {
                 var cameraUpdate = CameraUpdateFactory.NewLatLng(this.FormsMap.MapCenter.ToLatLng());
@@ -641,9 +642,9 @@ namespace TK.CustomMap.Droid
             {
                 polygonOptions.Add(polygon.Coordinates.Select(i => i.ToLatLng()).ToArray());
             }
-            if (polygon.FillColor != Color.Default)
+            if (polygon.Color != Color.Default)
             {
-                polygonOptions.InvokeFillColor(polygon.FillColor.ToAndroid().ToArgb());
+                polygonOptions.InvokeFillColor(polygon.Color.ToAndroid().ToArgb());
             }
             if (polygon.StrokeColor != Color.Default)
             {
@@ -667,8 +668,8 @@ namespace TK.CustomMap.Droid
                 case TKPolygon.CoordinatesPropertyName:
                     this._polygons[tkPolygon].Points = tkPolygon.Coordinates.Select(i => i.ToLatLng()).ToList();
                     break;
-                case TKPolygon.FillColorPropertyName:
-                    this._polygons[tkPolygon].FillColor = tkPolygon.FillColor.ToAndroid().ToArgb();
+                case TKPolygon.ColorPropertyName:
+                    this._polygons[tkPolygon].FillColor = tkPolygon.Color.ToAndroid().ToArgb();
                     break;
                 case TKPolygon.StrokeColorPropertyName:
                     this._polygons[tkPolygon].StrokeColor = tkPolygon.StrokeColor.ToAndroid().ToArgb();
@@ -768,9 +769,9 @@ namespace TK.CustomMap.Droid
             route.PropertyChanged += OnRoutePropertyChanged;
 
             var polylineOptions = new PolylineOptions();
-            if (route.LineColor != Color.Default)
+            if (route.Color != Color.Default)
             {
-                polylineOptions.InvokeColor(route.LineColor.ToAndroid().ToArgb());
+                polylineOptions.InvokeColor(route.Color.ToAndroid().ToArgb());
             }
             if (route.LineWidth > 0)
             {
@@ -784,6 +785,5 @@ namespace TK.CustomMap.Droid
 
             this._routes.Add(route, this._googleMap.AddPolyline(polylineOptions));
         }
-
     }
 }

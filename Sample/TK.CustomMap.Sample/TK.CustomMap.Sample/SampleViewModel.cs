@@ -116,7 +116,7 @@ namespace TK.CustomMap.Sample
                         this._polygons.Add(new TKPolygon 
                         {
                             Coordinates = this._pins.Select(i => i.Position).ToList(),
-                            FillColor = Color.FromRgba(0, 0, 120, 80),
+                            Color = Color.FromRgba(0, 0, 120, 80),
                             StrokeColor = Color.Navy,
                             StrokeWidth = 0.2f
                         });
@@ -143,7 +143,7 @@ namespace TK.CustomMap.Sample
                         var route = new TKRoute
                         {
                             LineWidth = 3,
-                            LineColor = Color.Blue,
+                            Color = Color.Blue,
                             RouteCoordinates = new List<Position>(routeResult.Routes.First().Polyline.Positions)
                         };
                         this._routes.Add(route);

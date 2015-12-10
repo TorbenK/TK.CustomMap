@@ -59,6 +59,7 @@
     <Compile Include="Api\OSM\OsmNominatimResult.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Overlays\TKCircle.cs" />
+    <Compile Include="Overlays\TKOverlay.cs" />
     <Compile Include="Overlays\TKPolygon.cs" />
     <Compile Include="Overlays\TKRoute.cs" />
     <Compile Include="TKBase.cs" />

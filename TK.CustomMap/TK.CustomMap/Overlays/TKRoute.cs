@@ -7,14 +7,12 @@ namespace TK.CustomMap.Overlays
     /// <summary>
     /// A route to display on the map
     /// </summary>
-    public class TKRoute : TKBase
+    public class TKRoute : TKOverlay
     {
         public const string RouteCoordinatesPropertyName = "RouteCoordinates";
-        public const string LineColorPropertyName = "LineColor";
         public const string LineWidthProperty = "LineWidth";
 
         private List<Position> _routeCoordinates;
-        private Color _color;
         private float _lineWidth;
 
         /// <summary>
@@ -24,14 +22,6 @@ namespace TK.CustomMap.Overlays
         {
             get { return this._routeCoordinates; }
             set { this.SetField(ref this._routeCoordinates, value); }
-        }
-        /// <summary>
-        /// Color of the route
-        /// </summary>
-        public Color LineColor
-        {
-            get { return this._color; }
-            set { this.SetField(ref this._color, value); }
         }
         /// <summary>
         /// Gets/Sets the width of the line

@@ -6,16 +6,14 @@ namespace TK.CustomMap.Overlays
     /// <summary>
     /// Displaying a circle on the map
     /// </summary>
-    public class TKCircle : TKBase
+    public class TKCircle : TKOverlay
     {
         public const string RadiusPropertyName = "Radius";
-        public const string ColorPropertyName = "Color";
         public const string StrokeColorPropertyName = "StrokeColor";
         public const string CenterPropertyName = "Center";
         public const string StrokeWidthPropertyName = "StrokeWidth";
 
         private double _radius;
-        private Color _color;
         private Color _strokeColor;
         private Position _center;
         private float _strokeWidth;
@@ -26,14 +24,6 @@ namespace TK.CustomMap.Overlays
         {
             get { return this._radius; }
             set { this.SetField(ref this._radius, value); }
-        }
-        /// <summary>
-        /// Gets/Sets the color of the circle
-        /// </summary>
-        public Color Color
-        {
-            get { return this._color; }
-            set { this.SetField(ref this._color, value); }
         }
         /// <summary>
         /// Gets/Sets the stroke color of the circle
