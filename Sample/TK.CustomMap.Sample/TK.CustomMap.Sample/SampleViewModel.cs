@@ -206,10 +206,12 @@ namespace TK.CustomMap.Sample
             {
                 return new Command<TKCustomMapPin>(async pin => 
                 {
-                    if (this._routes == null) return;
-                    if (!this._pinRoutes.ContainsKey(pin)) return;
+                    var myPin = (MyPin)pin;
 
-                    var route = this._pinRoutes[pin];
+                    if (this._routes == null) return;
+                    if (!this._pinRoutes.ContainsKey(myPin)) return;
+
+                    var route = this._pinRoutes[myPin];
 
                     var routeResult = await GmsDirection.Instance.CalculateRoute(
                        this._pins.First().Position,
@@ -271,9 +273,9 @@ namespace TK.CustomMap.Sample
         public SampleViewModel()
         {
             this._mapCenter = new Position(40.7142700, -74.0059700);
-            this._pins = new ObservableCollection<TKCustomMapPin>(new TKCustomMapPin[] 
+            this._pins = new ObservableCollection<TKCustomMapPin>(new MyPin[] 
             {
-                new TKCustomMapPin
+                new MyPin
                 {
                     Position = new Position(40.7142700, -74.0059700),
                     ShowCallout = false,
