@@ -727,6 +727,9 @@ namespace TK.CustomMap.iOSUnified
                 case TKCustomMapPin.ImagePropertyName:
                     this.UpdateImage(annotationView, formsPin);
                     break;
+                case TKCustomMapPin.DefaultPinColorPropertyName:
+                    this.UpdateImage(annotationView, formsPin);
+                    break;
                 case TKCustomMapPin.IsDraggablePropertyName:
                     annotationView.Draggable = formsPin.IsDraggable;
                     break;
@@ -781,7 +784,14 @@ namespace TK.CustomMap.iOSUnified
                 if (pinAnnotationView != null)
                 {
                     pinAnnotationView.AnimatesDrop = true;
-                    pinAnnotationView.PinTintColor = UIColor.Red;
+                    if (pin.DefaultPinColor != Color.Default)
+                    {
+                        pinAnnotationView.PinTintColor = pin.DefaultPinColor.ToUIColor();
+                    }
+                    else
+                    {
+                        pinAnnotationView.PinTintColor = UIColor.Red;
+                    }
                 }
             }
         }

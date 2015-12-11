@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:tkmap="clr-namespace:TK.CustomMap;assembly=TK.CustomMap"
              x:Class="TK.CustomMap.Sample.SamplePage">
-  <!--<StackLayout>
+  <StackLayout>
     <Grid VerticalOptions="FillAndExpand">
       <RelativeLayout x:Name="_baseLayout" VerticalOptions="FillAndExpand" />
     </Grid>
@@ -11,11 +11,11 @@
       <Button Command="{Binding ClearEverythingCommand}" Text="Clear Map" />
       <Button Command="{Binding AddCircleCommand}" Text="Add Circle" />
     </StackLayout>
-  </StackLayout>-->
-  <StackLayout>
-    <!--<SearchBar />-->
+  </StackLayout>
+  <!--<StackLayout>
+    --><!--<SearchBar />--><!--
     <tkmap:TKCustomMap/>
-      <!--CustomPins="{Binding Pins}" 
+      --><!--CustomPins="{Binding Pins}" 
       MapClickedCommand="{Binding MapClickedCommand}" 
       MapLongPressCommand="{Binding MapLongPressCommand}" 
       MapCenter="{Binding MapCenter}" 
@@ -26,6 +26,6 @@
       PinDragEndCommand="{Binding DragEndCommand}"
       Circles="{Binding Circles}"
       CalloutClickedCommand="{Binding CalloutClickedCommand}"
-      Polygons="{Binding Polygons}"/>--> 
-  </StackLayout>
+      Polygons="{Binding Polygons}"/>--><!-- 
+  </StackLayout>-->
 </ContentPage>

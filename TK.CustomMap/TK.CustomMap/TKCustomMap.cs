@@ -105,6 +105,14 @@ namespace TK.CustomMap
                 p => p.Polygons,
                 null);
         /// <summary>
+        /// Bindable Property of <see cref="MapRegion"/>
+        /// </summary>
+        public static readonly BindableProperty MapRegionProperty =
+            BindableProperty.Create<TKCustomMap, MapSpan>(
+                p => p.MapRegion,
+                default(MapSpan),
+                propertyChanged: MapRegionChanged);
+        /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
         public ObservableCollection<TKCustomMapPin> CustomPins
@@ -208,6 +216,40 @@ namespace TK.CustomMap
         {
             get { return (IEnumerable<TKPolygon>)this.GetValue(PolygonsProperty); }
             set { this.SetValue(PolygonsProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the visible map region
+        /// </summary>
+        public MapSpan MapRegion
+        {
+            get { return (MapSpan)this.GetValue(MapRegionProperty); }
+            set { this.SetValue(MapRegionProperty, value); }
+        }
+        /// <summary>
+        /// When <see cref="MapRegion"/> changed
+        /// </summary>
+        /// <param name="obj">The custom map</param>
+        /// <param name="oldValue">Old value</param>
+        /// <param name="newValue">New value</param>
+        private static void MapRegionChanged(BindableObject obj, MapSpan oldValue, MapSpan newValue)
+        {
+            var customMap = obj as TKCustomMap;
+            if (customMap == null) return;
+
+            if (!customMap.MapRegion.Equals(customMap.VisibleRegion))
+            {
+                customMap.MoveToRegion(customMap.MapRegion);
+            }
+        }
+        /// <inheritdoc/>
+        protected override void OnPropertyChanged(string propertyName = null)
+        {
+            base.OnPropertyChanged(propertyName);
+
+            if (propertyName == "VisibleRegion")
+            {
+                this.MapRegion = this.VisibleRegion;
+            }
         }
     }
 }

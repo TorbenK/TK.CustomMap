@@ -13,6 +13,8 @@ namespace TK.CustomMap.Sample
 {
     public class SampleViewModel : INotifyPropertyChanged
     {
+        private TKRoute _selectedRoute;
+
         private Position _mapCenter;
         private TKCustomMapPin _selectedPin;
         private ObservableCollection<TKCustomMapPin> _pins;
@@ -106,7 +108,8 @@ namespace TK.CustomMap.Sample
                         Position = position,
                         Title = string.Format("Pin {0}, {1}", position.Latitude, position.Longitude),
                         ShowCallout = true,
-                        IsDraggable = true
+                        IsDraggable = true,
+                        DefaultPinColor = Color.Aqua
                     };
 
                     this._pins.Add(pin);
@@ -160,6 +163,35 @@ namespace TK.CustomMap.Sample
                 return new Command<Position>((positon) => 
                 {
                     this.SelectedPin = null;
+
+                    
+                    if (this._routes != null)
+                    {
+                        bool _routeSelected = false;
+                        foreach (var r in this._routes)
+                        {
+
+                            bool hit = TKPolyUtil.IsLocationOnPath(positon, r.RouteCoordinates, true, 5);
+
+                            if (hit)
+                            {
+                                if(_selectedRoute != null)
+                                {
+                                    _selectedRoute.Color = Color.Blue;
+                                }
+                                _selectedRoute = r;
+                                r.Color = Color.Red;
+                                _routeSelected = true;
+                                break;
+                            }
+                        }
+                        if (!_routeSelected && _selectedRoute != null)
+                        {
+                            _selectedRoute.Color = Color.Blue;
+                            _selectedRoute = null;
+                        }
+                    }
+                    
                 });
             }
         }
@@ -259,13 +291,29 @@ namespace TK.CustomMap.Sample
             {
                 return new Command(() => 
                 {
-                    this._circles.Add(new TKCircle 
+                    var addCirclePage = new AddCirclePage();
+                    addCirclePage.AddCircle += (o, e) => 
                     {
-                        Color = Color.FromRgba(0, 150, 0, 80),
-                        Center = this.MapCenter,
-                        StrokeWidth = 0,
-                        Radius = 1000
-                    });
+                        this._circles.Add(
+                            new TKCircle 
+                            {
+                                Color = e.Model.Color,
+                                Center = this.MapCenter,
+                                StrokeWidth = 0,
+                                Radius = e.Model.Radius
+                            });
+
+                        Application.Current.MainPage.Navigation.PopModalAsync();
+                    };
+                    Application.Current.MainPage.Navigation.PushModalAsync(addCirclePage);
+
+                    //this._circles.Add(new TKCircle 
+                    //{
+                    //    Color = Color.FromRgba(0, 150, 0, 80),
+                    //    Center = this.MapCenter,
+                    //    StrokeWidth = 0,
+                    //    Radius = 1000
+                    //});
                 });
             }
         }

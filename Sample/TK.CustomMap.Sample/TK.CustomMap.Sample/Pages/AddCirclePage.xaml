@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:TK.CustomMap.Sample"
+             x:Class="TK.CustomMap.Sample.AddCirclePage">
+  <ContentPage.Resources>
+    <ResourceDictionary>
+      <local:TextDoubleConverter x:Key="TextToDouble" />
+    </ResourceDictionary>
+  </ContentPage.Resources>
+  <StackLayout>
+    <StackLayout 
+      Padding="5"
+      Orientation="Horizontal">
+      <Button Text="Cancel" HorizontalOptions="StartAndExpand" BackgroundColor="Transparent" BorderColor="Transparent" />
+      <Button Text="Add" HorizontalOptions="End" BackgroundColor="Transparent" BorderColor="Transparent" Clicked="AddCircleClicked" />
+    </StackLayout>
+    <BoxView HeightRequest="1" Color="Black" HorizontalOptions="FillAndExpand" />
+    <TableView Intent="Form">
+      <TableView.Root>
+        <TableSection Title="Settings">
+          <ViewCell>
+            <ViewCell.View>
+              <StackLayout Orientation="Horizontal" Padding="5">
+                <Label Text="Radius" VerticalOptions="Center" />
+                <Entry Keyboard="Numeric" Text="{Binding Radius, Converter={StaticResource TextToDouble}}" HorizontalOptions="FillAndExpand" />
+              </StackLayout>
+            </ViewCell.View>
+          </ViewCell>
+          <ViewCell>
+            <ViewCell.View>
+              <StackLayout Orientation="Horizontal" Padding="5">
+                <Label Text="Color" VerticalOptions="Center" />
+                <Slider Minimum="0" Maximum="4294967295" Value="{Binding ArgbColor}" HorizontalOptions="FillAndExpand" />
+              </StackLayout>
+            </ViewCell.View>
+          </ViewCell>
+        </TableSection>
+        <TableSection Title="Color Preview">
+          <ViewCell>
+            <ViewCell.View>
+              <BoxView VerticalOptions="FillAndExpand" BackgroundColor="{Binding Color}" />
+            </ViewCell.View>
+          </ViewCell>
+        </TableSection>
+      </TableView.Root>
+    </TableView>
+  </StackLayout>
+</ContentPage>

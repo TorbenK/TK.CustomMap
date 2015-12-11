@@ -281,7 +281,7 @@ namespace TK.CustomMap.Droid
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-        private async void OnPinPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnPinPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var pin = sender as TKCustomMapPin;
             if (pin == null) return;
@@ -298,15 +298,10 @@ namespace TK.CustomMap.Droid
                     marker.Snippet = pin.Subtitle;
                     break;
                 case TKCustomMapPin.ImagePropertyName:
-                    if (pin.Image != null)
-                    {
-                        var icon = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image, this.Context);
-                        marker.SetIcon(BitmapDescriptorFactory.FromBitmap(icon));
-                    }
-                    else
-                    {
-                        marker.SetIcon(BitmapDescriptorFactory.DefaultMarker());
-                    }
+                    this.UpdateImage(pin, marker);
+                    break;
+                case TKCustomMapPin.DefaultPinColorPropertyName:
+                    this.UpdateImage(pin, marker);
                     break;
                 case TKCustomMapPin.PositionPropertyName:
                     if (!this._isDragging)
@@ -423,24 +418,7 @@ namespace TK.CustomMap.Droid
             if (!string.IsNullOrWhiteSpace(pin.Subtitle))
                 markerWithIcon.SetSnippet(pin.Subtitle);
 
-            BitmapDescriptor bitmap;
-            try
-            {
-                if (pin.Image != null)
-                {
-                    var icon = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image, this.Context);
-                    bitmap = BitmapDescriptorFactory.FromBitmap(icon);
-                }
-                else
-                {
-                    bitmap = BitmapDescriptorFactory.DefaultMarker();
-                }
-            }
-            catch (Exception)
-            {
-                bitmap = BitmapDescriptorFactory.DefaultMarker();
-            }
-            markerWithIcon.SetIcon(bitmap);
+            this.UpdateImage(pin, markerWithIcon);
             markerWithIcon.Draggable(pin.IsDraggable);
             markerWithIcon.Visible(pin.IsVisible);
 
@@ -784,6 +762,72 @@ namespace TK.CustomMap.Droid
             }
 
             this._routes.Add(route, this._googleMap.AddPolyline(polylineOptions));
+        }
+        /// <summary>
+        /// Updates the image of a pin
+        /// </summary>
+        /// <param name="pin">The forms pin</param>
+        /// <param name="markerOptions">The native marker options</param>
+        private async void UpdateImage(TKCustomMapPin pin, MarkerOptions markerOptions)
+        {
+            BitmapDescriptor bitmap;
+            try
+            {
+                if (pin.Image != null)
+                {
+                    var icon = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image, this.Context);
+                    bitmap = BitmapDescriptorFactory.FromBitmap(icon);
+                }
+                else
+                {
+                    if (pin.DefaultPinColor != Color.Default)
+                    {
+                        bitmap = BitmapDescriptorFactory.DefaultMarker(pin.DefaultPinColor.ToAndroid().GetHue());
+                    }
+                    else
+                    {
+                        bitmap = BitmapDescriptorFactory.DefaultMarker();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                bitmap = BitmapDescriptorFactory.DefaultMarker();
+            }
+            markerOptions.SetIcon(bitmap);
+        }
+        /// <summary>
+        /// Updates the image on a marker
+        /// </summary>
+        /// <param name="pin">The forms pin</param>
+        /// <param name="marker">The native marker</param>
+        private async void UpdateImage(TKCustomMapPin pin, Marker marker)
+        {
+            BitmapDescriptor bitmap;
+            try
+            {
+                if (pin.Image != null)
+                {
+                    var icon = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image, this.Context);
+                    bitmap = BitmapDescriptorFactory.FromBitmap(icon);
+                }
+                else
+                {
+                    if (pin.DefaultPinColor != Color.Default)
+                    {
+                        bitmap = BitmapDescriptorFactory.DefaultMarker((float)pin.DefaultPinColor.Hue);
+                    }
+                    else
+                    {
+                        bitmap = BitmapDescriptorFactory.DefaultMarker();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                bitmap = BitmapDescriptorFactory.DefaultMarker();
+            }
+            marker.SetIcon(bitmap);
         }
     }
 }
