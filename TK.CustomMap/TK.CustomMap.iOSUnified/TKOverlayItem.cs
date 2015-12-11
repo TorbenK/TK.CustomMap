@@ -1,7 +1,4 @@
 ﻿using MapKit;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using TK.CustomMap.Overlays;
 
 namespace TK.CustomMap.iOSUnified

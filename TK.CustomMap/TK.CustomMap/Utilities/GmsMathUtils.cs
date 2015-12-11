@@ -16,18 +16,14 @@
 
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace TK.CustomMap
+namespace TK.CustomMap.Utilities
 {
     /// <summary>
     /// This is a java to c# port from 
     /// https://github.com/googlemaps/android-maps-utils/blob/dba3b0d8a9657ebab8c67a4f50bd731437a229bc/library/src/com/google/maps/android/MathUtil.java
     /// </summary>
-    public class TKMathUtils
+    public class GmsMathUtils
     {
         public const double EarthRadius = 6371009;
 

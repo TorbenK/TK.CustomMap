@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.Overlays

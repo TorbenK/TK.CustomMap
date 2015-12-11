@@ -13,7 +13,6 @@ using TK.CustomMap.Overlays;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps.Android;
 using Xamarin.Forms.Platform.Android;
-using Xamarin.Forms.Maps;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 namespace TK.CustomMap.Droid
@@ -236,7 +235,7 @@ namespace TK.CustomMap.Droid
             if (this.FormsMap == null || this.FormsMap.MapClickedCommand == null) return;
 
             var position = e.Point.ToPosition();
-
+            
             if (this.FormsMap.MapClickedCommand.CanExecute(position))
             {
                 this.FormsMap.MapClickedCommand.Execute(position);

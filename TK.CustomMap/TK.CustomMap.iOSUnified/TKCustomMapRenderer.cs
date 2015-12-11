@@ -483,7 +483,7 @@ namespace TK.CustomMap.iOSUnified
                     {
                         poly.PropertyChanged -= OnPolygonPropertyChanged;
 
-                        var item = this._polygons.SingleOrDefault(i => i.Value.Equals(poly));
+                        var item = this._polygons.SingleOrDefault(i => i.Value.Overlay.Equals(poly));
                         if (item.Key != null)
                         {
                             this.Map.RemoveOverlay(item.Key);
@@ -524,12 +524,23 @@ namespace TK.CustomMap.iOSUnified
 
             if (poly == null) return;
 
-            var item = this._polygons.SingleOrDefault(i => i.Value.Equals(poly));
+            var item = this._polygons.SingleOrDefault(i => i.Value.Overlay.Equals(poly));
             if (item.Key == null) return;
 
             if (e.PropertyName != TKPolygon.CoordinatesPropertyName)
             {
-                this.Map.SetNeedsDisplay();
+                if (e.PropertyName == TKPolygon.StrokeColorPropertyName)
+                {
+                    item.Value.Renderer.StrokeColor = item.Value.Overlay.StrokeColor.ToUIColor();
+                }
+                else if (e.PropertyName == TKPolygon.ColorPropertyName)
+                {
+                    item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
+                }
+                else if (e.PropertyName == TKPolygon.StrokeWidthPropertyName)
+                {
+                    item.Value.Renderer.LineWidth = item.Value.Overlay.StrokeWidth;
+                }
                 return;
             }
 
@@ -562,7 +573,7 @@ namespace TK.CustomMap.iOSUnified
                     {
                         circle.PropertyChanged -= OnCirclePropertyChanged;
 
-                        var item = this._circles.SingleOrDefault(i => i.Value.Equals(circle));
+                        var item = this._circles.SingleOrDefault(i => i.Value.Overlay.Equals(circle));
                         if (item.Key != null)
                         {
                             this.Map.RemoveOverlay(item.Key);
@@ -602,7 +613,7 @@ namespace TK.CustomMap.iOSUnified
                     {
                         route.PropertyChanged -= OnRoutePropertyChanged;
 
-                        var item = this._routes.SingleOrDefault(i => i.Value.Equals(route));
+                        var item = this._routes.SingleOrDefault(i => i.Value.Overlay.Equals(route));
                         if (item.Key != null)
                         {
                             this.Map.RemoveOverlay(item.Key);
@@ -656,13 +667,24 @@ namespace TK.CustomMap.iOSUnified
 
             if (circle == null) return;
 
-            var item = this._circles.SingleOrDefault(i => i.Value.Equals(circle));
+            var item = this._circles.SingleOrDefault(i => i.Value.Overlay.Equals(circle));
             if (item.Key == null) return;
 
             if (e.PropertyName != TKCircle.CenterPropertyName &&
                 e.PropertyName != TKCircle.RadiusPropertyName)
             {
-                this.Map.SetNeedsDisplay();
+                if (e.PropertyName == TKCircle.ColorPropertyName)
+                {
+                    item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
+                }
+                else if (e.PropertyName == TKCircle.StrokeColorPropertyName)
+                {
+                    item.Value.Renderer.StrokeColor = item.Value.Overlay.StrokeColor.ToUIColor();
+                }
+                else if (e.PropertyName == TKCircle.StrokeWidthPropertyName)
+                {
+                    item.Value.Renderer.LineWidth = item.Value.Overlay.StrokeWidth;
+                }
                 return;
             }
 
@@ -684,12 +706,19 @@ namespace TK.CustomMap.iOSUnified
 
             if(route == null) return;
 
-            var item = this._routes.SingleOrDefault(i => i.Value.Equals(route));
+            var item = this._routes.SingleOrDefault(i => i.Value.Overlay.Equals(route));
             if (item.Key == null) return;
 
             if (e.PropertyName != TKRoute.RouteCoordinatesPropertyName)
             {
-                this.Map.SetNeedsDisplay();
+                if (e.PropertyName == TKRoute.ColorPropertyName)
+                {
+                    item.Value.Renderer.StrokeColor = item.Value.Overlay.Color.ToUIColor();
+                }
+                else if (e.PropertyName == TKRoute.LineWidthProperty)
+                {
+                    item.Value.Renderer.LineWidth = item.Value.Overlay.LineWidth;
+                }
                 return;
             }
 

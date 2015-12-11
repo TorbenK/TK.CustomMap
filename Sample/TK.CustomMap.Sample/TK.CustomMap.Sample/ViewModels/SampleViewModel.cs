@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using TK.CustomMap.Api;
 using TK.CustomMap.Api.Google;
 using TK.CustomMap.Api.OSM;
 using TK.CustomMap.Overlays;
+using TK.CustomMap.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
@@ -103,7 +105,7 @@ namespace TK.CustomMap.Sample
             {
                 return new Command<Position>(async position => 
                 {
-                    var pin = new TKCustomMapPin 
+                    var pin = new MyPin 
                     {
                         Position = position,
                         Title = string.Format("Pin {0}, {1}", position.Latitude, position.Longitude),
@@ -171,7 +173,7 @@ namespace TK.CustomMap.Sample
                         foreach (var r in this._routes)
                         {
 
-                            bool hit = TKPolyUtil.IsLocationOnPath(positon, r.RouteCoordinates, true, 5);
+                            bool hit = GmsPolyUtil.IsLocationOnPath(positon, r.RouteCoordinates, true, 5);
 
                             if (hit)
                             {
@@ -189,6 +191,17 @@ namespace TK.CustomMap.Sample
                         {
                             _selectedRoute.Color = Color.Blue;
                             _selectedRoute = null;
+                        }
+                        if(_routeSelected) return;
+                    }
+                    if (this._polygons != null)
+                    {
+                        foreach (var p in this._polygons)
+                        {
+                            if (GmsPolyUtil.ContainsLocation(positon, p.Coordinates, true))
+                            {
+                                p.Color = Color.Red;
+                            }
                         }
                     }
                     

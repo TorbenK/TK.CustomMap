@@ -17,19 +17,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xamarin.Forms.Maps;
 
-namespace TK.CustomMap
+namespace TK.CustomMap.Utilities
 {
     /// <summary>
     /// This is a java to c# port from
     /// https://github.com/googlemaps/android-maps-utils/blob/dba3b0d8a9657ebab8c67a4f50bd731437a229bc/library/src/com/google/maps/android/PolyUtil.java
     /// </summary>
-    public class TKPolyUtil
+    public class GmsPolyUtil
     {
-         private const double DEFAULT_TOLERANCE = 0.1;  // meters.
+         private const double DefaultTolerance = 0.1;  // meters.
 
         /// <summary>
         /// Returns tan(latitude-at-lng3) on the great circle (lat1, lng1) to (lat2, lng2). lng1==0.
@@ -54,7 +52,7 @@ namespace TK.CustomMap
         /// <returns></returns>
         private static double MercatorLatRhumb(double lat1, double lat2, double lng2, double lng3)
         {
-            return (TKMathUtils.Mercator(lat1) * (lng2 - lng3) + TKMathUtils.Mercator(lat2) * lng3) / lng2;
+            return (GmsMathUtils.Mercator(lat1) * (lng2 - lng3) + GmsMathUtils.Mercator(lat2) * lng3) / lng2;
         }
         /// <summary>
         /// Computes whether the vertical segment (lat3, lng3) to South Pole intersects the segment
@@ -110,7 +108,7 @@ namespace TK.CustomMap
             // Compare through a strictly-increasing function (Math.Tan() or mercator()) as convenient.
             return geodesic ?
                 Math.Tan(lat3) >= TanLatGC(lat1, lat2, lng2, lng3) :
-                TKMathUtils.Mercator(lat3) >= MercatorLatRhumb(lat1, lat2, lng2, lng3);
+                GmsMathUtils.Mercator(lat3) >= MercatorLatRhumb(lat1, lat2, lng2, lng3);
         }
 
         /// <summary>
@@ -139,7 +137,7 @@ namespace TK.CustomMap
 
             foreach(var point2 in polygon)
             {
-                double dLng3 = TKMathUtils.Wrap(lng3 - lng1, -Math.PI, Math.PI);
+                double dLng3 = GmsMathUtils.Wrap(lng3 - lng1, -Math.PI, Math.PI);
                 // Special case: point equal to vertex is inside.
                 if (lat3 == lat1 && dLng3 == 0) {
                     return true;
@@ -147,7 +145,7 @@ namespace TK.CustomMap
                 double lat2 = point2.Latitude.ToRadian();
                 double lng2 = point2.Longitude.ToRadian();
                 // Offset longitudes by -lng1.
-                if (Intersects(lat1, lat2, TKMathUtils.Wrap(lng2 - lng1, -Math.PI, Math.PI), lat3, dLng3, geodesic)) {
+                if (Intersects(lat1, lat2, GmsMathUtils.Wrap(lng2 - lng1, -Math.PI, Math.PI), lat3, dLng3, geodesic)) {
                     ++nIntersect;
                 }
                 lat1 = lat2;
@@ -181,7 +179,7 @@ namespace TK.CustomMap
         /// <returns></returns>
         public static bool IsLocationOnEdge(Position point, IEnumerable<Position> polygon, bool geodesic)
         {
-            return IsLocationOnEdge(point, polygon, geodesic, DEFAULT_TOLERANCE);
+            return IsLocationOnEdge(point, polygon, geodesic, DefaultTolerance);
         }
         /// <summary>
         ///  Computes whether the given point lies on or near a polyline, within a specified
@@ -210,7 +208,26 @@ namespace TK.CustomMap
         public static bool IsLocationOnPath(Position point, IEnumerable<Position> polyline,
                                            bool geodesic)
         {
-            return IsLocationOnPath(point, polyline, geodesic, DEFAULT_TOLERANCE);
+            return IsLocationOnPath(point, polyline, geodesic, DefaultTolerance);
+        }
+        /// <summary>
+        /// Calculates the tolerence by zoom/center latitude http://www.programcreek.com/java-api-examples/index.php?api=com.google.maps.android.PolyUtil
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="polyline"></param>
+        /// <param name="geodesic"></param>
+        /// <param name="zoom"></param>
+        /// <param name="centerLatitude"></param>
+        /// <returns></returns>
+        public static bool IsLocationOnPath(Position point, IEnumerable<Position> polyline, bool geodesic, int zoom, double centerLatitude)
+        {
+            // how many meters away form the click can the geometry be?
+            double circumferenceOfEarthInMeters = 2 * Math.PI * 6371000;
+            // double tileWidthAtZoomLevelAtEquatorInDegrees = 360.0/Math.pow(2.0, map.getCameraPosition().zoom);
+            double pixelSizeInMetersAtLatitude = (circumferenceOfEarthInMeters * Math.Cos(centerLatitude * (Math.PI / 180.0))) / Math.Pow(2.0, zoom + 8.0);
+            double tolerance = pixelSizeInMetersAtLatitude * Math.Sqrt(2.0) * 10.0;
+
+            return IsLocationOnPath(point, polyline, geodesic, tolerance);
         }
 
         private static bool IsLocationOnEdgeOrPath(Position point, IEnumerable<Position> poly, bool closed,
@@ -219,8 +236,8 @@ namespace TK.CustomMap
             int size = poly.Count();
             if (size == 0) return false;
             
-            double tolerance = toleranceEarth / TKMathUtils.EarthRadius;
-            double havTolerance = TKMathUtils.Hav(tolerance);
+            double tolerance = toleranceEarth / GmsMathUtils.EarthRadius;
+            double havTolerance = GmsMathUtils.Hav(tolerance);
             double lat3 = point.Latitude.ToRadian();
             double lng3 = point.Longitude.ToRadian();
             Position prev = poly.ElementAt(closed ? size - 1 : 0); 
@@ -248,19 +265,19 @@ namespace TK.CustomMap
                 // "tolerance" is small.
                 double minAcceptable = lat3 - tolerance;
                 double maxAcceptable = lat3 + tolerance;
-                double y1 = TKMathUtils.Mercator(lat1);
-                double y3 = TKMathUtils.Mercator(lat3);
+                double y1 = GmsMathUtils.Mercator(lat1);
+                double y3 = GmsMathUtils.Mercator(lat3);
                 double[] xTry = new double[3];
 
                 foreach(var point2 in poly)
                 {
                     double lat2 = point2.Latitude.ToRadian();
-                    double y2 = TKMathUtils.Mercator(lat2);
+                    double y2 = GmsMathUtils.Mercator(lat2);
                     double lng2 = point2.Longitude.ToRadian();
                     if (Math.Max(lat1, lat2) >= minAcceptable && Math.Min(lat1, lat2) <= maxAcceptable) {
                         // We offset longitudes by -lng1; the implicit x1 is 0.
-                        double x2 = TKMathUtils.Wrap(lng2 - lng1, -Math.PI, Math.PI);
-                        double x3Base = TKMathUtils.Wrap(lng3 - lng1, -Math.PI, Math.PI);
+                        double x2 = GmsMathUtils.Wrap(lng2 - lng1, -Math.PI, Math.PI);
+                        double x3Base = GmsMathUtils.Wrap(lng3 - lng1, -Math.PI, Math.PI);
                         xTry[0] = x3Base;
                         // Also explore wrapping of x3Base around the world in both directions.
                         xTry[1] = x3Base + 2 * Math.PI;
@@ -270,11 +287,11 @@ namespace TK.CustomMap
                         {
                             double dy = y2 - y1;
                             double len2 = x2 * x2 + dy * dy;
-                            double t = len2 <= 0 ? 0 : TKMathUtils.Clamp((x3 * x2 + (y3 - y1) * dy) / len2, 0, 1);
+                            double t = len2 <= 0 ? 0 : GmsMathUtils.Clamp((x3 * x2 + (y3 - y1) * dy) / len2, 0, 1);
                             double xClosest = t * x2;
                             double yClosest = y1 + t * dy;
-                            double latClosest = TKMathUtils.InverseMercator(yClosest);
-                            double havDist = TKMathUtils.HavDistance(lat3, latClosest, x3 - xClosest);
+                            double latClosest = GmsMathUtils.InverseMercator(yClosest);
+                            double havDist = GmsMathUtils.HavDistance(lat3, latClosest, x3 - xClosest);
                             if (havDist < havTolerance) {
                                 return true;
                             }
@@ -290,24 +307,24 @@ namespace TK.CustomMap
         private static bool IsOnSegmentGC(double lat1, double lng1, double lat2, double lng2,
                                          double lat3, double lng3, double havTolerance)
         {
-            double havDist13 = TKMathUtils.HavDistance(lat1, lat3, lng1 - lng3);
+            double havDist13 = GmsMathUtils.HavDistance(lat1, lat3, lng1 - lng3);
             if (havDist13 <= havTolerance)
             {
                 return true;
             }
-            double havDist23 = TKMathUtils.HavDistance(lat2, lat3, lng2 - lng3);
+            double havDist23 = GmsMathUtils.HavDistance(lat2, lat3, lng2 - lng3);
             if (havDist23 <= havTolerance)
             {
                 return true;
             }
             double sinBearing = SinDeltaBearing(lat1, lng1, lat2, lng2, lat3, lng3);
-            double sinDist13 = TKMathUtils.SinFromHav(havDist13);
-            double havCrossTrack = TKMathUtils.HavFromSin(sinDist13 * sinBearing);
+            double sinDist13 = GmsMathUtils.SinFromHav(havDist13);
+            double havCrossTrack = GmsMathUtils.HavFromSin(sinDist13 * sinBearing);
             if (havCrossTrack > havTolerance)
             {
                 return false;
             }
-            double havDist12 = TKMathUtils.HavDistance(lat1, lat2, lng1 - lng2);
+            double havDist12 = GmsMathUtils.HavDistance(lat1, lat2, lng1 - lng2);
             double term = havDist12 + havCrossTrack * (1 - 2 * havDist12);
             if (havDist13 > term || havDist23 > term)
             {
@@ -320,7 +337,7 @@ namespace TK.CustomMap
             double cosCrossTrack = 1 - 2 * havCrossTrack;
             double havAlongTrack13 = (havDist13 - havCrossTrack) / cosCrossTrack;
             double havAlongTrack23 = (havDist23 - havCrossTrack) / cosCrossTrack;
-            double sinSumAlongTrack = TKMathUtils.SinSumFromHav(havAlongTrack13, havAlongTrack23);
+            double sinSumAlongTrack = GmsMathUtils.SinSumFromHav(havAlongTrack13, havAlongTrack23);
             return sinSumAlongTrack > 0;  // Compare with half-circle == PI using sign of sin().
         }
         /// <summary>
@@ -346,8 +363,8 @@ namespace TK.CustomMap
             double lng21 = lng2 - lng1;
             double a = Math.Sin(lng31) * cosLat3;
             double c = Math.Sin(lng21) * cosLat2;
-            double b = Math.Sin(lat31) + 2 * sinLat1 * cosLat3 * TKMathUtils.Hav(lng31);
-            double d = Math.Sin(lat21) + 2 * sinLat1 * cosLat2 * TKMathUtils.Hav(lng21);
+            double b = Math.Sin(lat31) + 2 * sinLat1 * cosLat3 * GmsMathUtils.Hav(lng31);
+            double d = Math.Sin(lat21) + 2 * sinLat1 * cosLat2 * GmsMathUtils.Hav(lng21);
             double denom = (a * a + b * b) * (c * c + d * d);
             return denom <= 0 ? 1 : (a * d - b * c) / Math.Sqrt(denom);
         }
