@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:tkmap="clr-namespace:TK.CustomMap;assembly=TK.CustomMap"
+             x:Class="TK.CustomMap.Sample.Pages.AddRoutePage">
+  <StackLayout>
+    <tkmap:PlacesAutoComplete HorizontalOptions="FillAndExpand">
+      <x:Arguments>
+        <x:Boolean>
+          False
+        </x:Boolean>
+      </x:Arguments>
+    </tkmap:PlacesAutoComplete>
+    <Label Text="To" HorizontalOptions="Center" />
+    <tkmap:PlacesAutoComplete HorizontalOptions="FillAndExpand">
+      <x:Arguments>
+        <x:Boolean>
+          False
+        </x:Boolean>
+      </x:Arguments>
+    </tkmap:PlacesAutoComplete>
+  </StackLayout>
+</ContentPage>

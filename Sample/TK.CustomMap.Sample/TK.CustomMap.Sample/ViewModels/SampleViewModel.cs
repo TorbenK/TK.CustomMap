@@ -26,6 +26,9 @@ namespace TK.CustomMap.Sample
 
         Dictionary<TKCustomMapPin, TKRoute> _pinRoutes = new Dictionary<TKCustomMapPin, TKRoute>();
 
+        /// <summary>
+        /// Polygons bound to the <see cref="TKCustomMap"/>
+        /// </summary>
         public ObservableCollection<TKPolygon> Polygons
         {
             get { return this._polygons; }
@@ -38,6 +41,9 @@ namespace TK.CustomMap.Sample
                 }
             }
         }
+        /// <summary>
+        /// Pins bound to the <see cref="TkCustomMap"/>
+        /// </summary>
         public ObservableCollection<TKCustomMapPin> Pins
         {
             get { return this._pins; }
@@ -50,6 +56,9 @@ namespace TK.CustomMap.Sample
                 }
             }
         }
+        /// <summary>
+        /// Routes bound to the <see cref="TkCustomMap"/>
+        /// </summary>
         public ObservableCollection<TKRoute> Routes
         {
             get { return this._routes; }
@@ -62,6 +71,9 @@ namespace TK.CustomMap.Sample
                 }
             }
         }
+        /// <summary>
+        /// Circles bound to the <see cref="TkCustomMap"/>
+        /// </summary>
         public ObservableCollection<TKCircle> Circles
         {
             get { return this._circles; }
@@ -74,6 +86,9 @@ namespace TK.CustomMap.Sample
                 }
             }
         }
+        /// <summary>
+        /// Map center bound to the <see cref="TkCustomMap"/>
+        /// </summary>
         public Position MapCenter
         {
             get { return this._mapCenter; }
@@ -86,6 +101,9 @@ namespace TK.CustomMap.Sample
                 }
             }
         }
+        /// <summary>
+        /// Selected pin bound to the <see cref="TkCustomMap"/>
+        /// </summary>
         public TKCustomMapPin SelectedPin
         {
             get { return this._selectedPin; }
@@ -98,7 +116,9 @@ namespace TK.CustomMap.Sample
                 }
             }
         }
-
+        /// <summary>
+        /// Map Long Press bound to the <see cref="TkCustomMap"/>
+        /// </summary>
         public Command<Position> MapLongPressCommand
         {
             get
@@ -158,6 +178,9 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+        /// <summary>
+        /// Map Clicked bound to the <see cref="TkCustomMap"/>
+        /// </summary>
         public Command<Position> MapClickedCommand
         {
             get
@@ -208,6 +231,9 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+        /// <summary>
+        /// Command when a place got selected
+        /// </summary>
         public Command<IPlaceResult> PlaceSelectedCommand
         {
             get
@@ -234,7 +260,9 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
-
+        /// <summary>
+        /// Pin Selected bound to the <see cref="TkCustomMap"/>
+        /// </summary>
         public Command PinSelectedCommand
         {
             get
@@ -245,6 +273,9 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+        /// <summary>
+        /// Drag End bound to the <see cref="TkCustomMap"/>
+        /// </summary>
         public Command<TKCustomMapPin> DragEndCommand
         {
             get 
@@ -271,6 +302,9 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+        /// <summary>
+        /// Clear everything from the <see cref="TKCustomMap"/>
+        /// </summary>
         public Command ClearEverythingCommand
         {
             get
@@ -285,6 +319,9 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+        /// <summary>
+        /// Callout clicked bound to the <see cref="TkCustomMap"/>
+        /// </summary>
         public Command CalloutClickedCommand
         {
             get
@@ -298,6 +335,9 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+        /// <summary>
+        /// Opens the page to add a circle
+        /// </summary>
         public Command AddCircleCommand
         {
             get

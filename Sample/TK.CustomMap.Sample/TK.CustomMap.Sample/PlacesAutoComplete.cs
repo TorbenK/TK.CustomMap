@@ -18,10 +18,13 @@ namespace TK.CustomMap.Sample
             Osm
         }
 
+        private readonly bool _useSearchBar;
+
         private bool _textChangeItemSelected;
 
-        private readonly SearchBar _searchBar;
-        private readonly ListView _autoCompleteListView;
+        private SearchBar _searchBar;
+        private Entry _entry;
+        private ListView _autoCompleteListView;
 
         private IEnumerable<IPlaceResult> _predictions;
 
@@ -41,11 +44,34 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return this._searchBar.Height;
+                return this._useSearchBar ? this._searchBar.Height : this._entry.Height;
             }
         }
-
+        private string SearchText
+        {
+            get
+            {
+                return this._useSearchBar ? this._searchBar.Text : this._entry.Text;
+            }
+            set
+            {
+                if (this._useSearchBar)
+                    this._searchBar.Text = value;
+                else
+                    this._entry.Text = value;
+            }
+        }
+        public PlacesAutoComplete(bool useSearchBar)
+        {
+            this._useSearchBar = useSearchBar;
+            this.Init();
+        }
         public PlacesAutoComplete()
+        {
+            this._useSearchBar = true;
+            this.Init();
+        }
+        private void Init()
         {
             OsmNominatim.Instance.CountryCodes.Add("de");
 
@@ -64,26 +90,44 @@ namespace TK.CustomMap.Sample
                 return cell;
             });
 
-            this._searchBar = new SearchBar
+            View searchView;
+            if (this._useSearchBar)
             {
-                Placeholder = "Search for address..."
-            };
-            this.Children.Add(this._searchBar,
+                this._searchBar = new SearchBar
+                {
+                    Placeholder = "Search for address..."
+                };
+                this._searchBar.TextChanged += SearchTextChanged;
+                this._searchBar.SearchButtonPressed += SearchButtonPressed;
+
+                searchView = this._searchBar;
+
+            }
+            else
+            {
+                this._entry = new Entry
+                {
+                    Placeholder = "Sarch for address"
+                };
+                this._entry.TextChanged += SearchTextChanged;
+
+                searchView = this._entry;
+            }
+            this.Children.Add(searchView,
                 Constraint.Constant(0),
                 Constraint.Constant(0),
                 widthConstraint: Constraint.RelativeToParent(l => l.Width));
+
             this.Children.Add(
                 this._autoCompleteListView,
                 Constraint.Constant(0),
-                Constraint.RelativeToView(this._searchBar, (r, v) => v.Y + v.Height));
+                Constraint.RelativeToView(searchView, (r, v) => v.Y + v.Height));
 
             this._autoCompleteListView.ItemSelected += ItemSelected;
-            this._searchBar.TextChanged += SearchTextChanged;
-            this._searchBar.SearchButtonPressed += SearchButtonPressed;
 
             this._textChangeItemSelected = false;
         }
-
+        
         private void SearchButtonPressed(object sender, EventArgs e)
         {
             if (this._predictions != null && this._predictions.Any())
@@ -107,7 +151,7 @@ namespace TK.CustomMap.Sample
         {
             try
             {
-                if (string.IsNullOrEmpty(this._searchBar.Text))
+                if (string.IsNullOrEmpty(this.SearchText))
                 {
                     this._autoCompleteListView.ItemsSource = null;
                     this._autoCompleteListView.IsVisible = false;
@@ -119,14 +163,14 @@ namespace TK.CustomMap.Sample
 
                 if (this.ApiToUse == PlacesApi.Google)
                 {
-                    var apiResult = await GmsPlace.Instance.GetPredictions(this._searchBar.Text);
+                    var apiResult = await GmsPlace.Instance.GetPredictions(this.SearchText);
 
                     if (apiResult != null)
                         result = apiResult.Predictions;
                 }
                 else
                 {
-                    result = await OsmNominatim.Instance.GetPredictions(this._searchBar.Text);
+                    result = await OsmNominatim.Instance.GetPredictions(this.SearchText);
                 }
 
                 if (result != null && result.Any())
@@ -165,7 +209,7 @@ namespace TK.CustomMap.Sample
 
             this._textChangeItemSelected = true;
 
-            this._searchBar.Text = prediction.Description;
+            this.SearchText = prediction.Description;
             this._autoCompleteListView.SelectedItem = null;
 
             this.Reset();
@@ -175,7 +219,11 @@ namespace TK.CustomMap.Sample
             this._autoCompleteListView.ItemsSource = null;
             this._autoCompleteListView.IsVisible = false;
             this._autoCompleteListView.HeightRequest = 0;
-            this._searchBar.Unfocus();
+
+            if (this._useSearchBar)
+                this._searchBar.Unfocus();
+            else
+                this._entry.Unfocus();
         }
     }
 }
