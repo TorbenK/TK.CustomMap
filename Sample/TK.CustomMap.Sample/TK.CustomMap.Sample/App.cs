@@ -11,7 +11,7 @@ namespace TK.CustomMap.Sample
             GmsDirection.Init("YOUR API KEY");
 
             // The root page of your application
-            MainPage = new SamplePage();
+            MainPage = new NavigationPage(new SamplePage());
         }
 
         protected override void OnStart()

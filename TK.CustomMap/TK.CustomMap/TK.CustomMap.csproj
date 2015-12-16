@@ -54,10 +54,15 @@
     <Compile Include="Api\Google\Directions\GmsPolyline.cs" />
     <Compile Include="Api\Google\Directions\GmsRouteResult.cs" />
     <Compile Include="Api\Google\Directions\GooglePoints.cs" />
-    <Compile Include="Api\IPlaceResult.cs" />
+    <Compile Include="Api\NativePlacesApi\TKPlaceDetails.cs" />
+    <Compile Include="Api\PlaceResult.cs" />
+    <Compile Include="Api\NativePlacesApi\INativePlacesApi.cs" />
+    <Compile Include="Api\NativePlacesApi\TKNativeAndroidPlaceResult.cs" />
+    <Compile Include="Api\NativePlacesApi\TKNativeiOSPlaceResult.cs" />
     <Compile Include="Api\OSM\OsmNominatim.cs" />
     <Compile Include="Api\OSM\OsmNominatimResult.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Overlays\TKPolyline.cs" />
     <Compile Include="Utilities\GmsMathUtils.cs" />
     <Compile Include="Overlays\TKCircle.cs" />
     <Compile Include="Overlays\TKOverlay.cs" />

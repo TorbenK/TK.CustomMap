@@ -17,6 +17,7 @@ namespace TK.CustomMap.Sample
     {
         private TKRoute _selectedRoute;
 
+        private MapSpan _mapRegion;
         private Position _mapCenter;
         private TKCustomMapPin _selectedPin;
         private ObservableCollection<TKCustomMapPin> _pins;
@@ -26,6 +27,18 @@ namespace TK.CustomMap.Sample
 
         Dictionary<TKCustomMapPin, TKRoute> _pinRoutes = new Dictionary<TKCustomMapPin, TKRoute>();
 
+        public MapSpan MapRegion
+        {
+            get { return this._mapRegion; }
+            set
+            {
+                if (this._mapRegion != value)
+                {
+                    this._mapRegion = value;
+                    this.OnPropertyChanged("MapRegion");
+                }
+            }
+        }
         /// <summary>
         /// Polygons bound to the <see cref="TKCustomMap"/>
         /// </summary>
@@ -123,7 +136,7 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return new Command<Position>(async position => 
+                return new Command<Position>(position => 
                 {
                     var pin = new MyPin 
                     {
@@ -135,46 +148,7 @@ namespace TK.CustomMap.Sample
                     };
 
                     this._pins.Add(pin);
-
-                    if (this._pins.Count == 4)
-                    {
-                        this._polygons.Add(new TKPolygon 
-                        {
-                            Coordinates = this._pins.Select(i => i.Position).ToList(),
-                            Color = Color.FromRgba(0, 0, 120, 80),
-                            StrokeColor = Color.Navy,
-                            StrokeWidth = 0.2f
-                        });
-                    }
-
-                    this.MapCenter = position;
-
-
-                    if (this._pins.Count == 1) return;
-
-                    if (this._routes == null)
-                    {
-                        this.Routes = new ObservableCollection<TKRoute>();
-                    }
-
-                    var routeResult = await GmsDirection.Instance.CalculateRoute(
-                        this._pins.First().Position, 
-                        pin.Position, 
-                        GmsDirectionTravelMode.Driving, 
-                        "de");
-
-                    if (routeResult != null && routeResult.Status == GmsDirectionResultStatus.Ok)
-                    {
-                        var route = new TKRoute
-                        {
-                            LineWidth = 3,
-                            Color = Color.Blue,
-                            RouteCoordinates = new List<Position>(routeResult.Routes.First().Polyline.Positions)
-                        };
-                        this._routes.Add(route);
-
-                        this._pinRoutes.Add(pin, route);
-                    }
+                    
                 });
             }
         }
@@ -187,47 +161,7 @@ namespace TK.CustomMap.Sample
             {
                 return new Command<Position>((positon) => 
                 {
-                    this.SelectedPin = null;
-
-                    
-                    if (this._routes != null)
-                    {
-                        bool _routeSelected = false;
-                        foreach (var r in this._routes)
-                        {
-
-                            bool hit = GmsPolyUtil.IsLocationOnPath(positon, r.RouteCoordinates, true, 5);
-
-                            if (hit)
-                            {
-                                if(_selectedRoute != null)
-                                {
-                                    _selectedRoute.Color = Color.Blue;
-                                }
-                                _selectedRoute = r;
-                                r.Color = Color.Red;
-                                _routeSelected = true;
-                                break;
-                            }
-                        }
-                        if (!_routeSelected && _selectedRoute != null)
-                        {
-                            _selectedRoute.Color = Color.Blue;
-                            _selectedRoute = null;
-                        }
-                        if(_routeSelected) return;
-                    }
-                    if (this._polygons != null)
-                    {
-                        foreach (var p in this._polygons)
-                        {
-                            if (GmsPolyUtil.ContainsLocation(positon, p.Coordinates, true))
-                            {
-                                p.Color = Color.Red;
-                            }
-                        }
-                    }
-                    
+                    this.SelectedPin = null;                    
                 });
             }
         }
@@ -240,22 +174,21 @@ namespace TK.CustomMap.Sample
             {
                 return new Command<IPlaceResult>(async p =>
                 {
-                    var googlePlace = p as GmsPlacePrediction;
-
-                    if (googlePlace != null)
+                    if (Device.OS == TargetPlatform.Android)
                     {
-                        var details = await GmsPlace.Instance.GetDetails(p.PlaceId);
+                        var prediction = (TKNativeAndroidPlaceResult)p;
 
-                        if (details.Status == GmsDetailsResultStatus.Ok)
-                            this.MapCenter = details.Item.Geometry.Location.ToPosition();
+                        var service = DependencyService.Get<INativePlacesApi>();
+                        service.Connect();
+                        var details = await service.GetDetails(prediction.PlaceId);
 
-                        return;
+                        this.MapCenter = details.Coordinate;
                     }
-
-                    var osmPlace = p as OsmNominatimResult;
-                    if (osmPlace != null)
+                    else if (Device.OS == TargetPlatform.iOS)
                     {
-                        this.MapCenter = new Position(osmPlace.Latitude, osmPlace.Longitude);
+                        var prediction = (TKNativeiOSPlaceResult)p;
+
+                        this.MapCenter = prediction.Details.Coordinate;
                     }
                 });
             }
@@ -282,23 +215,7 @@ namespace TK.CustomMap.Sample
             {
                 return new Command<TKCustomMapPin>(async pin => 
                 {
-                    var myPin = (MyPin)pin;
-
-                    if (this._routes == null) return;
-                    if (!this._pinRoutes.ContainsKey(myPin)) return;
-
-                    var route = this._pinRoutes[myPin];
-
-                    var routeResult = await GmsDirection.Instance.CalculateRoute(
-                       this._pins.First().Position,
-                       pin.Position,
-                       GmsDirectionTravelMode.Driving,
-                       "de");
-
-                    if (routeResult != null)
-                    {
-                        route.RouteCoordinates = new List<Position>(routeResult.Routes.First().Polyline.Positions);
-                    }
+                    
                 });
             }
         }
@@ -367,6 +284,17 @@ namespace TK.CustomMap.Sample
                     //    StrokeWidth = 0,
                     //    Radius = 1000
                     //});
+                });
+            }
+        }
+        public Command AddRouteCommand
+        {
+            get
+            {
+                return new Command(() => 
+                {
+                    var addRoutePage = new AddRoutePage();
+                    Application.Current.MainPage.Navigation.PushModalAsync(addRoutePage);
                 });
             }
         }

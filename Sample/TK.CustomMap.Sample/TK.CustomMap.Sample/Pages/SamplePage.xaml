@@ -12,6 +12,10 @@
       <Button Command="{Binding AddCircleCommand}" Text="Add Circle" />
     </StackLayout>
   </StackLayout>
+  <ContentPage.ToolbarItems>
+    <ToolbarItem Text="Add Circle" Command="{Binding AddCircleCommand}" />
+    <ToolbarItem Text="Add Route" Command="{Binding AddRouteCommand}" />
+  </ContentPage.ToolbarItems>
   <!--<StackLayout>
     --><!--<SearchBar />--><!--
     <tkmap:TKCustomMap/>

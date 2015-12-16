@@ -2,8 +2,9 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:tkmap="clr-namespace:TK.CustomMap;assembly=TK.CustomMap"
-             x:Class="TK.CustomMap.Sample.Pages.AddRoutePage">
-  <StackLayout>
+             x:Class="TK.CustomMap.Sample.AddRoutePage">
+  <RelativeLayout x:Name="_baseLayout" />
+  <!--<StackLayout>
     <tkmap:PlacesAutoComplete HorizontalOptions="FillAndExpand">
       <x:Arguments>
         <x:Boolean>
@@ -19,5 +20,5 @@
         </x:Boolean>
       </x:Arguments>
     </tkmap:PlacesAutoComplete>
-  </StackLayout>
+  </StackLayout>-->
 </ContentPage>

@@ -36,6 +36,7 @@
     <DocumentationFile>bin\Release\TK.CustomMap.iOSUnified.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DependencyServices\NativePlacesApi.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="TKCustomMapAnnotation.cs" />
     <Compile Include="TKCustomMapRenderer.cs" />

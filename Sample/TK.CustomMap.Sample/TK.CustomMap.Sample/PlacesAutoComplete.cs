@@ -5,13 +5,18 @@ using TK.CustomMap.Api;
 using TK.CustomMap.Api.Google;
 using TK.CustomMap.Api.OSM;
 using Xamarin.Forms;
+using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.Sample
 {
     public class PlacesAutoComplete : RelativeLayout
     {
-        // TODO: SUMMARIES
+        public static readonly BindableProperty BoundsProperty = BindableProperty.Create<PlacesAutoComplete, MapSpan>(
+            p => p.Bounds,
+            default(MapSpan));
 
+        // TODO: SUMMARIES
+        INativePlacesApi service;
         public enum PlacesApi
         { 
             Google,
@@ -61,6 +66,11 @@ namespace TK.CustomMap.Sample
                     this._entry.Text = value;
             }
         }
+        public MapSpan Bounds
+        {
+            get { return (MapSpan)this.GetValue(BoundsProperty); }
+            set { this.SetValue(BoundsProperty, value); }
+        }
         public PlacesAutoComplete(bool useSearchBar)
         {
             this._useSearchBar = useSearchBar;
@@ -73,6 +83,9 @@ namespace TK.CustomMap.Sample
         }
         private void Init()
         {
+            service = DependencyService.Get<INativePlacesApi>();
+            service.Connect();
+
             OsmNominatim.Instance.CountryCodes.Add("de");
 
             this._autoCompleteListView = new ListView
@@ -170,7 +183,9 @@ namespace TK.CustomMap.Sample
                 }
                 else
                 {
-                    result = await OsmNominatim.Instance.GetPredictions(this.SearchText);
+
+                    result = await service.GetPredictions(this.SearchText, this.Bounds);
+                    //result = await OsmNominatim.Instance.GetPredictions(this.SearchText);
                 }
 
                 if (result != null && result.Any())

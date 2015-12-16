@@ -30,7 +30,10 @@ namespace TK.CustomMap.Sample
             mapView.SetBinding(TKCustomMap.CirclesProperty, "Circles");
             mapView.SetBinding(TKCustomMap.CalloutClickedCommandProperty, "CalloutClickedCommand");
             mapView.SetBinding(TKCustomMap.PolygonsProperty, "Polygons");
+            mapView.SetBinding(TKCustomMap.MapRegionProperty, "MapRegion");
             mapView.AnimateMapCenterChange = true;
+
+            autoComplete.SetBinding(PlacesAutoComplete.BoundsProperty, "MapRegion");
 
 
             this._baseLayout.Children.Add(

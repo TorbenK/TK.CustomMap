@@ -8,19 +8,28 @@ namespace TK.CustomMap.Overlays
     /// </summary>
     public class TKRoute : TKOverlay
     {
-        public const string RouteCoordinatesPropertyName = "RouteCoordinates";
+        public const string SourceProperty = "Source";
+        public const string DestinationProperty = "Destination";
         public const string LineWidthProperty = "LineWidth";
 
-        private List<Position> _routeCoordinates;
+        private Position _source;
+        private Position _destination;
         private float _lineWidth;
-
         /// <summary>
-        /// Coordinates of the route
+        /// Gets/Sets the source of the route
         /// </summary>
-        public List<Position> RouteCoordinates
+        public Position Source
         {
-            get { return this._routeCoordinates; }
-            set { this.SetField(ref this._routeCoordinates, value); }
+            get { return this._source; }
+            set { this.SetField(ref this._source, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the destination of the route
+        /// </summary>
+        public Position Destination
+        {
+            get { return this._destination; }
+            set { this.SetField(ref this._destination, value); }
         }
         /// <summary>
         /// Gets/Sets the width of the line
@@ -29,13 +38,6 @@ namespace TK.CustomMap.Overlays
         {
             get { return this._lineWidth; }
             set { this.SetField(ref this._lineWidth, value); }
-        }
-        /// <summary>
-        /// Creates a new instance of <see cref="TKRoute"/>
-        /// </summary>
-        public TKRoute()
-        {
-            this._routeCoordinates = new List<Position>();
         }
     }
 }

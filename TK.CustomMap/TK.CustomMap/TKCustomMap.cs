@@ -79,9 +79,9 @@ namespace TK.CustomMap
         /// <summary>
         /// Bindable Property of <see cref="Routes"/>
         /// </summary>
-        public static readonly BindableProperty RoutesProperty =
-            BindableProperty.Create<TKCustomMap, IEnumerable<TKRoute>>(
-                p => p.Routes,
+        public static readonly BindableProperty PolylinesProperty =
+            BindableProperty.Create<TKCustomMap, IEnumerable<TKPolyline>>(
+                p => p.Polylines,
                 null);
         /// <summary>
         /// Bindable Property of <see cref="Circles"/>
@@ -111,7 +111,15 @@ namespace TK.CustomMap
             BindableProperty.Create<TKCustomMap, MapSpan>(
                 p => p.MapRegion,
                 default(MapSpan),
+                BindingMode.TwoWay,
                 propertyChanged: MapRegionChanged);
+        /// <summary>
+        /// Bindable Property of <see cref="Routes"/>
+        /// </summary>
+        public static readonly BindableProperty RoutesProperty =
+            BindableProperty.Create<TKCustomMap, IEnumerable<TKRoute>>(
+                p => p.Routes,
+                null);
         /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
@@ -185,12 +193,12 @@ namespace TK.CustomMap
             set { this.SetValue(AnimateMapCenterChangeProperty, value); }
         }
         /// <summary>
-        /// Gets/Sets the routes to display on the map
+        /// Gets/Sets the lines to display on the map
         /// </summary>
-        public IEnumerable<TKRoute> Routes
+        public IEnumerable<TKPolyline> Polylines
         {
-            get { return (IEnumerable<TKRoute>)this.GetValue(RoutesProperty); }
-            set { this.SetValue(RoutesProperty, value); }
+            get { return (IEnumerable<TKPolyline>)this.GetValue(PolylinesProperty); }
+            set { this.SetValue(PolylinesProperty, value); }
         }
         /// <summary>
         /// Gets/Sets the circles to display on the map
@@ -224,6 +232,14 @@ namespace TK.CustomMap
         {
             get { return (MapSpan)this.GetValue(MapRegionProperty); }
             set { this.SetValue(MapRegionProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the routes to calculate and display on the map
+        /// </summary>
+        public IEnumerable<TKRoute> Routes
+        {
+            get { return (IEnumerable<TKRoute>)this.GetValue(RoutesProperty); }
+            set { this.SetValue(RoutesProperty, value); }
         }
         /// <summary>
         /// When <see cref="MapRegion"/> changed

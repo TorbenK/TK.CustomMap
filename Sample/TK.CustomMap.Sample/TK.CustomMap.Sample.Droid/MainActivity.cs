@@ -7,6 +7,7 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 using Xamarin.Forms.Platform.Android;
+using TK.CustomMap.Droid;
 
 namespace TK.CustomMap.Sample.Droid
 {
@@ -18,6 +19,7 @@ namespace TK.CustomMap.Sample.Droid
             base.OnCreate(bundle);
 
             global::Xamarin.Forms.Forms.Init(this, bundle);
+
 
             ToolbarResource = Resource.Layout.toolbar;
             TabLayoutResource = Resource.Layout.tabs;
