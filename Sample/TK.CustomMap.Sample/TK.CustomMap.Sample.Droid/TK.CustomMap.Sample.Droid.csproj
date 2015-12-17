@@ -142,6 +142,10 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_place_black_24dp.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_place_black_24dp.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_place_black_24dp.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_directions_white_24dp.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_directions_white_24dp.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_directions_white_24dp.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_directions_white_24dp.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\TK.CustomMap\TK.CustomMap\TK.CustomMap.csproj">

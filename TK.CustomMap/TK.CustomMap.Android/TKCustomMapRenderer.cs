@@ -16,6 +16,7 @@ using Xamarin.Forms.Platform.Android;
 using Android.Gms.Location.Places;
 using Xamarin.Forms.Maps;
 using TK.CustomMap.Api.Google;
+using TK.CustomMap.Utilities;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 namespace TK.CustomMap.Droid
@@ -110,6 +111,10 @@ namespace TK.CustomMap.Droid
             else if (e.PropertyName == TKCustomMap.PolygonsProperty.PropertyName)
             {
                 this.UpdatePolygons();
+            }
+            else if (e.PropertyName == TKCustomMap.RoutesProperty.PropertyName)
+            {
+                this.UpdateRoutes();
             }
         }
         /// <summary>
@@ -242,6 +247,28 @@ namespace TK.CustomMap.Droid
             if (this.FormsMap == null || this.FormsMap.MapClickedCommand == null) return;
 
             var position = e.Point.ToPosition();
+
+            if (this.FormsMap.Routes != null && this.FormsMap.RouteClickedCommand != null)
+            {
+                foreach(var route in this.FormsMap.Routes.Where(i => i.Selectable))
+                {
+                    var internalRoute = this._routes[route];
+
+                    if (GmsPolyUtil.IsLocationOnPath(
+                        position, 
+                        internalRoute.Points.Select(i => i.ToPosition()), 
+                        true,
+                        (int)this._googleMap.CameraPosition.Zoom, 
+                        this.FormsMap.MapCenter.Latitude))
+                    {
+                        if (this.FormsMap.RouteClickedCommand.CanExecute(route))
+                        {
+                            this.FormsMap.RouteClickedCommand.Execute(route);
+                            return;
+                        }
+                    }
+                }
+            }
             
             if (this.FormsMap.MapClickedCommand.CanExecute(position))
             {
@@ -650,7 +677,9 @@ namespace TK.CustomMap.Droid
         {
             var route = (TKRoute)sender;
 
-            if (e.PropertyName == TKRoute.SourceProperty || e.PropertyName == TKRoute.DestinationProperty)
+            if (e.PropertyName == TKRoute.SourceProperty || 
+                e.PropertyName == TKRoute.DestinationProperty || 
+                e.PropertyName == TKRoute.TravelModelProperty)
             {
                 this._routes[route].Remove();
                 this._routes.Remove(route);
@@ -860,26 +889,47 @@ namespace TK.CustomMap.Droid
         /// <param name="route">The route to add</param>
         private async void AddRoute(TKRoute route)
         {
-            var routeData = await GmsDirection.Instance.CalculateRoute(route.Source, route.Destination, GmsDirectionTravelMode.Driving);
+            route.PropertyChanged += OnRoutePropertyChanged;
 
-            if (routeData == null || routeData.Routes == null) return;
-
-            var r = routeData.Routes.FirstOrDefault();
-            if (r == null || r.Polyline.Positions == null || !r.Polyline.Positions.Any()) return;
-
-            var routeOptions = new PolylineOptions();
-
-            if (route.Color != Color.Default)
+            GmsDirectionResult routeData = null;
+            try
             {
-                routeOptions.InvokeColor(route.Color.ToAndroid().ToArgb());
-            }
-            if (route.LineWidth > 0)
-            {
-                routeOptions.InvokeWidth(route.LineWidth);
-            }
-            routeOptions.Add(r.Polyline.Positions.Select(i => i.ToLatLng()).ToArray());
+                routeData = await GmsDirection.Instance.CalculateRoute(route.Source, route.Destination, route.TravelMode.ToGmsTravelMode());
+                
+                if (routeData == null || routeData.Routes == null) return;
 
-            this._routes.Add(route, this._googleMap.AddPolyline(routeOptions));
+                var r = routeData.Routes.FirstOrDefault();
+                if (r == null || r.Polyline.Positions == null || !r.Polyline.Positions.Any()) return;
+
+                var routeOptions = new PolylineOptions();
+
+                if (route.Color != Color.Default)
+                {
+                    routeOptions.InvokeColor(route.Color.ToAndroid().ToArgb());
+                }
+                if (route.LineWidth > 0)
+                {
+                    routeOptions.InvokeWidth(route.LineWidth);
+                }
+                routeOptions.Add(r.Polyline.Positions.Select(i => i.ToLatLng()).ToArray());
+
+                this._routes.Add(route, this._googleMap.AddPolyline(routeOptions));
+
+                if (this.FormsMap.RouteCalculationFinishedCommand != null && this.FormsMap.RouteCalculationFinishedCommand.CanExecute(route))
+                {
+                    this.FormsMap.RouteCalculationFinishedCommand.Execute(route);
+                }
+            }
+            finally
+            {
+                if ((routeData == null || routeData.Status != GmsDirectionResultStatus.Ok) && this.FormsMap.RouteCalculationFailedCommand != null)
+                {
+                    if (this.FormsMap.RouteCalculationFailedCommand.CanExecute(route))
+                    {
+                        this.FormsMap.RouteCalculationFailedCommand.Execute(route);
+                    }
+                }
+            }
         }
         /// <summary>
         /// Updates the image of a pin

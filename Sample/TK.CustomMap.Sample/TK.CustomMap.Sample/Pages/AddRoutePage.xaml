@@ -4,21 +4,14 @@
              xmlns:tkmap="clr-namespace:TK.CustomMap;assembly=TK.CustomMap"
              x:Class="TK.CustomMap.Sample.AddRoutePage">
   <RelativeLayout x:Name="_baseLayout" />
-  <!--<StackLayout>
-    <tkmap:PlacesAutoComplete HorizontalOptions="FillAndExpand">
-      <x:Arguments>
-        <x:Boolean>
-          False
-        </x:Boolean>
-      </x:Arguments>
-    </tkmap:PlacesAutoComplete>
-    <Label Text="To" HorizontalOptions="Center" />
-    <tkmap:PlacesAutoComplete HorizontalOptions="FillAndExpand">
-      <x:Arguments>
-        <x:Boolean>
-          False
-        </x:Boolean>
-      </x:Arguments>
-    </tkmap:PlacesAutoComplete>
-  </StackLayout>-->
+  <ContentPage.ToolbarItems>
+    <ToolbarItem Text="Add Route" Command="{Binding AddRouteCommand}">
+      <ToolbarItem.Icon>
+        <OnPlatform
+          x:TypeArguments="FileImageSource"
+          Android="ic_directions_white_24dp.png"
+          iOS="ic_directions.png" />
+      </ToolbarItem.Icon>
+    </ToolbarItem>
+  </ContentPage.ToolbarItems>
 </ContentPage>

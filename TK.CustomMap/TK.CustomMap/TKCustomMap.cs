@@ -121,6 +121,27 @@ namespace TK.CustomMap
                 p => p.Routes,
                 null);
         /// <summary>
+        /// Bindable Property of <see cref="RouteClickedCommand"/>
+        /// </summary>
+        public static readonly BindableProperty RouteClickedCommandProperty =
+            BindableProperty.Create<TKCustomMap, Command<TKRoute>>(
+                p => p.RouteClickedCommand,
+                null);
+        /// <summary>
+        /// Bindable Property of <see cref="RouteCalculationFinishedCommand"/>
+        /// </summary>
+        public static readonly BindableProperty RouteCalculationFinishedCommandProperty =
+            BindableProperty.Create<TKCustomMap, Command<TKRoute>>(
+                p => p.RouteCalculationFinishedCommand,
+                null);
+        /// <summary>
+        /// Bindable Property of <see cref="RouteCalculationFailedCommand"/>
+        /// </summary>
+        public static readonly BindableProperty RouteCalculationFailedCommandProperty =
+            BindableProperty.Create<TKCustomMap, Command<TKRoute>>(
+                p => p.RouteCalculationFailedCommand,
+                null);
+        /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
         public ObservableCollection<TKCustomMapPin> CustomPins
@@ -240,6 +261,30 @@ namespace TK.CustomMap
         {
             get { return (IEnumerable<TKRoute>)this.GetValue(RoutesProperty); }
             set { this.SetValue(RoutesProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the command when a route gets tapped
+        /// </summary>
+        public Command<TKRoute> RouteClickedCommand
+        {
+            get { return (Command<TKRoute>)this.GetValue(RouteClickedCommandProperty); }
+            set { this.SetValue(RouteClickedCommandProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the command when a route calculation finished successfully
+        /// </summary>
+        public Command<TKRoute> RouteCalculationFinishedCommand
+        {
+            get { return (Command<TKRoute>)this.GetValue(RouteCalculationFinishedCommandProperty); }
+            set { this.SetValue(RouteCalculationFinishedCommandProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the command when a route calculation failed
+        /// </summary>
+        public Command<TKRoute> RouteCalculationFailedCommand
+        {
+            get { return (Command<TKRoute>)this.GetValue(RouteCalculationFailedCommandProperty); }
+            set { this.SetValue(RouteCalculationFailedCommandProperty, value); }
         }
         /// <summary>
         /// When <see cref="MapRegion"/> changed

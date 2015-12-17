@@ -136,18 +136,36 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return new Command<Position>(position => 
+                return new Command<Position>(async position => 
                 {
-                    var pin = new MyPin 
-                    {
-                        Position = position,
-                        Title = string.Format("Pin {0}, {1}", position.Latitude, position.Longitude),
-                        ShowCallout = true,
-                        IsDraggable = true,
-                        DefaultPinColor = Color.Aqua
-                    };
+                    var action = await Application.Current.MainPage.DisplayActionSheet(
+                        "Long Press",
+                        "Cancel",
+                        null,
+                        "Add Pin",
+                        "Add Circle");
 
-                    this._pins.Add(pin);
+                    if (action == "Add Pin")
+                    {
+                        var pin = new MyPin
+                        {
+                            Position = position,
+                            Title = string.Format("Pin {0}, {1}", position.Latitude, position.Longitude),
+                            ShowCallout = true,
+                            IsDraggable = true
+                        };
+                        this._pins.Add(pin);
+                    }
+                    else if(action == "Add Circle")
+                    {
+                        var circle = new TKCircle 
+                        {
+                            Center = position,
+                            Radius = 1000,
+                            Color = Color.FromRgba(0, 60, 0, 40)
+                        };
+                        this._circles.Add(circle);
+                    }
                     
                 });
             }
@@ -174,6 +192,20 @@ namespace TK.CustomMap.Sample
             {
                 return new Command<IPlaceResult>(async p =>
                 {
+                    var gmsResult = p as GmsPlacePrediction;
+                    if (gmsResult != null)
+                    {
+                        var details = await GmsPlace.Instance.GetDetails(gmsResult.PlaceId);
+                        this.MapCenter = new Position(details.Item.Geometry.Location.Latitude, details.Item.Geometry.Location.Latitude);
+                        return;
+                    }
+                    var osmResult = p as OsmNominatimResult;
+                    if (osmResult != null)
+                    {
+                        this.MapCenter = new Position(osmResult.Latitude, osmResult.Longitude);
+                        return;
+                    }
+
                     if (Device.OS == TargetPlatform.Android)
                     {
                         var prediction = (TKNativeAndroidPlaceResult)p;
@@ -219,6 +251,16 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+        public Command<TKRoute> RouteClickedCommand
+        {
+            get
+            {
+                return new Command<TKRoute>(r => 
+                {
+                    Application.Current.MainPage.DisplayAlert("Route tapped", "Route tapped", "OK");
+                });
+            }
+        }
         /// <summary>
         /// Clear everything from the <see cref="TKCustomMap"/>
         /// </summary>
@@ -252,49 +294,16 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
-        /// <summary>
-        /// Opens the page to add a circle
-        /// </summary>
-        public Command AddCircleCommand
-        {
-            get
-            {
-                return new Command(() => 
-                {
-                    var addCirclePage = new AddCirclePage();
-                    addCirclePage.AddCircle += (o, e) => 
-                    {
-                        this._circles.Add(
-                            new TKCircle 
-                            {
-                                Color = e.Model.Color,
-                                Center = this.MapCenter,
-                                StrokeWidth = 0,
-                                Radius = e.Model.Radius
-                            });
-
-                        Application.Current.MainPage.Navigation.PopModalAsync();
-                    };
-                    Application.Current.MainPage.Navigation.PushModalAsync(addCirclePage);
-
-                    //this._circles.Add(new TKCircle 
-                    //{
-                    //    Color = Color.FromRgba(0, 150, 0, 80),
-                    //    Center = this.MapCenter,
-                    //    StrokeWidth = 0,
-                    //    Radius = 1000
-                    //});
-                });
-            }
-        }
         public Command AddRouteCommand
         {
             get
             {
                 return new Command(() => 
                 {
-                    var addRoutePage = new AddRoutePage();
-                    Application.Current.MainPage.Navigation.PushModalAsync(addRoutePage);
+                    if (this.Routes == null) this.Routes = new ObservableCollection<TKRoute>();
+
+                    var addRoutePage = new AddRoutePage(this.Routes, this.Pins, this.MapRegion);
+                    Application.Current.MainPage.Navigation.PushAsync(addRoutePage);
                 });
             }
         }

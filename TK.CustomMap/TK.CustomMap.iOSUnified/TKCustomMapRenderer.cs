@@ -13,6 +13,9 @@ using UIKit;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps.iOS;
 using Xamarin.Forms.Platform.iOS;
+using TK.CustomMap.Utilities;
+using CoreLocation;
+using System;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 
@@ -23,9 +26,13 @@ namespace TK.CustomMap.iOSUnified
     /// </summary>
     public class TKCustomMapRenderer : MapRenderer
     {
+        private const double MercatorRadius = 85445659.44705395;
+        private const int MaxGoogleLevels = 20;
+
         private const string AnnotationIdentifier = "TKCustomAnnotation";
         private const string AnnotationIdentifierDefaultPin = "TKCustomAnnotationDefaultPin";
 
+        private readonly Dictionary<MKPolyline, TKOverlayItem<TKRoute, MKPolylineRenderer>> _routes = new Dictionary<MKPolyline, TKOverlayItem<TKRoute, MKPolylineRenderer>>();
         private readonly Dictionary<MKPolyline, TKOverlayItem<TKPolyline, MKPolylineRenderer>> _lines = new Dictionary<MKPolyline, TKOverlayItem<TKPolyline, MKPolylineRenderer>>();
         private readonly Dictionary<MKCircle, TKOverlayItem<TKCircle, MKCircleRenderer>> _circles = new Dictionary<MKCircle, TKOverlayItem<TKCircle, MKCircleRenderer>>();
         private readonly Dictionary<MKPolygon, TKOverlayItem<TKPolygon, MKPolygonRenderer>> _polygons = new Dictionary<MKPolygon, TKOverlayItem<TKPolygon, MKPolygonRenderer>>();
@@ -42,6 +49,20 @@ namespace TK.CustomMap.iOSUnified
         {
             get { return this.Element as TKCustomMap; }
         }
+        private int ZoomLevel
+        {
+            get
+            {
+                
+                double longitudeDelta = this.Map.Region.Span.LongitudeDelta;
+                nfloat mapWidthInPixels = this.Map.Bounds.Size.Width;
+                double zoomScale = longitudeDelta * MercatorRadius * Math.PI / (180.0 * mapWidthInPixels);
+                double zoomer = MaxGoogleLevels - Math.Log(zoomScale);
+                if (zoomer < 0) zoomer = 0;
+                
+                return (int)Math.Round(zoomer);
+            }
+        }
         /// <summary>
         /// Dummy function to avoid linker.
         /// </summary>
@@ -54,7 +75,7 @@ namespace TK.CustomMap.iOSUnified
             base.OnElementChanged(e);
             
             if (e.OldElement != null || this.FormsMap == null || this.Map == null) return;
-
+            
             this.Map.GetViewForAnnotation = this.GetViewForAnnotation;
             this.Map.OverlayRenderer = this.GetOverlayRenderer; 
             this.Map.DidSelectAnnotationView += OnDidSelectAnnotationView;
@@ -72,6 +93,7 @@ namespace TK.CustomMap.iOSUnified
             }
             this.SetMapCenter();
             this.UpdateRoutes();
+            this.UpdateLines();
             this.UpdateCircles();
             this.UpdatePolygons();
             this.FormsMap.PropertyChanged += OnMapPropertyChanged;
@@ -85,11 +107,30 @@ namespace TK.CustomMap.iOSUnified
         /// <returns>The overlay renderer</returns>
         private MKOverlayRenderer GetOverlayRenderer(MKMapView mapView, IMKOverlay overlay)
         {
+
             var polyline = overlay as MKPolyline;
             if (polyline != null)
             {
-                var route = this._lines[polyline];
-                if (route == null) return null;
+                // check if this polyline is a route
+                var route = this._routes[polyline];
+                if (route == null)
+                {
+                    // not a route, check if it is a line
+                    var line = this._lines[polyline];
+
+                    if (line == null) return null;
+
+                    if (line.Renderer == null)
+                    {
+                        line.Renderer = new MKPolylineRenderer(polyline);
+                    }
+                    line.Renderer.FillColor = line.Overlay.Color.ToUIColor();
+                    line.Renderer.LineWidth = line.Overlay.LineWidth;
+                    line.Renderer.StrokeColor = line.Overlay.Color.ToUIColor();
+
+                    // return renderer for the line
+                    return line.Renderer;
+                }
 
                 if (route.Renderer == null)
                 {
@@ -157,7 +198,7 @@ namespace TK.CustomMap.iOSUnified
             }
             else if (e.PropertyName == TKCustomMap.RoutesProperty.PropertyName)
             {
-                this.UpdateRoutes();
+                this.UpdateLines();
             }
             else if (e.PropertyName == TKCustomMap.CalloutClickedCommandProperty.PropertyName)
             {
@@ -288,6 +329,29 @@ namespace TK.CustomMap.iOSUnified
             var pixelLocation = recognizer.LocationInView(this.Map);
             var coordinate = this.Map.ConvertPoint(pixelLocation, this.Map);
 
+            if (this.FormsMap.RouteClickedCommand != null)
+            {
+                foreach (var route in this.FormsMap.Routes.Where(i => i.Selectable))
+                {
+                    var internalItem = this._routes.Single(i => i.Value.Overlay.Equals(route));
+                    var coordinates = internalItem.Key.Points.Select(i => this.Map.ConvertPoint(new CGPoint(i.X, i.Y), this.Map));
+
+                    if (GmsPolyUtil.IsLocationOnPath(
+                        coordinate.ToPosition(),
+                        coordinates.Select(i => i.ToPosition()),
+                        true,
+                        this.ZoomLevel,
+                        this.Map.CenterCoordinate.Latitude))
+                    {
+                        if (this.FormsMap.RouteClickedCommand.CanExecute(route))
+                        {
+                            this.FormsMap.RouteClickedCommand.Execute(route);
+                            return;
+                        }
+                    }
+                }
+            }
+
             if (this.FormsMap.MapClickedCommand != null && this.FormsMap.MapClickedCommand.CanExecute(coordinate.ToPosition()))
             {
                 this.FormsMap.MapClickedCommand.Execute(coordinate.ToPosition());
@@ -382,9 +446,9 @@ namespace TK.CustomMap.iOSUnified
             }
         }
         /// <summary>
-        /// Creates the routes
+        /// Creates the lines
         /// </summary>
-        private void UpdateRoutes(bool firstUpdate = true)
+        private void UpdateLines(bool firstUpdate = true)
         {
             if (this._lines.Any())
             {
@@ -401,11 +465,78 @@ namespace TK.CustomMap.iOSUnified
 
             if (firstUpdate)
             {
-                var observAble = this.FormsMap.Routes as ObservableCollection<TKRoute>;
+                var observAble = this.FormsMap.Polylines as ObservableCollection<TKPolyline>;
                 if (observAble != null)
                 {
                     observAble.CollectionChanged += OnLineCollectionChanged;
                 }
+            }
+        }
+        /// <summary>
+        /// Create the routes
+        /// </summary>
+        /// <param name="firstUpdate">First update of collection or not</param>
+        private void UpdateRoutes(bool firstUpdate = true)
+        {
+            if (this._routes.Any())
+            {
+                this.Map.RemoveOverlays(this._routes.Select(i => i.Key).ToArray());
+                this._routes.Clear();
+            }
+            if (this.FormsMap.Routes == null) return;
+
+            foreach (var route in this.FormsMap.Routes)
+            {
+                this.AddRoute(route);
+            }
+
+            if (firstUpdate)
+            {
+                var observAble = this.FormsMap.Routes as ObservableCollection<TKRoute>;
+                if (observAble != null)
+                {
+                    observAble.CollectionChanged += OnRouteCollectionChanged;
+                }
+            }
+        }
+        /// <summary>
+        /// When the collection of routes changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnRouteCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (TKRoute route in e.NewItems)
+                {
+                    this.AddRoute(route);
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (TKRoute route in e.OldItems)
+                {
+                    if (!this.FormsMap.Routes.Contains(route))
+                    {
+                        route.PropertyChanged -= OnRoutePropertyChanged;
+
+                        var item = this._routes.SingleOrDefault(i => i.Value.Overlay.Equals(route));
+                        if (item.Key != null)
+                        {
+                            this.Map.RemoveOverlay(item.Key);
+                            this._routes.Remove(item.Key);
+                        }
+                    }
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                foreach (var route in this._routes)
+                {
+                    route.Value.Overlay.PropertyChanged -= OnPolygonPropertyChanged;
+                }
+                this.UpdateRoutes(false);
             }
         }
         /// <summary>
@@ -628,15 +759,10 @@ namespace TK.CustomMap.iOSUnified
             {
                 foreach (var route in this._lines)
                 {
-                    route.Value.Overlay.PropertyChanged -= OnRoutePropertyChanged;
+                    route.Value.Overlay.PropertyChanged -= OnLinePropertyChanged;
                 }
-                this.UpdateRoutes(false);
+                this.UpdateLines(false);
             }
-        }
-
-        private void OnLinePropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            throw new System.NotImplementedException();
         }
         /// <summary>
         /// Adds a route
@@ -648,7 +774,81 @@ namespace TK.CustomMap.iOSUnified
             this._lines.Add(polyLine, new TKOverlayItem<TKPolyline,MKPolylineRenderer>(line));
             this.Map.AddOverlay(polyLine);
 
-            line.PropertyChanged += OnRoutePropertyChanged;
+            line.PropertyChanged += OnLinePropertyChanged;
+        }
+        /// <summary>
+        /// Adds a route to the map
+        /// </summary>
+        /// <param name="route">The route to add</param>
+        private void AddRoute(TKRoute route)
+        {
+            MKDirectionsRequest req = new MKDirectionsRequest();
+            req.Source = new MKMapItem(new MKPlacemark(route.Source.ToLocationCoordinate(), new MKPlacemarkAddress()));
+            req.Destination = new MKMapItem(new MKPlacemark(route.Destination.ToLocationCoordinate(), new MKPlacemarkAddress()));
+            req.TransportType = route.TravelMode.ToTransportType();
+
+            MKDirections directions = new MKDirections(req);
+            directions.CalculateDirections(new MKDirectionsHandler((r, e) => 
+            {
+                if (r != null && r.Routes != null && r.Routes.Any())
+                {
+                    var nativeRoute = r.Routes.First();
+
+                    this._routes.Add(nativeRoute.Polyline, new TKOverlayItem<TKRoute, MKPolylineRenderer>(route));
+                    this.Map.AddOverlay(nativeRoute.Polyline);
+
+                    route.PropertyChanged += OnRoutePropertyChanged;
+
+                    if (this.FormsMap.RouteCalculationFinishedCommand != null && this.FormsMap.RouteCalculationFinishedCommand.CanExecute(route))
+                    {
+                        this.FormsMap.RouteCalculationFinishedCommand.Execute(route);
+                    }
+                }
+                else
+                {
+                    if (this.FormsMap.RouteCalculationFailedCommand != null && this.FormsMap.RouteCalculationFailedCommand.CanExecute(route))
+                    {
+                        this.FormsMap.RouteCalculationFailedCommand.Execute(route);
+                    }
+                }
+            }));
+        }
+        /// <summary>
+        /// When a property of a route changed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnRoutePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var route = (TKRoute)sender;
+
+            if (route == null) return;
+
+            var item = this._routes.SingleOrDefault(i => i.Value.Overlay.Equals(route));
+            if (item.Key == null) return;
+
+            if (e.PropertyName != TKRoute.TravelModelProperty &&
+                e.PropertyName != TKRoute.SourceProperty &&
+                e.PropertyName != TKRoute.DestinationProperty)
+            {
+                if (e.PropertyName == TKPolyline.ColorPropertyName)
+                {
+                    item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
+                    item.Value.Renderer.StrokeColor = item.Value.Overlay.Color.ToUIColor();
+                }
+                else if (e.PropertyName == TKPolyline.LineWidthProperty)
+                {
+                    item.Value.Renderer.LineWidth = item.Value.Overlay.LineWidth;
+                }
+                return;
+            }
+
+            item.Value.Overlay.PropertyChanged -= OnRoutePropertyChanged;
+
+            this.Map.RemoveOverlay(item.Key);
+            this._routes.Remove(item.Key);
+
+            this.AddRoute(route);
         }
         /// <summary>
         /// Adds a circle to the map
@@ -707,7 +907,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-        private void OnRoutePropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnLinePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var line = (TKPolyline)sender;
 
@@ -720,6 +920,7 @@ namespace TK.CustomMap.iOSUnified
             {
                 if (e.PropertyName == TKPolyline.ColorPropertyName)
                 {
+                    item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
                     item.Value.Renderer.StrokeColor = item.Value.Overlay.Color.ToUIColor();
                 }
                 else if (e.PropertyName == TKPolyline.LineWidthProperty)

@@ -1,4 +1,6 @@
 ﻿using CoreLocation;
+using MapKit;
+using TK.CustomMap.Overlays;
 using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.iOSUnified
@@ -25,6 +27,25 @@ namespace TK.CustomMap.iOSUnified
         public static Position ToPosition(this CLLocationCoordinate2D self)
         {
             return new Position(self.Latitude, self.Longitude);
+        }
+        /// <summary>
+        /// Convert <see cref="MKDirectionsTransportType"/> to <see cref="TKRouteTravelMode"/>
+        /// </summary>
+        /// <param name="self">Self instance</param>
+        /// <returns>The map kit transport type</returns>
+        public static MKDirectionsTransportType ToTransportType(this TKRouteTravelMode self)
+        {
+            switch (self)
+            {
+                case TKRouteTravelMode.Driving:
+                    return MKDirectionsTransportType.Automobile;
+                case TKRouteTravelMode.Walking:
+                    return MKDirectionsTransportType.Walking;
+                case TKRouteTravelMode.Any:
+                    return MKDirectionsTransportType.Any;
+                default:
+                    return MKDirectionsTransportType.Automobile;
+            }
         }
     }
 }

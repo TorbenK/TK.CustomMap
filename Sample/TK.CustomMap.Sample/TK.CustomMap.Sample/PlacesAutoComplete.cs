@@ -20,7 +20,8 @@ namespace TK.CustomMap.Sample
         public enum PlacesApi
         { 
             Google,
-            Osm
+            Osm,
+            Native
         }
 
         private readonly bool _useSearchBar;
@@ -181,11 +182,14 @@ namespace TK.CustomMap.Sample
                     if (apiResult != null)
                         result = apiResult.Predictions;
                 }
-                else
+                else if (this.ApiToUse == PlacesApi.Native)
                 {
 
                     result = await service.GetPredictions(this.SearchText, this.Bounds);
-                    //result = await OsmNominatim.Instance.GetPredictions(this.SearchText);
+                }
+                else
+                {
+                    result = await OsmNominatim.Instance.GetPredictions(this.SearchText);
                 }
 
                 if (result != null && result.Any())
