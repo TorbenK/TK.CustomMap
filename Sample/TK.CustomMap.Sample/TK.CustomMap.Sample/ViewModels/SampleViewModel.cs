@@ -15,8 +15,6 @@ namespace TK.CustomMap.Sample
 {
     public class SampleViewModel : INotifyPropertyChanged
     {
-        private TKRoute _selectedRoute;
-
         private MapSpan _mapRegion;
         private Position _mapCenter;
         private TKCustomMapPin _selectedPin;
@@ -210,9 +208,7 @@ namespace TK.CustomMap.Sample
                     {
                         var prediction = (TKNativeAndroidPlaceResult)p;
 
-                        var service = DependencyService.Get<INativePlacesApi>();
-                        service.Connect();
-                        var details = await service.GetDetails(prediction.PlaceId);
+                        var details = await TKNativePlacesApi.Instance.GetDetails(prediction.PlaceId);
 
                         this.MapCenter = details.Coordinate;
                     }

@@ -1,4 +1,5 @@
-﻿using TK.CustomMap.Api.Google;
+﻿using TK.CustomMap.Api;
+using TK.CustomMap.Api.Google;
 using Xamarin.Forms;
 
 namespace TK.CustomMap.Sample
@@ -22,6 +23,7 @@ namespace TK.CustomMap.Sample
         protected override void OnSleep()
         {
             // Handle when your app sleeps
+            TKNativePlacesApi.Instance.DisconnectAndRelease();
         }
 
         protected override void OnResume()

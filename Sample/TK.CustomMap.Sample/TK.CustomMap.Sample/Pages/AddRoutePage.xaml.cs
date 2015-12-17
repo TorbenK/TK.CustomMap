@@ -18,12 +18,22 @@ namespace TK.CustomMap.Sample
         {
             InitializeComponent();
 
-            var searchFrom = new PlacesAutoComplete(false) { ApiToUse = PlacesAutoComplete.PlacesApi.Osm, Bounds = bounds };
+            var googleImage = new Image 
+            {
+                Source = "powered_by_google_on_white.png"
+            };
+
+            var searchFrom = new PlacesAutoComplete(false) { ApiToUse = PlacesAutoComplete.PlacesApi.Native, Bounds = bounds };
             searchFrom.SetBinding(PlacesAutoComplete.PlaceSelectedCommandProperty, "FromSelectedCommand");
-            var searchTo = new PlacesAutoComplete(false) { ApiToUse = PlacesAutoComplete.PlacesApi.Osm, Bounds = bounds };
+            var searchTo = new PlacesAutoComplete(false) { ApiToUse = PlacesAutoComplete.PlacesApi.Native, Bounds = bounds };
             searchTo.SetBinding(PlacesAutoComplete.PlaceSelectedCommandProperty, "ToSelectedCommand");
             var labelFrom = new Label { Text = "From", FontAttributes = Xamarin.Forms.FontAttributes.Bold, FontSize = 16, HorizontalTextAlignment = TextAlignment.Center };
             var labelTo = new Label { Text = "To", FontAttributes = Xamarin.Forms.FontAttributes.Bold, FontSize = 16, HorizontalTextAlignment = TextAlignment.Center };
+
+            this._baseLayout.Children.Add(
+                googleImage,
+                Constraint.Constant(10),
+                Constraint.RelativeToParent(l => l.Height - 30));
 
             this._baseLayout.Children.Add(
                 labelFrom,

@@ -15,7 +15,7 @@ namespace TK.CustomMap.Sample
         private void CreateView()
         {
 
-            var autoComplete = new PlacesAutoComplete { ApiToUse = PlacesAutoComplete.PlacesApi.Osm };
+            var autoComplete = new PlacesAutoComplete { ApiToUse = PlacesAutoComplete.PlacesApi.Native };
             autoComplete.SetBinding(PlacesAutoComplete.PlaceSelectedCommandProperty, "PlaceSelectedCommand");
 
             var mapView = new TKCustomMap();

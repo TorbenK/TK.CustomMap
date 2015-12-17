@@ -3498,14 +3498,17 @@ namespace TK.CustomMap.Sample.Droid
 			// aapt resource value: 0x7f02007e
 			public const int mr_ic_settings_light = 2130837630;
 			
-			// aapt resource value: 0x7f020081
-			public const int notification_template_icon_bg = 2130837633;
+			// aapt resource value: 0x7f020082
+			public const int notification_template_icon_bg = 2130837634;
 			
 			// aapt resource value: 0x7f02007f
 			public const int powered_by_google_dark = 2130837631;
 			
 			// aapt resource value: 0x7f020080
 			public const int powered_by_google_light = 2130837632;
+			
+			// aapt resource value: 0x7f020081
+			public const int powered_by_google_on_white = 2130837633;
 			
 			static Drawable()
 			{

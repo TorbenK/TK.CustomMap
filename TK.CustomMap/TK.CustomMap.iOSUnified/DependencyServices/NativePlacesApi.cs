@@ -8,11 +8,20 @@ using System.Text;
 using System.Threading.Tasks;
 using TK.CustomMap.Api;
 using Xamarin.Forms.Maps;
+using Foundation;
 
 namespace TK.CustomMap.iOSUnified
 {
+    /// <summary>
+    /// iOS implementation of the <see cref="INativePlacesApi"/>
+    /// </summary>
     public class NativePlacesApi : INativePlacesApi
     {
+        /// <summary>
+        /// Just to avoid linking
+        /// </summary>
+        [Preserve]
+        public static void Init() { }
         ///<inheritdoc/>
         public void Connect()
         {

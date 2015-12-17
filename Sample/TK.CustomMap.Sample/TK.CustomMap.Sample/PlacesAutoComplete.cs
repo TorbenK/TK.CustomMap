@@ -16,7 +16,6 @@ namespace TK.CustomMap.Sample
             default(MapSpan));
 
         // TODO: SUMMARIES
-        INativePlacesApi service;
         public enum PlacesApi
         { 
             Google,
@@ -84,8 +83,6 @@ namespace TK.CustomMap.Sample
         }
         private void Init()
         {
-            service = DependencyService.Get<INativePlacesApi>();
-            service.Connect();
 
             OsmNominatim.Instance.CountryCodes.Add("de");
 
@@ -184,8 +181,7 @@ namespace TK.CustomMap.Sample
                 }
                 else if (this.ApiToUse == PlacesApi.Native)
                 {
-
-                    result = await service.GetPredictions(this.SearchText, this.Bounds);
+                    result = await TKNativePlacesApi.Instance.GetPredictions(this.SearchText, this.Bounds);
                 }
                 else
                 {

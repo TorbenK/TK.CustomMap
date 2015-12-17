@@ -36,7 +36,7 @@ namespace TK.CustomMap.Sample
                     {
                         TKNativeAndroidPlaceResult placeResult = (TKNativeAndroidPlaceResult)p;
                         this._fromPlace = placeResult;
-                        var details = await DependencyService.Get<INativePlacesApi>().GetDetails(placeResult.PlaceId);
+                        var details = await TKNativePlacesApi.Instance.GetDetails(placeResult.PlaceId);
 
                         this._from = details.Coordinate;
                     }
@@ -59,7 +59,7 @@ namespace TK.CustomMap.Sample
                     {
                         TKNativeAndroidPlaceResult placeResult = (TKNativeAndroidPlaceResult)p;
                         this._toPlace = placeResult;
-                        var details = await DependencyService.Get<INativePlacesApi>().GetDetails(placeResult.PlaceId);
+                        var details = await TKNativePlacesApi.Instance.GetDetails(placeResult.PlaceId);
 
                         this._to = details.Coordinate;
                     }

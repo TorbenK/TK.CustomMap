@@ -54,6 +54,7 @@
     <Compile Include="Api\Google\Directions\GmsPolyline.cs" />
     <Compile Include="Api\Google\Directions\GmsRouteResult.cs" />
     <Compile Include="Api\Google\Directions\GooglePoints.cs" />
+    <Compile Include="Api\NativePlacesApi\TKNativePlacesApi.cs" />
     <Compile Include="Api\NativePlacesApi\TKPlaceDetails.cs" />
     <Compile Include="Api\PlaceResult.cs" />
     <Compile Include="Api\NativePlacesApi\INativePlacesApi.cs" />
