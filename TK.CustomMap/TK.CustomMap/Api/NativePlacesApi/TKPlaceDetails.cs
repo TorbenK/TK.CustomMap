@@ -13,7 +13,7 @@ namespace TK.CustomMap.Api
     public class TKPlaceDetails
     {
         /// <summary>
-        /// Coordinate of the place
+        /// Gets/Sets the coordinate of the place
         /// </summary>
         public Position Coordinate { get; set; }
     }

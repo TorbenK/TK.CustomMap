@@ -16,6 +16,7 @@ using Xamarin.Forms.Platform.iOS;
 using TK.CustomMap.Utilities;
 using CoreLocation;
 using System;
+using Xamarin.Forms.Maps;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 
@@ -207,6 +208,10 @@ namespace TK.CustomMap.iOSUnified
             else if(e.PropertyName == TKCustomMap.PolygonsProperty.PropertyName)
             {
                 this.UpdatePolygons();
+            }
+            else if (e.PropertyName == TKCustomMap.RoutesProperty.PropertyName)
+            {
+                this.UpdateRoutes();
             }
         }
         /// <summary>
@@ -794,6 +799,8 @@ namespace TK.CustomMap.iOSUnified
                 {
                     var nativeRoute = r.Routes.First();
 
+                    this.SetRouteData(route, nativeRoute);
+
                     this._routes.Add(nativeRoute.Polyline, new TKOverlayItem<TKRoute, MKPolylineRenderer>(route));
                     this.Map.AddOverlay(nativeRoute.Polyline);
 
@@ -980,6 +987,38 @@ namespace TK.CustomMap.iOSUnified
                     annotationView.CanShowCallout = formsPin.ShowCallout;
                     break;
             }
+        }
+        /// <summary>
+        /// Sets the route data
+        /// </summary>
+        /// <param name="route">PCL route</param>
+        /// <param name="nativeRoute">Native route</param>
+        private void SetRouteData(TKRoute route, MKRoute nativeRoute)
+        {
+            var routeFunctions = (IRouteFunctions)route;
+            var steps = new TKRouteStep[nativeRoute.Steps.Count()];
+
+            for (int i = 0; i < steps.Length; i++)
+            {
+                steps[i] = new TKRouteStep();
+                var stepFunction = (IRouteStepFunctions)steps[i];
+                var nativeStep = nativeRoute.Steps.ElementAt(i);
+
+                stepFunction.SetInstructions(nativeStep.Instructions);
+                stepFunction.SetDistance(nativeStep.Distance);
+
+            }
+
+            routeFunctions.SetSteps(steps);
+            routeFunctions.SetDistance(nativeRoute.Distance);
+            routeFunctions.SetTravelTime(nativeRoute.ExpectedTravelTime);
+            routeFunctions.SetBounds(
+                MapSpan.FromCenterAndRadius(
+                    new Position(
+                        nativeRoute.Polyline.BoundingMapRect.MidX,
+                        nativeRoute.Polyline.BoundingMapRect.MidY),
+                    Distance.FromKilometers(
+                        route.Source.DistanceTo(route.Destination, false))));
         }
         /// <summary>
         /// Set the visibility of an annotation view

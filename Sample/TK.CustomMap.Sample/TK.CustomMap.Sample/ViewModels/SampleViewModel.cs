@@ -21,9 +21,7 @@ namespace TK.CustomMap.Sample
         private ObservableCollection<TKCustomMapPin> _pins;
         private ObservableCollection<TKRoute> _routes;
         private ObservableCollection<TKCircle> _circles;
-        private ObservableCollection<TKPolygon> _polygons;
 
-        Dictionary<TKCustomMapPin, TKRoute> _pinRoutes = new Dictionary<TKCustomMapPin, TKRoute>();
 
         public MapSpan MapRegion
         {
@@ -34,21 +32,6 @@ namespace TK.CustomMap.Sample
                 {
                     this._mapRegion = value;
                     this.OnPropertyChanged("MapRegion");
-                }
-            }
-        }
-        /// <summary>
-        /// Polygons bound to the <see cref="TKCustomMap"/>
-        /// </summary>
-        public ObservableCollection<TKPolygon> Polygons
-        {
-            get { return this._polygons; }
-            set
-            {
-                if (this._polygons != value)
-                {
-                    this._polygons = value;
-                    this.OnPropertyChanged("Polygons");
                 }
             }
         }
@@ -251,26 +234,18 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return new Command<TKRoute>(r => 
+                return new Command<TKRoute>(async r => 
                 {
-                    Application.Current.MainPage.DisplayAlert("Route tapped", "Route tapped", "OK");
-                });
-            }
-        }
-        /// <summary>
-        /// Clear everything from the <see cref="TKCustomMap"/>
-        /// </summary>
-        public Command ClearEverythingCommand
-        {
-            get
-            {
-                return new Command(() => 
-                {
-                    this.Pins.Clear();
-                    if(this.Routes != null)
-                        this.Routes.Clear();
-                    this.Circles.Clear();
-                    this.Polygons.Clear();
+                    var action = await Application.Current.MainPage.DisplayActionSheet(
+                        "Route tapped",
+                        "Cancel",
+                        null,
+                        "Show Instructions");
+
+                    if (action == "Show Instructions")
+                    {
+                        await Application.Current.MainPage.Navigation.PushAsync(new HtmlInstructionsPage(r));
+                    }
                 });
             }
         }
@@ -286,7 +261,7 @@ namespace TK.CustomMap.Sample
                     Application.Current.MainPage.DisplayAlert(
                         "Callout Clicked",
                         string.Format("Callout of pin {0} clicked", this.SelectedPin.Title),
-                        "Cool story bro");
+                        "OK");
                 });
             }
         }
@@ -303,31 +278,27 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+        /// <summary>
+        /// Command when a route calculation finished
+        /// </summary>
+        public Command<TKRoute> RouteCalculationFinishedCommand
+        {
+            get
+            {
+                return new Command<TKRoute>(r => 
+                {
+                    // move to the bounds of the route
+                    this.MapRegion = r.Bounds;
+                });
+            }
+        }
 
         public SampleViewModel()
         {
             this._mapCenter = new Position(40.7142700, -74.0059700);
-            this._pins = new ObservableCollection<TKCustomMapPin>(new MyPin[] 
-            {
-                new MyPin
-                {
-                    Position = new Position(40.7142700, -74.0059700),
-                    ShowCallout = false,
-                    Image = "https://maps.gstatic.com/mapfiles/ms2/micons/purple.png",
-                    IsDraggable = false,
-                    Title = "New York"
-                }
-            });
-            this._polygons = new ObservableCollection<TKPolygon>();
-            this._circles = new ObservableCollection<TKCircle>(new TKCircle[] 
-            {
-                new TKCircle
-                {
-                    Center = new Position(40.7142700, -74.0059700),
-                    Color = Color.FromRgba(99, 0, 0, 80),
-                    Radius = 1000
-                }
-            });
+
+            this._pins = new ObservableCollection<TKCustomMapPin>();
+            this._circles = new ObservableCollection<TKCircle>();
         }
 
         protected virtual void OnPropertyChanged(string propertyName)

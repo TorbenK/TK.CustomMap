@@ -32,6 +32,7 @@ namespace TK.CustomMap.Sample
             mapView.SetBinding(TKCustomMap.PolygonsProperty, "Polygons");
             mapView.SetBinding(TKCustomMap.MapRegionProperty, "MapRegion");
             mapView.SetBinding(TKCustomMap.RouteClickedCommandProperty, "RouteClickedCommand");
+            mapView.SetBinding(TKCustomMap.RouteCalculationFinishedCommandProperty, "RouteCalculationFinishedCommand");
             mapView.AnimateMapCenterChange = true;
 
             autoComplete.SetBinding(PlacesAutoComplete.BoundsProperty, "MapRegion");

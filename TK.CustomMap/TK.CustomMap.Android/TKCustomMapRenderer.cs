@@ -901,6 +901,8 @@ namespace TK.CustomMap.Droid
                 var r = routeData.Routes.FirstOrDefault();
                 if (r == null || r.Polyline.Positions == null || !r.Polyline.Positions.Any()) return;
 
+                this.SetRouteData(route, r);
+
                 var routeOptions = new PolylineOptions();
 
                 if (route.Color != Color.Default)
@@ -930,6 +932,40 @@ namespace TK.CustomMap.Droid
                     }
                 }
             }
+        }
+        /// <summary>
+        /// Sets the route calculation data
+        /// </summary>
+        /// <param name="route">The PCL route</param>
+        /// <param name="routeResult">The rourte api result</param>
+        private void SetRouteData(TKRoute route, GmsRouteResult routeResult)
+        {
+            var latLngBounds = new LatLngBounds(
+                    new LatLng(routeResult.Bounds.SouthWest.Latitude, routeResult.Bounds.SouthWest.Longitude),
+                    new LatLng(routeResult.Bounds.NorthEast.Latitude, routeResult.Bounds.NorthEast.Longitude));
+
+            var apiSteps = routeResult.Legs.First().Steps;
+            var steps = new TKRouteStep[apiSteps.Count()];
+            var routeFunctions = (IRouteFunctions)route;
+
+            
+            for (int i = 0; i < steps.Length; i++)
+            {
+                steps[i] = new TKRouteStep();
+                var stepFunctions = (IRouteStepFunctions)steps[i];
+                var apiStep = apiSteps.ElementAt(i);
+
+                stepFunctions.SetDistance(apiStep.Distance.Value);
+                stepFunctions.SetInstructions(apiStep.HtmlInstructions);
+            }
+            routeFunctions.SetSteps(steps);
+            routeFunctions.SetDistance(routeResult.Legs.First().Distance.Value);
+            routeFunctions.SetTravelTime(routeResult.Legs.First().Duration.Value);
+            routeFunctions.SetBounds(
+                MapSpan.FromCenterAndRadius(
+                    latLngBounds.Center.ToPosition(),
+                    Distance.FromKilometers(route.Source.DistanceTo(route.Destination, false))));
+
         }
         /// <summary>
         /// Updates the image of a pin
