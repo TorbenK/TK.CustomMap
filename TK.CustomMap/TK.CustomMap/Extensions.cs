@@ -24,7 +24,7 @@ namespace TK.CustomMap
         /// <param name="target">The target position</param>
         /// <param name="inMiles">If <value>true</value> the distance is calculated in miles, else in kilometers</param>
         /// <returns>The distance in miles or kilometers</returns>
-        public static double DistanceTo(this Position self, Position target, bool inMiles)
+        public static double DistanceTo(this Position self, Position target, bool inMiles = false)
         {
             return GetDistance(self, target, inMiles);   
         }

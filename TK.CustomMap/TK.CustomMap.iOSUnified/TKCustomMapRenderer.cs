@@ -1006,7 +1006,6 @@ namespace TK.CustomMap.iOSUnified
 
                 stepFunction.SetInstructions(nativeStep.Instructions);
                 stepFunction.SetDistance(nativeStep.Distance);
-
             }
 
             routeFunctions.SetSteps(steps);
@@ -1018,7 +1017,7 @@ namespace TK.CustomMap.iOSUnified
                         nativeRoute.Polyline.BoundingMapRect.MidX,
                         nativeRoute.Polyline.BoundingMapRect.MidY),
                     Distance.FromKilometers(
-                        route.Source.DistanceTo(route.Destination, false))));
+                        route.Source.DistanceTo(route.Destination))));
         }
         /// <summary>
         /// Set the visibility of an annotation view

@@ -681,6 +681,7 @@ namespace TK.CustomMap.Droid
                 e.PropertyName == TKRoute.DestinationProperty || 
                 e.PropertyName == TKRoute.TravelModelProperty)
             {
+                route.PropertyChanged -= OnRoutePropertyChanged;
                 this._routes[route].Remove();
                 this._routes.Remove(route);
 
@@ -964,7 +965,10 @@ namespace TK.CustomMap.Droid
             routeFunctions.SetBounds(
                 MapSpan.FromCenterAndRadius(
                     latLngBounds.Center.ToPosition(),
-                    Distance.FromKilometers(route.Source.DistanceTo(route.Destination, false))));
+                    Distance.FromKilometers(
+                        new Position(latLngBounds.Southwest.Latitude, latLngBounds.Southwest.Longitude)
+                        .DistanceTo(
+                            new Position(latLngBounds.Northeast.Latitude, latLngBounds.Northeast.Longitude)))));
 
         }
         /// <summary>

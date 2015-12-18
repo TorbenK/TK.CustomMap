@@ -75,29 +75,36 @@ namespace TK.CustomMap.Sample
                 {
                     if (this._toPlace == null || this._fromPlace == null) return;
 
-                    this.Pins.Add(new TKCustomMapPin 
-                    {
-                        IsDraggable = false,
-                        Position = this._from,
-                        Title = this._fromPlace.Description,
-                        ShowCallout = true,
-                        DefaultPinColor = Color.Green
-                    });
-                    this.Pins.Add(new TKCustomMapPin
-                    {
-                        IsDraggable = false,
-                        Position = this._to,
-                        Title = this._toPlace.Description,
-                        ShowCallout = true,
-                        DefaultPinColor = Color.Red
-                    });
-                    this.Routes.Add(new TKRoute 
+                    var route = new TKRoute
                     {
                         TravelMode = TKRouteTravelMode.Driving,
                         Source = this._from,
                         Destination = this._to,
                         Color = Color.Blue
+                    };
+
+                    this.Pins.Add(new RoutePin 
+                    {
+                        Route = route,
+                        IsSource = true,
+                        IsDraggable = true,
+                        Position = this._from,
+                        Title = this._fromPlace.Description,
+                        ShowCallout = true,
+                        DefaultPinColor = Color.Green
                     });
+                    this.Pins.Add(new RoutePin
+                    {
+                        Route = route,
+                        IsSource = false,
+                        IsDraggable = true,
+                        Position = this._to,
+                        Title = this._toPlace.Description,
+                        ShowCallout = true,
+                        DefaultPinColor = Color.Red
+                    });
+
+                    this.Routes.Add(route);
 
                     Application.Current.MainPage.Navigation.PopAsync();
                 });
