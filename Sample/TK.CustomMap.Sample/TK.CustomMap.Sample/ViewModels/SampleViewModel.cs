@@ -142,8 +142,8 @@ namespace TK.CustomMap.Sample
                         var circle = new TKCircle 
                         {
                             Center = position,
-                            Radius = 1000,
-                            Color = Color.FromRgba(0, 60, 0, 40)
+                            Radius = 5000,
+                            Color = Color.FromRgba(100, 0, 0, 120)
                         };
                         this._circles.Add(circle);
                     }
@@ -160,7 +160,23 @@ namespace TK.CustomMap.Sample
             {
                 return new Command<Position>((positon) => 
                 {
-                    this.SelectedPin = null;                    
+                    this.SelectedPin = null;        
+            
+                    // Determine if a circle was clicked
+                    if(this._circles == null) return;
+
+                    foreach (var c in this._circles)
+                    {
+                        var distanceInMeters = c.Center.DistanceTo(positon)*1000;
+
+                        if (distanceInMeters <= c.Radius)
+                        {
+                            Application.Current.MainPage.DisplayAlert(
+                                "Circle Tap",
+                                "Circle was tapped",
+                                "OK");
+                        }
+                    }
                 });
             }
         }
@@ -224,9 +240,17 @@ namespace TK.CustomMap.Sample
         {
             get 
             {
-                return new Command<TKCustomMapPin>(async pin => 
+                return new Command<TKCustomMapPin>(pin =>
                 {
-                    
+                    var routePin = pin as RoutePin;
+
+                    if (routePin != null)
+                    {
+                        if (routePin.IsSource)
+                            routePin.Route.Source = pin.Position;
+                        else
+                            routePin.Route.Destination = pin.Position;
+                    }
                 });
             }
         }

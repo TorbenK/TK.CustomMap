@@ -77,8 +77,8 @@ namespace TK.CustomMap.Droid
         {
             if(this._apiClient == null)
             {
-                this._apiClient = new Android.Gms.Common.Apis.GoogleApiClientBuilder(Forms.Context)
-                    .AddApi(Android.Gms.Location.Places.PlacesClass.GEO_DATA_API)
+                this._apiClient = new GoogleApiClientBuilder(Forms.Context)
+                    .AddApi(PlacesClass.GEO_DATA_API)
                     .Build();
             }
             if(!this._apiClient.IsConnected && !this._apiClient.IsConnecting)

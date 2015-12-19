@@ -681,6 +681,8 @@ namespace TK.CustomMap.Droid
                 e.PropertyName == TKRoute.DestinationProperty || 
                 e.PropertyName == TKRoute.TravelModelProperty)
             {
+                route.PropertyChanged -= OnRoutePropertyChanged;
+
                 this._routes[route].Remove();
                 this._routes.Remove(route);
 

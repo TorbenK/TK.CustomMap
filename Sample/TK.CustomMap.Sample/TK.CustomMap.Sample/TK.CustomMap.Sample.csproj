@@ -35,6 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
+    <Compile Include="Custom Pins\RoutePin.cs" />
     <Compile Include="MyPin.cs" />
     <Compile Include="Pages\AddRoutePage.xaml.cs">
       <DependentUpon>AddRoutePage.xaml</DependentUpon>
