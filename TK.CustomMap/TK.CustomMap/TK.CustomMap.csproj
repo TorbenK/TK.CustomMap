@@ -56,7 +56,7 @@
     <Compile Include="Api\Google\Directions\GooglePoints.cs" />
     <Compile Include="Api\NativePlacesApi\TKNativePlacesApi.cs" />
     <Compile Include="Api\NativePlacesApi\TKPlaceDetails.cs" />
-    <Compile Include="Api\PlaceResult.cs" />
+    <Compile Include="Api\IPlaceResult.cs" />
     <Compile Include="Api\NativePlacesApi\INativePlacesApi.cs" />
     <Compile Include="Api\NativePlacesApi\TKNativeAndroidPlaceResult.cs" />
     <Compile Include="Api\NativePlacesApi\TKNativeiOSPlaceResult.cs" />

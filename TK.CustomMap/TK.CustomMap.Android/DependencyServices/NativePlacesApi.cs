@@ -1,24 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using TK.CustomMap.Api;
 using System.Threading.Tasks;
-using Xamarin.Forms;
-using Android.Gms.Location.Places;
 using Android.Gms.Common.Apis;
-using System.Collections.ObjectModel;
+using Android.Gms.Location.Places;
 using Android.Gms.Maps.Model;
+using TK.CustomMap.Api;
+using TK.CustomMap.Droid;
+using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
-[assembly: Dependency(typeof(TK.CustomMap.Droid.NativePlacesApi))]
+[assembly: Dependency(typeof(NativePlacesApi))]
 
 namespace TK.CustomMap.Droid
 {

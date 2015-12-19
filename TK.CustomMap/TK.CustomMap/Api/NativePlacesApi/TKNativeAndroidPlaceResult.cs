@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TK.CustomMap.Api
+﻿namespace TK.CustomMap.Api
 {
     /// <summary>
     /// Android result set
@@ -17,5 +11,7 @@ namespace TK.CustomMap.Api
         public string PlaceId { get; set; }
         ///<inheritdoc/>
         public string Description { get; set; }
+        ///<inheritdoc />
+        public string Subtitle { get; set; }
     }
 }

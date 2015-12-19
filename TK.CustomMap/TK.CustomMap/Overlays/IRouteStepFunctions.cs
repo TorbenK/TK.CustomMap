@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xamarin.Forms.Maps;
-
-namespace TK.CustomMap.Overlays
+﻿namespace TK.CustomMap.Overlays
 {
     /// <summary>
     /// Internally used functions to set read-only properties on <see cref="TKRouteStep"/>

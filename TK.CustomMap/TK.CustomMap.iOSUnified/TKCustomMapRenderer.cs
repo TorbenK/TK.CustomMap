@@ -197,7 +197,7 @@ namespace TK.CustomMap.iOSUnified
             {
                 this.SetMapCenter();
             }
-            else if (e.PropertyName == TKCustomMap.RoutesProperty.PropertyName)
+            else if (e.PropertyName == TKCustomMap.PolylinesProperty.PropertyName)
             {
                 this.UpdateLines();
             }
@@ -339,7 +339,7 @@ namespace TK.CustomMap.iOSUnified
                 foreach (var route in this.FormsMap.Routes.Where(i => i.Selectable))
                 {
                     var internalItem = this._routes.Single(i => i.Value.Overlay.Equals(route));
-                    var coordinates = internalItem.Key.Points.Select(i => this.Map.ConvertPoint(new CGPoint(i.X, i.Y), this.Map));
+                    var coordinates = internalItem.Key.Points.Select(MKMapPoint.ToCoordinate);
 
                     if (GmsPolyUtil.IsLocationOnPath(
                         coordinate.ToPosition(),
@@ -461,7 +461,7 @@ namespace TK.CustomMap.iOSUnified
                 this._lines.Clear();
             }
 
-            if (this.FormsMap.Routes == null) return;
+            if (this.FormsMap.Polylines == null) return;
 
             foreach (var line in this.FormsMap.Polylines)
             {
@@ -793,7 +793,7 @@ namespace TK.CustomMap.iOSUnified
             req.TransportType = route.TravelMode.ToTransportType();
 
             MKDirections directions = new MKDirections(req);
-            directions.CalculateDirections(new MKDirectionsHandler((r, e) => 
+            directions.CalculateDirections((r, e) => 
             {
                 if (r != null && r.Routes != null && r.Routes.Any())
                 {
@@ -818,7 +818,7 @@ namespace TK.CustomMap.iOSUnified
                         this.FormsMap.RouteCalculationFailedCommand.Execute(route);
                     }
                 }
-            }));
+            });
         }
         /// <summary>
         /// When a property of a route changed
@@ -1012,11 +1012,14 @@ namespace TK.CustomMap.iOSUnified
             routeFunctions.SetSteps(steps);
             routeFunctions.SetDistance(nativeRoute.Distance);
             routeFunctions.SetTravelTime(nativeRoute.ExpectedTravelTime);
+
+            
+            //CLLocationCoordinate2D coord = this.Map.ConvertPoint(new CGPoint(
+            //    nativeRoute.Polyline.BoundingMapRect.MidY, nativeRoute.Polyline.BoundingMapRect.MidX), this.Map);)
+
             routeFunctions.SetBounds(
                 MapSpan.FromCenterAndRadius(
-                    new Position(
-                        nativeRoute.Polyline.BoundingMapRect.MidX,
-                        nativeRoute.Polyline.BoundingMapRect.MidY),
+                    nativeRoute.Polyline.Coordinate.ToPosition(),
                     Distance.FromKilometers(
                         route.Source.DistanceTo(route.Destination, false))));
         }

@@ -116,7 +116,8 @@ namespace TK.CustomMap.Sample
             this._autoCompleteListView.ItemTemplate = new DataTemplate(() =>
             {
                 var cell = new TextCell();
-                cell.SetBinding(ImageCell.TextProperty, "Description");
+                cell.SetBinding(TextCell.TextProperty, "Description");
+                cell.SetBinding(TextCell.DetailProperty, "Subtitle");
 
                 return cell;
             });

@@ -4,19 +4,17 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
 using Android.Gms.Maps;
 using Android.Gms.Maps.Model;
 using TK.CustomMap;
+using TK.CustomMap.Api.Google;
 using TK.CustomMap.Droid;
 using TK.CustomMap.Overlays;
+using TK.CustomMap.Utilities;
 using Xamarin.Forms;
+using Xamarin.Forms.Maps;
 using Xamarin.Forms.Maps.Android;
 using Xamarin.Forms.Platform.Android;
-using Android.Gms.Location.Places;
-using Xamarin.Forms.Maps;
-using TK.CustomMap.Api.Google;
-using TK.CustomMap.Utilities;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 namespace TK.CustomMap.Droid

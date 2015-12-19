@@ -15,5 +15,7 @@ namespace TK.CustomMap.Api.Google
         public string PlaceId { get; set; }
         [JsonProperty("reference")]
         public string Reference { get; set; }
+        ///<inheritdoc />
+        public string Subtitle { get; set; }
     }
 }

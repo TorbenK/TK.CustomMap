@@ -4,11 +4,15 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using TK.CustomMap.Api;
 using Xamarin.Forms.Maps;
 using Foundation;
+using TK.CustomMap.iOSUnified;
+
+[assembly: Xamarin.Forms.Dependency(typeof(NativePlacesApi))]
 
 namespace TK.CustomMap.iOSUnified
 {
@@ -55,12 +59,13 @@ namespace TK.CustomMap.iOSUnified
                 result.AddRange(nativeResult.MapItems.Select(i =>
                     new TKNativeiOSPlaceResult
                     {
-                        Description = i.Name,
+                        Description =  i.Placemark.Title,
                         Details = new TKPlaceDetails 
                         {
                             Coordinate = i.Placemark.Coordinate.ToPosition()
                         }
                     }));
+                return result;
             }
             return null;
         }
