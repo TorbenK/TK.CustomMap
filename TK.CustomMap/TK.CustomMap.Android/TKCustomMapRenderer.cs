@@ -4,13 +4,15 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
 using Android.Gms.Maps;
 using Android.Gms.Maps.Model;
 using TK.CustomMap;
+using TK.CustomMap.Api.Google;
 using TK.CustomMap.Droid;
 using TK.CustomMap.Overlays;
+using TK.CustomMap.Utilities;
 using Xamarin.Forms;
+using Xamarin.Forms.Maps;
 using Xamarin.Forms.Maps.Android;
 using Xamarin.Forms.Platform.Android;
 
@@ -24,9 +26,8 @@ namespace TK.CustomMap.Droid
     {
         private bool _init = true;
 
-        private IVisualElementRenderer _customInfoRenderer;
-
         private readonly Dictionary<TKRoute, Polyline> _routes = new Dictionary<TKRoute, Polyline>();
+        private readonly Dictionary<TKPolyline, Polyline> _polylines = new Dictionary<TKPolyline, Polyline>();
         private readonly Dictionary<TKCircle, Circle> _circles = new Dictionary<TKCircle, Circle>();
         private readonly Dictionary<TKPolygon, Polygon> _polygons = new Dictionary<TKPolygon, Polygon>();
         private readonly Dictionary<TKCustomMapPin, Marker> _markers = new Dictionary<TKCustomMapPin, Marker>();
@@ -48,7 +49,7 @@ namespace TK.CustomMap.Droid
 
             MapView mapView = this.Control as MapView;
             if (mapView == null) return;
-
+            
             if (this.FormsMap != null && this._googleMap == null)
             {
                 mapView.GetMapAsync(this);
@@ -60,6 +61,7 @@ namespace TK.CustomMap.Droid
                     {
                         this.FormsMap.CustomPins.CollectionChanged += OnCustomPinsCollectionChanged;
                     }
+
                 }
             }
         }
@@ -96,9 +98,9 @@ namespace TK.CustomMap.Droid
             {
                 this.MoveToCenter();
             }
-            else if (e.PropertyName == TKCustomMap.RoutesProperty.PropertyName)
+            else if (e.PropertyName == TKCustomMap.PolylinesProperty.PropertyName)
             {
-                this.UpdateRoutes();
+                this.UpdateLines();
             }
             else if (e.PropertyName == TKCustomMap.CirclesProperty.PropertyName)
             {
@@ -107,6 +109,10 @@ namespace TK.CustomMap.Droid
             else if (e.PropertyName == TKCustomMap.PolygonsProperty.PropertyName)
             {
                 this.UpdatePolygons();
+            }
+            else if (e.PropertyName == TKCustomMap.RoutesProperty.PropertyName)
+            {
+                this.UpdateRoutes();
             }
         }
         /// <summary>
@@ -129,6 +135,7 @@ namespace TK.CustomMap.Droid
             this.MoveToCenter();
             this.UpdatePins();
             this.UpdateRoutes();
+            this.UpdateLines();
             this.UpdateCircles();
             this.UpdatePolygons();
         }
@@ -173,6 +180,7 @@ namespace TK.CustomMap.Droid
         private void OnCameraChange(object sender, GoogleMap.CameraChangeEventArgs e)
         {
             this.FormsMap.MapCenter = e.Position.Target.ToPosition();
+            base.OnCameraChange(e.Position);
         }
         /// <summary>
         /// When a pin gets clicked
@@ -238,6 +246,28 @@ namespace TK.CustomMap.Droid
 
             var position = e.Point.ToPosition();
 
+            if (this.FormsMap.Routes != null && this.FormsMap.RouteClickedCommand != null)
+            {
+                foreach(var route in this.FormsMap.Routes.Where(i => i.Selectable))
+                {
+                    var internalRoute = this._routes[route];
+
+                    if (GmsPolyUtil.IsLocationOnPath(
+                        position, 
+                        internalRoute.Points.Select(i => i.ToPosition()), 
+                        true,
+                        (int)this._googleMap.CameraPosition.Zoom, 
+                        this.FormsMap.MapCenter.Latitude))
+                    {
+                        if (this.FormsMap.RouteClickedCommand.CanExecute(route))
+                        {
+                            this.FormsMap.RouteClickedCommand.Execute(route);
+                            return;
+                        }
+                    }
+                }
+            }
+            
             if (this.FormsMap.MapClickedCommand.CanExecute(position))
             {
                 this.FormsMap.MapClickedCommand.Execute(position);
@@ -248,13 +278,13 @@ namespace TK.CustomMap.Droid
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-        private async void OnCustomPinsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnCustomPinsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
                 foreach (TKCustomMapPin pin in e.NewItems)
                 {
-                    await this.AddPin(pin);
+                    this.AddPin(pin);
                 }
             }
             else if (e.Action == NotifyCollectionChangedAction.Remove)
@@ -282,7 +312,7 @@ namespace TK.CustomMap.Droid
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-        private async void OnPinPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnPinPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var pin = sender as TKCustomMapPin;
             if (pin == null) return;
@@ -299,15 +329,10 @@ namespace TK.CustomMap.Droid
                     marker.Snippet = pin.Subtitle;
                     break;
                 case TKCustomMapPin.ImagePropertyName:
-                    if (pin.Image != null)
-                    {
-                        var icon = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image, this.Context);
-                        marker.SetIcon(BitmapDescriptorFactory.FromBitmap(icon));
-                    }
-                    else
-                    {
-                        marker.SetIcon(BitmapDescriptorFactory.DefaultMarker());
-                    }
+                    this.UpdateImage(pin, marker);
+                    break;
+                case TKCustomMapPin.DefaultPinColorPropertyName:
+                    this.UpdateImage(pin, marker);
                     break;
                 case TKCustomMapPin.PositionPropertyName:
                     if (!this._isDragging)
@@ -325,30 +350,30 @@ namespace TK.CustomMap.Droid
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-        private void OnRouteCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnLineCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                foreach (TKRoute route in e.NewItems)
+                foreach (TKPolyline line in e.NewItems)
                 {
-                    this.AddRoute(route);
+                    this.AddLine(line);
                 }
             }
             else if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-                foreach (TKRoute route in e.OldItems)
+                foreach (TKPolyline line in e.OldItems)
                 {
-                    if (!this.FormsMap.Routes.Contains(route))
+                    if (!this.FormsMap.Polylines.Contains(line))
                     {
-                        this._routes[route].Remove();
-                        route.PropertyChanged -= OnRoutePropertyChanged;
-                        this._routes.Remove(route);
+                        this._polylines[line].Remove();
+                        line.PropertyChanged -= OnLinePropertyChanged;
+                        this._polylines.Remove(line);
                     }
                 }
             }
             else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                this.UpdateRoutes(false);
+                this.UpdateLines(false);
             }
         }
         /// <summary>
@@ -356,34 +381,34 @@ namespace TK.CustomMap.Droid
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-        private void OnRoutePropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnLinePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var route = (TKRoute)sender;
+            var line = (TKPolyline)sender;
 
-            if (e.PropertyName == TKRoute.RouteCoordinatesPropertyName)
+            if (e.PropertyName == TKPolyline.LineCoordinatesPropertyName)
             {
-                if (route.RouteCoordinates != null && route.RouteCoordinates.Count > 1)
+                if (line.LineCoordinates != null && line.LineCoordinates.Count > 1)
                 {
-                    this._routes[route].Points = new List<LatLng>(route.RouteCoordinates.Select(i => i.ToLatLng()));
+                    this._polylines[line].Points = new List<LatLng>(line.LineCoordinates.Select(i => i.ToLatLng()));
                 }
                 else
                 {
-                    this._routes[route].Points = null;
+                    this._polylines[line].Points = null;
                 }
             }
-            else if (e.PropertyName == TKRoute.LineColorPropertyName)
+            else if (e.PropertyName == TKOverlay.ColorPropertyName)
             {
-                this._routes[route].Color = route.LineColor.ToAndroid().ToArgb();
+                this._polylines[line].Color = line.Color.ToAndroid().ToArgb();
             }
-            else if (e.PropertyName == TKRoute.LineWidthProperty)
+            else if (e.PropertyName == TKPolyline.LineWidthProperty)
             {
-                this._routes[route].Width = route.LineWidth;
+                this._polylines[line].Width = line.LineWidth;
             }
         }
         /// <summary>
         /// Creates all Markers on the map
         /// </summary>
-        private async void UpdatePins()
+        private void UpdatePins()
         {
             if (this._googleMap == null) return;
 
@@ -396,7 +421,7 @@ namespace TK.CustomMap.Droid
 
             foreach (var pin in items)
             {
-                await this.AddPin(pin);
+                this.AddPin(pin);
 
                 if (this._firstUpdate)
                 {
@@ -414,7 +439,7 @@ namespace TK.CustomMap.Droid
         /// Adds a marker to the map
         /// </summary>
         /// <param name="pin">The Forms Pin</param>
-        private async Task AddPin(TKCustomMapPin pin)
+        private void AddPin(TKCustomMapPin pin)
         {
             var markerWithIcon = new MarkerOptions();
             markerWithIcon.SetPosition(new LatLng(pin.Position.Latitude, pin.Position.Longitude));
@@ -424,24 +449,7 @@ namespace TK.CustomMap.Droid
             if (!string.IsNullOrWhiteSpace(pin.Subtitle))
                 markerWithIcon.SetSnippet(pin.Subtitle);
 
-            BitmapDescriptor bitmap;
-            try
-            {
-                if (pin.Image != null)
-                {
-                    var icon = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image, this.Context);
-                    bitmap = BitmapDescriptorFactory.FromBitmap(icon);
-                }
-                else
-                {
-                    bitmap = BitmapDescriptorFactory.DefaultMarker();
-                }
-            }
-            catch (Exception)
-            {
-                bitmap = BitmapDescriptorFactory.DefaultMarker();
-            }
-            markerWithIcon.SetIcon(bitmap);
+            this.UpdateImage(pin, markerWithIcon);
             markerWithIcon.Draggable(pin.IsDraggable);
             markerWithIcon.Visible(pin.IsVisible);
 
@@ -494,6 +502,8 @@ namespace TK.CustomMap.Droid
         /// </summary>
         private void MoveToCenter()
         {
+            if (this._googleMap == null) return;
+
             if (!this.FormsMap.MapCenter.Equals(this._googleMap.CameraPosition.Target.ToPosition()))
             {
                 var cameraUpdate = CameraUpdateFactory.NewLatLng(this.FormsMap.MapCenter.ToLatLng());
@@ -511,30 +521,30 @@ namespace TK.CustomMap.Droid
         /// <summary>
         /// Creates the routes on the map
         /// </summary>
-        private void UpdateRoutes(bool firstUpdate = true)
+        private void UpdateLines(bool firstUpdate = true)
         {
             if (this._googleMap == null) return;
 
-            foreach (var i in this._routes)
+            foreach (var i in this._polylines)
             {
-                i.Key.PropertyChanged -= OnRoutePropertyChanged;
+                i.Key.PropertyChanged -= OnLinePropertyChanged;
                 i.Value.Remove();
             }
-            this._routes.Clear();
+            this._polylines.Clear();
 
-            if (this.FormsMap.Routes != null)
+            if (this.FormsMap.Polylines != null)
             {
-                foreach (var route in this.FormsMap.Routes)
+                foreach (var line in this.FormsMap.Polylines)
                 {
-                    this.AddRoute(route);
+                    this.AddLine(line);
                 }
 
                 if (firstUpdate)
                 {
-                    var observAble = this.FormsMap.Routes as ObservableCollection<TKRoute>;
+                    var observAble = this.FormsMap.Polylines as ObservableCollection<TKRoute>;
                     if (observAble != null)
                     {
-                        observAble.CollectionChanged += OnRouteCollectionChanged;
+                        observAble.CollectionChanged += OnLineCollectionChanged;
                     }
                 }
             }
@@ -597,6 +607,95 @@ namespace TK.CustomMap.Droid
             }
         }
         /// <summary>
+        /// Create all routes
+        /// </summary>
+        /// <param name="firstUpdate">If first update of collection or not</param>
+        private void UpdateRoutes(bool firstUpdate = true)
+        {
+            if (this._googleMap == null) return;
+
+            foreach (var i in this._routes)
+            {
+                i.Key.PropertyChanged -= OnRoutePropertyChanged;
+                i.Value.Remove();
+            }
+            if (this.FormsMap.Routes != null)
+            {
+                foreach (var i in this.FormsMap.Routes)
+                {
+                    this.AddRoute(i);
+                }
+            }
+            if (firstUpdate)
+            {
+                var observAble = this.FormsMap.Routes as ObservableCollection<TKRoute>;
+                if (observAble != null)
+                {
+                    observAble.CollectionChanged += OnRouteCollectionChanged;
+                }
+            }
+        }
+        /// <summary>
+        /// When the collection of routes changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnRouteCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (TKRoute route in e.NewItems)
+                {
+                    this.AddRoute(route);
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (TKRoute route in e.OldItems)
+                {
+                    if (!this.FormsMap.Routes.Contains(route))
+                    {
+                        this._routes[route].Remove();
+                        route.PropertyChanged -= OnRoutePropertyChanged;
+                        this._routes.Remove(route);
+                    }
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                this.UpdateRoutes(false);
+            }
+        }
+        /// <summary>
+        /// When a property of a route changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnRoutePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var route = (TKRoute)sender;
+
+            if (e.PropertyName == TKRoute.SourceProperty || 
+                e.PropertyName == TKRoute.DestinationProperty || 
+                e.PropertyName == TKRoute.TravelModelProperty)
+            {
+                route.PropertyChanged -= OnRoutePropertyChanged;
+
+                this._routes[route].Remove();
+                this._routes.Remove(route);
+
+                this.AddRoute(route);
+            }
+            else if (e.PropertyName == TKOverlay.ColorPropertyName)
+            {
+                this._routes[route].Color = route.Color.ToAndroid().ToArgb();
+            }
+            else if (e.PropertyName == TKPolyline.LineWidthProperty)
+            {
+                this._routes[route].Width = route.LineWidth;
+            }
+        }
+        /// <summary>
         /// When the polygon collection changed
         /// </summary>
         /// <param name="sender">Event Sender</param>
@@ -641,9 +740,9 @@ namespace TK.CustomMap.Droid
             {
                 polygonOptions.Add(polygon.Coordinates.Select(i => i.ToLatLng()).ToArray());
             }
-            if (polygon.FillColor != Color.Default)
+            if (polygon.Color != Color.Default)
             {
-                polygonOptions.InvokeFillColor(polygon.FillColor.ToAndroid().ToArgb());
+                polygonOptions.InvokeFillColor(polygon.Color.ToAndroid().ToArgb());
             }
             if (polygon.StrokeColor != Color.Default)
             {
@@ -667,8 +766,8 @@ namespace TK.CustomMap.Droid
                 case TKPolygon.CoordinatesPropertyName:
                     this._polygons[tkPolygon].Points = tkPolygon.Coordinates.Select(i => i.ToLatLng()).ToList();
                     break;
-                case TKPolygon.FillColorPropertyName:
-                    this._polygons[tkPolygon].FillColor = tkPolygon.FillColor.ToAndroid().ToArgb();
+                case TKOverlay.ColorPropertyName:
+                    this._polygons[tkPolygon].FillColor = tkPolygon.Color.ToAndroid().ToArgb();
                     break;
                 case TKPolygon.StrokeColorPropertyName:
                     this._polygons[tkPolygon].StrokeColor = tkPolygon.StrokeColor.ToAndroid().ToArgb();
@@ -751,7 +850,7 @@ namespace TK.CustomMap.Droid
                 case TKCircle.CenterPropertyName:
                     circle.Center = tkCircle.Center.ToLatLng();
                     break;
-                case TKCircle.ColorPropertyName:
+                case TKOverlay.ColorPropertyName:
                     circle.FillColor = tkCircle.Color.ToAndroid().ToArgb();
                     break;
                 case TKCircle.StrokeColorPropertyName:
@@ -762,28 +861,180 @@ namespace TK.CustomMap.Droid
         /// <summary>
         /// Adds a route to the map
         /// </summary>
+        /// <param name="line">The route to add</param>
+        private void AddLine(TKPolyline line)
+        {
+            line.PropertyChanged += OnLinePropertyChanged;
+            
+            var polylineOptions = new PolylineOptions();
+            if (line.Color != Color.Default)
+            {
+                polylineOptions.InvokeColor(line.Color.ToAndroid().ToArgb());
+            }
+            if (line.LineWidth > 0)
+            {
+                polylineOptions.InvokeWidth(line.LineWidth);
+            }
+
+            if (line.LineCoordinates != null)
+            {
+                polylineOptions.Add(line.LineCoordinates.Select(i => i.ToLatLng()).ToArray());
+            }
+
+            this._polylines.Add(line, this._googleMap.AddPolyline(polylineOptions));
+        }
+        /// <summary>
+        /// Calculates and adds the route to the map
+        /// </summary>
         /// <param name="route">The route to add</param>
-        private void AddRoute(TKRoute route)
+        private async void AddRoute(TKRoute route)
         {
             route.PropertyChanged += OnRoutePropertyChanged;
 
-            var polylineOptions = new PolylineOptions();
-            if (route.LineColor != Color.Default)
+            GmsDirectionResult routeData = null;
+            try
             {
-                polylineOptions.InvokeColor(route.LineColor.ToAndroid().ToArgb());
-            }
-            if (route.LineWidth > 0)
-            {
-                polylineOptions.InvokeWidth(route.LineWidth);
-            }
+                routeData = await GmsDirection.Instance.CalculateRoute(route.Source, route.Destination, route.TravelMode.ToGmsTravelMode());
+                
+                if (routeData == null || routeData.Routes == null) return;
 
-            if (route.RouteCoordinates != null)
-            {
-                polylineOptions.Add(route.RouteCoordinates.Select(i => i.ToLatLng()).ToArray());
-            }
+                var r = routeData.Routes.FirstOrDefault();
+                if (r == null || r.Polyline.Positions == null || !r.Polyline.Positions.Any()) return;
 
-            this._routes.Add(route, this._googleMap.AddPolyline(polylineOptions));
+                this.SetRouteData(route, r);
+
+                var routeOptions = new PolylineOptions();
+
+                if (route.Color != Color.Default)
+                {
+                    routeOptions.InvokeColor(route.Color.ToAndroid().ToArgb());
+                }
+                if (route.LineWidth > 0)
+                {
+                    routeOptions.InvokeWidth(route.LineWidth);
+                }
+                routeOptions.Add(r.Polyline.Positions.Select(i => i.ToLatLng()).ToArray());
+
+                this._routes.Add(route, this._googleMap.AddPolyline(routeOptions));
+
+                if (this.FormsMap.RouteCalculationFinishedCommand != null && this.FormsMap.RouteCalculationFinishedCommand.CanExecute(route))
+                {
+                    this.FormsMap.RouteCalculationFinishedCommand.Execute(route);
+                }
+            }
+            finally
+            {
+                if ((routeData == null || routeData.Status != GmsDirectionResultStatus.Ok) && this.FormsMap.RouteCalculationFailedCommand != null)
+                {
+                    if (this.FormsMap.RouteCalculationFailedCommand.CanExecute(route))
+                    {
+                        this.FormsMap.RouteCalculationFailedCommand.Execute(route);
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Sets the route calculation data
+        /// </summary>
+        /// <param name="route">The PCL route</param>
+        /// <param name="routeResult">The rourte api result</param>
+        private void SetRouteData(TKRoute route, GmsRouteResult routeResult)
+        {
+            var latLngBounds = new LatLngBounds(
+                    new LatLng(routeResult.Bounds.SouthWest.Latitude, routeResult.Bounds.SouthWest.Longitude),
+                    new LatLng(routeResult.Bounds.NorthEast.Latitude, routeResult.Bounds.NorthEast.Longitude));
+
+            var apiSteps = routeResult.Legs.First().Steps;
+            var steps = new TKRouteStep[apiSteps.Count()];
+            var routeFunctions = (IRouteFunctions)route;
+
+            
+            for (int i = 0; i < steps.Length; i++)
+            {
+                steps[i] = new TKRouteStep();
+                var stepFunctions = (IRouteStepFunctions)steps[i];
+                var apiStep = apiSteps.ElementAt(i);
+
+                stepFunctions.SetDistance(apiStep.Distance.Value);
+                stepFunctions.SetInstructions(apiStep.HtmlInstructions);
+            }
+            routeFunctions.SetSteps(steps);
+            routeFunctions.SetDistance(routeResult.Legs.First().Distance.Value);
+            routeFunctions.SetTravelTime(routeResult.Legs.First().Duration.Value);
+            routeFunctions.SetBounds(
+                MapSpan.FromCenterAndRadius(
+                    latLngBounds.Center.ToPosition(),
+                    Distance.FromKilometers(route.Source.DistanceTo(route.Destination))));
+
+        }
+        /// <summary>
+        /// Updates the image of a pin
+        /// </summary>
+        /// <param name="pin">The forms pin</param>
+        /// <param name="markerOptions">The native marker options</param>
+        private async void UpdateImage(TKCustomMapPin pin, MarkerOptions markerOptions)
+        {
+            BitmapDescriptor bitmap;
+            try
+            {
+                if (pin.Image != null)
+                {
+                    var icon = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image, this.Context);
+                    bitmap = BitmapDescriptorFactory.FromBitmap(icon);
+                }
+                else
+                {
+                    if (pin.DefaultPinColor != Color.Default)
+                    {
+                        var hue = pin.DefaultPinColor.ToAndroid().GetHue();
+                        bitmap = BitmapDescriptorFactory.DefaultMarker(Math.Min(hue, 359.99f));
+                    }
+                    else
+                    {
+                        bitmap = BitmapDescriptorFactory.DefaultMarker();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                bitmap = BitmapDescriptorFactory.DefaultMarker();
+            }
+            markerOptions.SetIcon(bitmap);
+        }
+        /// <summary>
+        /// Updates the image on a marker
+        /// </summary>
+        /// <param name="pin">The forms pin</param>
+        /// <param name="marker">The native marker</param>
+        private async void UpdateImage(TKCustomMapPin pin, Marker marker)
+        {
+            BitmapDescriptor bitmap;
+            try
+            {
+                if (pin.Image != null)
+                {
+                    var icon = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image, this.Context);
+                    bitmap = BitmapDescriptorFactory.FromBitmap(icon);
+                }
+                else
+                {
+                    if (pin.DefaultPinColor != Color.Default)
+                    {
+                        bitmap = BitmapDescriptorFactory.DefaultMarker((float)pin.DefaultPinColor.Hue);
+                    }
+                    else
+                    {
+                        bitmap = BitmapDescriptorFactory.DefaultMarker();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                bitmap = BitmapDescriptorFactory.DefaultMarker();
+            }
+            marker.SetIcon(bitmap);
         }
 
+        
     }
 }

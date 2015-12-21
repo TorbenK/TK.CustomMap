@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <title>Custom Map Control for Xamarin Forms</title>
     <authors>Torben Kruse</authors>
     <owners>Torben Kruse</owners>
@@ -19,9 +19,9 @@
         - Hide Pins
       - Bindable Selected Pin
       - Bindable Map Center
-      - Bindable Routes
-      - Bindable Circles
-      - Bindable Polygons
+      - Bindable Map Region
+      - Bindable Overlays (including Routes, Lines, Circles and cusotom Polygons)
+      - Automatic Route calculation
       - Map Commands
         - Long Press
         - Click
@@ -29,6 +29,8 @@
         - Drag End
         - Pins Ready
         - Callout click
+        - Route Click
+        - Route calculation finished/failed
       
       Extra Features:
       - Google Maps Places API Wrapper(API Key needed) https://developers.google.com/places/
@@ -38,6 +40,8 @@
         - Calculate Routes
       OSM Nominatim API Wrapper http://wiki.openstreetmap.org/wiki/Nominatim
         - Get Place predictions
+      Native Places API
+        - Using Google Places for Android and MKLocalSearch for iOS
     </description>
     <summary>Extended Map Control of the Xamarin.Forms.Maps.Map</summary>
     <tags>xamarin, pcl, xam.pcl, plugin for xamarin, plugin, map, android, xamarin.forms, xamarin.forms.maps, extended map, custom map, ios, monoandroid, monodroid, monotouch</tags>
@@ -55,16 +59,16 @@
       </group>
     </dependencies>
     <releaseNotes>
-      [1.1.0] 
+      [1.2.0] 
       Beta Release
       
       New:
-      - OSM Nominatim API Wrapper
-      - Google Maps Directions API Wrapper
-      - Adding Circles, Routes and Polygons to the map
-      - Callouts can be clicked
+      - Automatic Route calculation
+      - Clickable Routes
+      - Bindable Map Region
+      - Native Places API
       Fixed:
-      - Clearing an observable Collection of Pins will now update the map correctly
+      - Exception when setting MapRegion
     </releaseNotes>
   </metadata>
   <files>

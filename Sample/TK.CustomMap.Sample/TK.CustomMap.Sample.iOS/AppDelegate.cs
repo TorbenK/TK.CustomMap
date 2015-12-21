@@ -24,6 +24,7 @@ namespace TK.CustomMap.Sample.iOS
         {
             Forms.Init();
             TKCustomMapRenderer.InitMapRenderer();
+            NativePlacesApi.Init();
             FormsMaps.Init();
             LoadApplication(new App());
             return base.FinishedLaunching(app, options);

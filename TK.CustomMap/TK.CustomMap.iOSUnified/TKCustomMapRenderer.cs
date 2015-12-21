@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -11,6 +12,7 @@ using TK.CustomMap.iOSUnified;
 using TK.CustomMap.Overlays;
 using UIKit;
 using Xamarin.Forms;
+using Xamarin.Forms.Maps;
 using Xamarin.Forms.Maps.iOS;
 using Xamarin.Forms.Platform.iOS;
 
@@ -23,12 +25,14 @@ namespace TK.CustomMap.iOSUnified
     /// </summary>
     public class TKCustomMapRenderer : MapRenderer
     {
+
         private const string AnnotationIdentifier = "TKCustomAnnotation";
         private const string AnnotationIdentifierDefaultPin = "TKCustomAnnotationDefaultPin";
 
-        private readonly Dictionary<MKPolyline, TKRoute> _routes = new Dictionary<MKPolyline, TKRoute>();
-        private readonly Dictionary<MKCircle, TKCircle> _circles = new Dictionary<MKCircle, TKCircle>();
-        private readonly Dictionary<MKPolygon, TKPolygon> _polygons = new Dictionary<MKPolygon, TKPolygon>();
+        private readonly Dictionary<MKPolyline, TKOverlayItem<TKRoute, MKPolylineRenderer>> _routes = new Dictionary<MKPolyline, TKOverlayItem<TKRoute, MKPolylineRenderer>>();
+        private readonly Dictionary<MKPolyline, TKOverlayItem<TKPolyline, MKPolylineRenderer>> _lines = new Dictionary<MKPolyline, TKOverlayItem<TKPolyline, MKPolylineRenderer>>();
+        private readonly Dictionary<MKCircle, TKOverlayItem<TKCircle, MKCircleRenderer>> _circles = new Dictionary<MKCircle, TKOverlayItem<TKCircle, MKCircleRenderer>>();
+        private readonly Dictionary<MKPolygon, TKOverlayItem<TKPolygon, MKPolygonRenderer>> _polygons = new Dictionary<MKPolygon, TKOverlayItem<TKPolygon, MKPolygonRenderer>>();
 
         private bool _firstUpdate = true;
         private bool _isDragging;
@@ -42,6 +46,7 @@ namespace TK.CustomMap.iOSUnified
         {
             get { return this.Element as TKCustomMap; }
         }
+  
         /// <summary>
         /// Dummy function to avoid linker.
         /// </summary>
@@ -52,9 +57,9 @@ namespace TK.CustomMap.iOSUnified
         protected override void OnElementChanged(ElementChangedEventArgs<View> e)
         {
             base.OnElementChanged(e);
-
+            
             if (e.OldElement != null || this.FormsMap == null || this.Map == null) return;
-
+            
             this.Map.GetViewForAnnotation = this.GetViewForAnnotation;
             this.Map.OverlayRenderer = this.GetOverlayRenderer; 
             this.Map.DidSelectAnnotationView += OnDidSelectAnnotationView;
@@ -63,7 +68,13 @@ namespace TK.CustomMap.iOSUnified
             this.Map.CalloutAccessoryControlTapped += OnMapCalloutAccessoryControlTapped;
 
             this.Map.AddGestureRecognizer(new UILongPressGestureRecognizer(this.OnMapLongPress));
-            this.Map.AddGestureRecognizer(new UITapGestureRecognizer(this.OnMapClicked));
+
+            var customGestureRecognizer = new UITapGestureRecognizer(this.OnMapClicked)
+            {
+                ShouldReceiveTouch = (recognizer, touch) => !(touch.View is MKAnnotationView)
+            };
+
+            this.Map.AddGestureRecognizer(customGestureRecognizer);
 
             if (this.FormsMap.CustomPins != null)
             {
@@ -72,6 +83,7 @@ namespace TK.CustomMap.iOSUnified
             }
             this.SetMapCenter();
             this.UpdateRoutes();
+            this.UpdateLines();
             this.UpdateCircles();
             this.UpdatePolygons();
             this.FormsMap.PropertyChanged += OnMapPropertyChanged;
@@ -85,43 +97,72 @@ namespace TK.CustomMap.iOSUnified
         /// <returns>The overlay renderer</returns>
         private MKOverlayRenderer GetOverlayRenderer(MKMapView mapView, IMKOverlay overlay)
         {
+
             var polyline = overlay as MKPolyline;
             if (polyline != null)
             {
+                // check if this polyline is a route
                 var route = this._routes[polyline];
-
-                return new MKPolylineRenderer(polyline) 
+                if (route == null)
                 {
-                    FillColor = route.LineColor.ToUIColor(),
-                    LineWidth = route.LineWidth,
-                    StrokeColor = route.LineColor.ToUIColor(),
-                };
+                    // not a route, check if it is a line
+                    var line = this._lines[polyline];
+
+                    if (line == null) return null;
+
+                    if (line.Renderer == null)
+                    {
+                        line.Renderer = new MKPolylineRenderer(polyline);
+                    }
+                    line.Renderer.FillColor = line.Overlay.Color.ToUIColor();
+                    line.Renderer.LineWidth = line.Overlay.LineWidth;
+                    line.Renderer.StrokeColor = line.Overlay.Color.ToUIColor();
+
+                    // return renderer for the line
+                    return line.Renderer;
+                }
+
+                if (route.Renderer == null)
+                {
+                    route.Renderer = new MKPolylineRenderer(polyline);
+                }
+                route.Renderer.FillColor = route.Overlay.Color.ToUIColor();
+                route.Renderer.LineWidth = route.Overlay.LineWidth;
+                route.Renderer.StrokeColor = route.Overlay.Color.ToUIColor();
+                return route.Renderer;
             }
 
             var mkCircle = overlay as MKCircle;
             if (mkCircle != null)
             {
                 var circle = this._circles[mkCircle];
+                if (circle == null) return null;
 
-                return new MKCircleRenderer(mkCircle)
+                if (circle.Renderer == null)
                 {
-                    FillColor = circle.Color.ToUIColor(),
-                    StrokeColor = circle.StrokeColor.ToUIColor(),
-                    LineWidth = circle.StrokeWidth
-                };
+                    circle.Renderer = new MKCircleRenderer(mkCircle);
+                }
+                circle.Renderer.FillColor = circle.Overlay.Color.ToUIColor();
+                circle.Renderer.StrokeColor = circle.Overlay.StrokeColor.ToUIColor();
+                circle.Renderer.LineWidth = circle.Overlay.StrokeWidth;
+                return circle.Renderer;
             }
 
             var mkPolygon = overlay as MKPolygon;
             if (mkPolygon != null)
             {
                 var polygon = this._polygons[mkPolygon];
+                if (polygon == null) return null;
 
-                return new MKPolygonRenderer(mkPolygon) 
+                if (polygon.Renderer == null)
                 {
-                    FillColor = polygon.FillColor.ToUIColor(),
-                    StrokeColor = polygon.StrokeColor.ToUIColor(),
-                    LineWidth = polygon.StrokeWidth
-                };
+                    polygon.Renderer = new MKPolygonRenderer(mkPolygon);
+                }
+                
+                polygon.Renderer.FillColor = polygon.Overlay.Color.ToUIColor();
+                polygon.Renderer.StrokeColor = polygon.Overlay.StrokeColor.ToUIColor();
+                polygon.Renderer.LineWidth = polygon.Overlay.StrokeWidth;
+                return polygon.Renderer;
             }
             return null;
         }
@@ -145,9 +186,9 @@ namespace TK.CustomMap.iOSUnified
             {
                 this.SetMapCenter();
             }
-            else if (e.PropertyName == TKCustomMap.RoutesProperty.PropertyName)
+            else if (e.PropertyName == TKCustomMap.PolylinesProperty.PropertyName)
             {
-                this.UpdateRoutes();
+                this.UpdateLines();
             }
             else if (e.PropertyName == TKCustomMap.CalloutClickedCommandProperty.PropertyName)
             {
@@ -156,6 +197,10 @@ namespace TK.CustomMap.iOSUnified
             else if(e.PropertyName == TKCustomMap.PolygonsProperty.PropertyName)
             {
                 this.UpdatePolygons();
+            }
+            else if (e.PropertyName == TKCustomMap.RoutesProperty.PropertyName)
+            {
+                this.UpdateRoutes();
             }
         }
         /// <summary>
@@ -278,6 +323,21 @@ namespace TK.CustomMap.iOSUnified
             var pixelLocation = recognizer.LocationInView(this.Map);
             var coordinate = this.Map.ConvertPoint(pixelLocation, this.Map);
 
+            if (this.FormsMap.Routes != null && this.FormsMap.RouteClickedCommand != null)
+            {
+                foreach (var route in this.FormsMap.Routes.Where(i => i.Selectable))
+                {
+                    if (this.RouteHit(pixelLocation, this._routes.Single(i => i.Value.Overlay.Equals(route)).Key))
+                    {
+                        if (this.FormsMap.RouteClickedCommand.CanExecute(route))
+                        {
+                            this.FormsMap.RouteClickedCommand.Execute(route);
+                            return;
+                        }
+                    }
+                }
+            }
+
             if (this.FormsMap.MapClickedCommand != null && this.FormsMap.MapClickedCommand.CanExecute(coordinate.ToPosition()))
             {
                 this.FormsMap.MapClickedCommand.Execute(coordinate.ToPosition());
@@ -337,10 +397,12 @@ namespace TK.CustomMap.iOSUnified
 
             if (FormsMap.CalloutClickedCommand != null)
             {
-                var button = new UIButton(UIButtonType.InfoLight);
-                button.Frame = new CGRect(0, 0, 23, 23);
-                button.HorizontalAlignment = UIControlContentHorizontalAlignment.Center;
-                button.VerticalAlignment = UIControlContentVerticalAlignment.Center;
+                var button = new UIButton(UIButtonType.InfoLight)
+                {
+                    Frame = new CGRect(0, 0, 23, 23),
+                    HorizontalAlignment = UIControlContentHorizontalAlignment.Center,
+                    VerticalAlignment = UIControlContentVerticalAlignment.Center
+                };
                 annotationView.RightCalloutAccessoryView = button;
             }
             
@@ -372,8 +434,36 @@ namespace TK.CustomMap.iOSUnified
             }
         }
         /// <summary>
-        /// Creates the routes
+        /// Creates the lines
         /// </summary>
+        private void UpdateLines(bool firstUpdate = true)
+        {
+            if (this._lines.Any())
+            {
+                this.Map.RemoveOverlays(this._lines.Select(i => i.Key).ToArray());
+                this._lines.Clear();
+            }
+
+            if (this.FormsMap.Polylines == null) return;
+
+            foreach (var line in this.FormsMap.Polylines)
+            {
+                this.AddLine(line);
+            }
+
+            if (firstUpdate)
+            {
+                var observAble = this.FormsMap.Polylines as ObservableCollection<TKPolyline>;
+                if (observAble != null)
+                {
+                    observAble.CollectionChanged += OnLineCollectionChanged;
+                }
+            }
+        }
+        /// <summary>
+        /// Create the routes
+        /// </summary>
+        /// <param name="firstUpdate">First update of collection or not</param>
         private void UpdateRoutes(bool firstUpdate = true)
         {
             if (this._routes.Any())
@@ -381,7 +471,6 @@ namespace TK.CustomMap.iOSUnified
                 this.Map.RemoveOverlays(this._routes.Select(i => i.Key).ToArray());
                 this._routes.Clear();
             }
-
             if (this.FormsMap.Routes == null) return;
 
             foreach (var route in this.FormsMap.Routes)
@@ -396,6 +485,46 @@ namespace TK.CustomMap.iOSUnified
                 {
                     observAble.CollectionChanged += OnRouteCollectionChanged;
                 }
+            }
+        }
+        /// <summary>
+        /// When the collection of routes changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnRouteCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (TKRoute route in e.NewItems)
+                {
+                    this.AddRoute(route);
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (TKRoute route in e.OldItems)
+                {
+                    if (!this.FormsMap.Routes.Contains(route))
+                    {
+                        route.PropertyChanged -= OnRoutePropertyChanged;
+
+                        var item = this._routes.SingleOrDefault(i => i.Value.Overlay.Equals(route));
+                        if (item.Key != null)
+                        {
+                            this.Map.RemoveOverlay(item.Key);
+                            this._routes.Remove(item.Key);
+                        }
+                    }
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                foreach (var route in this._routes)
+                {
+                    route.Value.Overlay.PropertyChanged -= OnPolygonPropertyChanged;
+                }
+                this.UpdateRoutes(false);
             }
         }
         /// <summary>
@@ -473,7 +602,7 @@ namespace TK.CustomMap.iOSUnified
                     {
                         poly.PropertyChanged -= OnPolygonPropertyChanged;
 
-                        var item = this._polygons.SingleOrDefault(i => i.Value.Equals(poly));
+                        var item = this._polygons.SingleOrDefault(i => i.Value.Overlay.Equals(poly));
                         if (item.Key != null)
                         {
                             this.Map.RemoveOverlay(item.Key);
@@ -486,7 +615,7 @@ namespace TK.CustomMap.iOSUnified
             {
                 foreach (var poly in this._polygons)
                 {
-                    poly.Value.PropertyChanged -= OnPolygonPropertyChanged;
+                    poly.Value.Overlay.PropertyChanged -= OnPolygonPropertyChanged;
                 }
                 this.UpdatePolygons(false);
             }
@@ -498,7 +627,7 @@ namespace TK.CustomMap.iOSUnified
         private void AddPolygon(TKPolygon polygon)
         {
             var mkPolygon = MKPolygon.FromCoordinates(polygon.Coordinates.Select(i => i.ToLocationCoordinate()).ToArray());
-            this._polygons.Add(mkPolygon, polygon);
+            this._polygons.Add(mkPolygon, new TKOverlayItem<TKPolygon,MKPolygonRenderer>(polygon));
             this.Map.AddOverlay(mkPolygon);
 
             polygon.PropertyChanged += OnPolygonPropertyChanged;
@@ -514,14 +643,31 @@ namespace TK.CustomMap.iOSUnified
 
             if (poly == null) return;
 
-            var item = this._polygons.SingleOrDefault(i => i.Value.Equals(poly));
+            var item = this._polygons.SingleOrDefault(i => i.Value.Overlay.Equals(poly));
             if (item.Key == null) return;
+
+            if (e.PropertyName != TKPolygon.CoordinatesPropertyName)
+            {
+                if (e.PropertyName == TKPolygon.StrokeColorPropertyName)
+                {
+                    item.Value.Renderer.StrokeColor = item.Value.Overlay.StrokeColor.ToUIColor();
+                }
+                else if (e.PropertyName == TKOverlay.ColorPropertyName)
+                {
+                    item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
+                }
+                else if (e.PropertyName == TKPolygon.StrokeWidthPropertyName)
+                {
+                    item.Value.Renderer.LineWidth = item.Value.Overlay.StrokeWidth;
+                }
+                return;
+            }
 
             this.Map.RemoveOverlay(item.Key);
             this._polygons.Remove(item.Key);
 
             var mkPolygon = MKPolygon.FromCoordinates(poly.Coordinates.Select(i => i.ToLocationCoordinate()).ToArray());
-            this._polygons.Add(mkPolygon, poly);
+            this._polygons.Add(mkPolygon, new TKOverlayItem<TKPolygon,MKPolygonRenderer>(poly));
             this.Map.AddOverlay(mkPolygon);
         }
         /// <summary>
@@ -546,7 +692,7 @@ namespace TK.CustomMap.iOSUnified
                     {
                         circle.PropertyChanged -= OnCirclePropertyChanged;
 
-                        var item = this._circles.SingleOrDefault(i => i.Value.Equals(circle));
+                        var item = this._circles.SingleOrDefault(i => i.Value.Overlay.Equals(circle));
                         if (item.Key != null)
                         {
                             this.Map.RemoveOverlay(item.Key);
@@ -559,7 +705,7 @@ namespace TK.CustomMap.iOSUnified
             {
                 foreach (var circle in this._circles)
                 {
-                    circle.Value.PropertyChanged -= OnCirclePropertyChanged;
+                    circle.Value.Overlay.PropertyChanged -= OnCirclePropertyChanged;
                 }
                 this.UpdateCircles(false);
             }
@@ -569,52 +715,131 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-        private void OnRouteCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnLineCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                foreach (TKRoute route in e.NewItems)
+                foreach (TKPolyline line in e.NewItems)
                 {
-                    this.AddRoute(route);
+                    this.AddLine(line);
                 }
             }
             else if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-                foreach (TKRoute route in e.OldItems)
+                foreach (TKPolyline line in e.OldItems)
                 {
-                    if (!this.FormsMap.Routes.Contains(route))
+                    if (!this.FormsMap.Polylines.Contains(line))
                     {
-                        route.PropertyChanged -= OnRoutePropertyChanged;
+                        line.PropertyChanged -= OnLinePropertyChanged;
 
-                        var item = this._routes.SingleOrDefault(i => i.Value.Equals(route));
+                        var item = this._lines.SingleOrDefault(i => i.Value.Overlay.Equals(line));
                         if (item.Key != null)
                         {
                             this.Map.RemoveOverlay(item.Key);
-                            this._routes.Remove(item.Key);
+                            this._lines.Remove(item.Key);
                         }
                     }
                 }
             }
             else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                foreach (var route in this._routes)
+                foreach (var route in this._lines)
                 {
-                    route.Value.PropertyChanged -= OnRoutePropertyChanged;
+                    route.Value.Overlay.PropertyChanged -= OnLinePropertyChanged;
                 }
-                this.UpdateRoutes(false);
+                this.UpdateLines(false);
             }
         }
         /// <summary>
         /// Adds a route
         /// </summary>
+        /// <param name="line">The route to add</param>
+        private void AddLine(TKPolyline line)
+        {
+            var polyLine = MKPolyline.FromCoordinates(line.LineCoordinates.Select(i => i.ToLocationCoordinate()).ToArray());
+            this._lines.Add(polyLine, new TKOverlayItem<TKPolyline,MKPolylineRenderer>(line));
+            this.Map.AddOverlay(polyLine);
+
+            line.PropertyChanged += OnLinePropertyChanged;
+        }
+        /// <summary>
+        /// Adds a route to the map
+        /// </summary>
         /// <param name="route">The route to add</param>
         private void AddRoute(TKRoute route)
         {
-            var polyLine = MKPolyline.FromCoordinates(route.RouteCoordinates.Select(i => i.ToLocationCoordinate()).ToArray());
-            this._routes.Add(polyLine, route);
-            this.Map.AddOverlay(polyLine);
+            var req = new MKDirectionsRequest
+            {
+                Source = new MKMapItem(new MKPlacemark(route.Source.ToLocationCoordinate(), new MKPlacemarkAddress())),
+                Destination =
+                    new MKMapItem(new MKPlacemark(route.Destination.ToLocationCoordinate(), new MKPlacemarkAddress())),
+                TransportType = route.TravelMode.ToTransportType()
+            };
 
-            route.PropertyChanged += OnRoutePropertyChanged;
+            var directions = new MKDirections(req);
+            directions.CalculateDirections((r, e) => 
+            {
+                if (r != null && r.Routes != null && r.Routes.Any())
+                {
+                    var nativeRoute = r.Routes.First();
+
+                    this.SetRouteData(route, nativeRoute);
+
+                    this._routes.Add(nativeRoute.Polyline, new TKOverlayItem<TKRoute, MKPolylineRenderer>(route));
+                    this.Map.AddOverlay(nativeRoute.Polyline);
+
+                    route.PropertyChanged += OnRoutePropertyChanged;
+
+                    if (this.FormsMap.RouteCalculationFinishedCommand != null && this.FormsMap.RouteCalculationFinishedCommand.CanExecute(route))
+                    {
+                        this.FormsMap.RouteCalculationFinishedCommand.Execute(route);
+                    }
+                }
+                else
+                {
+                    if (this.FormsMap.RouteCalculationFailedCommand != null && this.FormsMap.RouteCalculationFailedCommand.CanExecute(route))
+                    {
+                        this.FormsMap.RouteCalculationFailedCommand.Execute(route);
+                    }
+                }
+            });
+        }
+        /// <summary>
+        /// When a property of a route changed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnRoutePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var route = (TKRoute)sender;
+
+            if (route == null) return;
+
+            var item = this._routes.SingleOrDefault(i => i.Value.Overlay.Equals(route));
+            if (item.Key == null) return;
+
+            if (e.PropertyName != TKRoute.TravelModelProperty &&
+                e.PropertyName != TKRoute.SourceProperty &&
+                e.PropertyName != TKRoute.DestinationProperty)
+            {
+                if (e.PropertyName == TKOverlay.ColorPropertyName)
+                {
+                    item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
+                    item.Value.Renderer.StrokeColor = item.Value.Overlay.Color.ToUIColor();
+                }
+                else if (e.PropertyName == TKPolyline.LineWidthProperty)
+                {
+                    item.Value.Renderer.LineWidth = item.Value.Overlay.LineWidth;
+                }
+                return;
+            }
+
+            item.Value.Overlay.PropertyChanged -= OnRoutePropertyChanged;
+
+            this.Map.RemoveOverlay(item.Key);
+            this._routes.Remove(item.Key);
+
+            this.AddRoute(route);
         }
         /// <summary>
         /// Adds a circle to the map
@@ -623,7 +848,8 @@ namespace TK.CustomMap.iOSUnified
         private void AddCircle(TKCircle circle)
         {
             var mkCircle = MKCircle.Circle(circle.Center.ToLocationCoordinate(), circle.Radius);
-            this._circles.Add(mkCircle, circle);
+            
+            this._circles.Add(mkCircle, new TKOverlayItem<TKCircle,MKCircleRenderer>(circle));
             this.Map.AddOverlay(mkCircle);
 
             circle.PropertyChanged += OnCirclePropertyChanged;
@@ -639,14 +865,32 @@ namespace TK.CustomMap.iOSUnified
 
             if (circle == null) return;
 
-            var item = this._circles.SingleOrDefault(i => i.Value.Equals(circle));
+            var item = this._circles.SingleOrDefault(i => i.Value.Overlay.Equals(circle));
             if (item.Key == null) return;
+
+            if (e.PropertyName != TKCircle.CenterPropertyName &&
+                e.PropertyName != TKCircle.RadiusPropertyName)
+            {
+                if (e.PropertyName == TKOverlay.ColorPropertyName)
+                {
+                    item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
+                }
+                else if (e.PropertyName == TKCircle.StrokeColorPropertyName)
+                {
+                    item.Value.Renderer.StrokeColor = item.Value.Overlay.StrokeColor.ToUIColor();
+                }
+                else if (e.PropertyName == TKCircle.StrokeWidthPropertyName)
+                {
+                    item.Value.Renderer.LineWidth = item.Value.Overlay.StrokeWidth;
+                }
+                return;
+            }
 
             this.Map.RemoveOverlay(item.Key);
             this._circles.Remove(item.Key);
 
             var mkCircle = MKCircle.Circle(circle.Center.ToLocationCoordinate(), circle.Radius);
-            this._circles.Add(mkCircle, circle);
+            this._circles.Add(mkCircle, new TKOverlayItem<TKCircle,MKCircleRenderer>(circle));
             this.Map.AddOverlay(mkCircle);
         }
         /// <summary>
@@ -654,20 +898,34 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-        private void OnRoutePropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnLinePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var route = (TKRoute)sender;
+            var line = (TKPolyline)sender;
 
-            if(route == null) return;
+            if(line == null) return;
 
-            var item = this._routes.SingleOrDefault(i => i.Value.Equals(route));
+            var item = this._lines.SingleOrDefault(i => i.Value.Overlay.Equals(line));
             if (item.Key == null) return;
 
-            this.Map.RemoveOverlay(item.Key);
-            this._routes.Remove(item.Key);
+            if (e.PropertyName != TKPolyline.LineCoordinatesPropertyName)
+            {
+                if (e.PropertyName == TKOverlay.ColorPropertyName)
+                {
+                    item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
+                    item.Value.Renderer.StrokeColor = item.Value.Overlay.Color.ToUIColor();
+                }
+                else if (e.PropertyName == TKPolyline.LineWidthProperty)
+                {
+                    item.Value.Renderer.LineWidth = item.Value.Overlay.LineWidth;
+                }
+                return;
+            }
 
-            var polyLine = MKPolyline.FromCoordinates(route.RouteCoordinates.Select(i => i.ToLocationCoordinate()).ToArray());
-            this._routes.Add(polyLine, route);
+            this.Map.RemoveOverlay(item.Key);
+            this._lines.Remove(item.Key);
+
+            var polyLine = MKPolyline.FromCoordinates(line.LineCoordinates.Select(i => i.ToLocationCoordinate()).ToArray());
+            this._lines.Add(polyLine, new TKOverlayItem<TKPolyline,MKPolylineRenderer>(line));
             this.Map.AddOverlay(polyLine);
         }
         /// <summary>
@@ -697,6 +955,9 @@ namespace TK.CustomMap.iOSUnified
                 case TKCustomMapPin.ImagePropertyName:
                     this.UpdateImage(annotationView, formsPin);
                     break;
+                case TKCustomMapPin.DefaultPinColorPropertyName:
+                    this.UpdateImage(annotationView, formsPin);
+                    break;
                 case TKCustomMapPin.IsDraggablePropertyName:
                     annotationView.Draggable = formsPin.IsDraggable;
                     break;
@@ -710,6 +971,37 @@ namespace TK.CustomMap.iOSUnified
                     annotationView.CanShowCallout = formsPin.ShowCallout;
                     break;
             }
+        }
+        /// <summary>
+        /// Sets the route data
+        /// </summary>
+        /// <param name="route">PCL route</param>
+        /// <param name="nativeRoute">Native route</param>
+        private void SetRouteData(TKRoute route, MKRoute nativeRoute)
+        {
+            var routeFunctions = (IRouteFunctions)route;
+            var steps = new TKRouteStep[nativeRoute.Steps.Count()];
+
+            for (var i = 0; i < steps.Length; i++)
+            {
+                steps[i] = new TKRouteStep();
+                var stepFunction = (IRouteStepFunctions)steps[i];
+                var nativeStep = nativeRoute.Steps.ElementAt(i);
+
+                stepFunction.SetInstructions(nativeStep.Instructions);
+                stepFunction.SetDistance(nativeStep.Distance);
+
+            }
+
+            routeFunctions.SetSteps(steps);
+            routeFunctions.SetDistance(nativeRoute.Distance);
+            routeFunctions.SetTravelTime(nativeRoute.ExpectedTravelTime);
+
+            routeFunctions.SetBounds(
+                MapSpan.FromCenterAndRadius(
+                    nativeRoute.Polyline.Coordinate.ToPosition(),
+                    Distance.FromKilometers(
+                        route.Source.DistanceTo(route.Destination))));
         }
         /// <summary>
         /// Set the visibility of an annotation view
@@ -751,7 +1043,14 @@ namespace TK.CustomMap.iOSUnified
                 if (pinAnnotationView != null)
                 {
                     pinAnnotationView.AnimatesDrop = true;
-                    pinAnnotationView.PinTintColor = UIColor.Red;
+                    if (pin.DefaultPinColor != Color.Default)
+                    {
+                        pinAnnotationView.PinTintColor = pin.DefaultPinColor.ToUIColor();
+                    }
+                    else
+                    {
+                        pinAnnotationView.PinTintColor = UIColor.Red;
+                    }
                 }
             }
         }
@@ -802,6 +1101,85 @@ namespace TK.CustomMap.iOSUnified
             {
                 this.Map.SetCenterCoordinate(this.FormsMap.MapCenter.ToLocationCoordinate(), this.FormsMap.AnimateMapCenterChange);   
             }
+        }
+        /// <summary>
+        /// Returns the distance of a point to a polyline in meters 
+        /// from http://paulbourke.net/geometry/pointlineplane/DistancePoint.java
+        /// </summary>
+        /// <param name="pt">From Point</param>
+        /// <param name="poly">To Poly</param>
+        /// <returns>Distance in meters</returns>
+        private double DistanceOfPoint(MKMapPoint pt, MKPolyline poly)
+        {
+            double distance = float.MaxValue;
+            for (var n = 0; n < poly.PointCount - 1; n++) {
+
+                var ptA = poly.Points[n];
+                var ptB = poly.Points[n + 1];
+
+                var xDelta = ptB.X - ptA.X;
+                var yDelta = ptB.Y - ptA.Y;
+
+                if (xDelta == 0.0 && yDelta == 0.0) {
+
+                    // Points must not be equal
+                    continue;
+                }
+
+                var u = ((pt.X - ptA.X) * xDelta + (pt.Y - ptA.Y) * yDelta) / (xDelta * xDelta + yDelta * yDelta);
+                MKMapPoint ptClosest;
+                if (u < 0.0) {
+
+                    ptClosest = ptA;
+                }
+                else if (u > 1.0) {
+
+                    ptClosest = ptB;
+                }
+                else {
+
+                    ptClosest = new MKMapPoint(ptA.X + u * xDelta, ptA.Y + u * yDelta);
+                }
+                
+                distance = Math.Min(distance, MKMapPoint.ToCoordinate(ptClosest).ToPosition().DistanceTo(MKMapPoint.ToCoordinate(pt).ToPosition()) * 1000);
+            }
+
+            return distance;
+        }
+        /// <summary>
+        /// Converts pixel to meters
+        /// </summary>
+        /// <param name="px">Pixel</param>
+        /// <param name="point">Point</param>
+        /// <returns>Pixel in meters</returns>
+        private double MetersFromPixel(int px, CGPoint point)
+        {
+            var ptB = new CGPoint(point.X + px, point.Y);
+
+            var coordA = this.Map.ConvertPoint(point, this.Map);
+            var coordB = this.Map.ConvertPoint(ptB, this.Map);
+
+            return coordA.ToPosition().DistanceTo(coordB.ToPosition())*1000;
+        }
+
+        /// <summary>
+        /// Check whether a route was hit
+        /// </summary>
+        /// <param name="tapPoint">Point of tap</param>
+        /// <param name="polyline">The route polyline</param>
+        /// <returns><value>true</value> if hit</returns>
+        private bool RouteHit(CGPoint tapPoint, MKPolyline polyline)
+        {
+            var coordinate = this.Map.ConvertPoint(tapPoint, this.Map);
+            var maxMeters = this.MetersFromPixel(22, tapPoint);
+
+            var distance = this.DistanceOfPoint(MKMapPoint.FromCoordinate(coordinate), polyline);
+
+            if (distance <= maxMeters)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

@@ -281,3 +281,4 @@ $RECYCLE.BIN/
 *.lnk
 nuget.exe
 *.bat
+Sample/TK.CustomMap.Sample/TK.CustomMap.Sample.Droid/Properties/AndroidManifest.xml

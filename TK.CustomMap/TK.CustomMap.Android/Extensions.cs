@@ -1,4 +1,6 @@
 using Android.Gms.Maps.Model;
+using TK.CustomMap.Api.Google;
+using TK.CustomMap.Overlays;
 using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.Droid
@@ -25,6 +27,25 @@ namespace TK.CustomMap.Droid
         public static LatLng ToLatLng(this Position self)
         {
             return new LatLng(self.Latitude, self.Longitude);
+        }
+        /// <summary>
+        /// Convert <see cref="TKRouteTravelMode"/> to <see cref="GmsDirectionTravelMode"/>
+        /// </summary>
+        /// <param name="self">Self instance</param>
+        /// <returns>Gms Direction API travel mode</returns>
+        public static GmsDirectionTravelMode ToGmsTravelMode(this TKRouteTravelMode self)
+        {
+            switch (self)
+            {
+                case TKRouteTravelMode.Driving:
+                    return GmsDirectionTravelMode.Driving;
+                case TKRouteTravelMode.Walking:
+                    return GmsDirectionTravelMode.Walking;
+                case TKRouteTravelMode.Any:
+                    return GmsDirectionTravelMode.Driving;
+                default:
+                    return GmsDirectionTravelMode.Driving;
+            }
         }
     }
 }

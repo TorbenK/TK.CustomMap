@@ -15,7 +15,7 @@ namespace TK.CustomMap.Sample
         private void CreateView()
         {
 
-            var autoComplete = new PlacesAutoComplete { ApiToUse = PlacesAutoComplete.PlacesApi.Osm };
+            var autoComplete = new PlacesAutoComplete { ApiToUse = PlacesAutoComplete.PlacesApi.Native };
             autoComplete.SetBinding(PlacesAutoComplete.PlaceSelectedCommandProperty, "PlaceSelectedCommand");
 
             var mapView = new TKCustomMap();
@@ -30,7 +30,12 @@ namespace TK.CustomMap.Sample
             mapView.SetBinding(TKCustomMap.CirclesProperty, "Circles");
             mapView.SetBinding(TKCustomMap.CalloutClickedCommandProperty, "CalloutClickedCommand");
             mapView.SetBinding(TKCustomMap.PolygonsProperty, "Polygons");
+            mapView.SetBinding(TKCustomMap.MapRegionProperty, "MapRegion");
+            mapView.SetBinding(TKCustomMap.RouteClickedCommandProperty, "RouteClickedCommand");
+            mapView.SetBinding(TKCustomMap.RouteCalculationFinishedCommandProperty, "RouteCalculationFinishedCommand");
             mapView.AnimateMapCenterChange = true;
+
+            autoComplete.SetBinding(PlacesAutoComplete.BoundsProperty, "MapRegion");
 
 
             this._baseLayout.Children.Add(
@@ -43,7 +48,7 @@ namespace TK.CustomMap.Sample
             this._baseLayout.Children.Add(
                 autoComplete,
                 Constraint.Constant(0),
-                Constraint.Constant(Device.OnPlatform(22, 0, 0)));
+                Constraint.Constant(0));
         }
     }
 }

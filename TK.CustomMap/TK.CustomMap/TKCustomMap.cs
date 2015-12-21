@@ -79,9 +79,9 @@ namespace TK.CustomMap
         /// <summary>
         /// Bindable Property of <see cref="Routes"/>
         /// </summary>
-        public static readonly BindableProperty RoutesProperty =
-            BindableProperty.Create<TKCustomMap, IEnumerable<TKRoute>>(
-                p => p.Routes,
+        public static readonly BindableProperty PolylinesProperty =
+            BindableProperty.Create<TKCustomMap, IEnumerable<TKPolyline>>(
+                p => p.Polylines,
                 null);
         /// <summary>
         /// Bindable Property of <see cref="Circles"/>
@@ -103,6 +103,43 @@ namespace TK.CustomMap
         public static readonly BindableProperty PolygonsProperty =
             BindableProperty.Create<TKCustomMap, IEnumerable<TKPolygon>>(
                 p => p.Polygons,
+                null);
+        /// <summary>
+        /// Bindable Property of <see cref="MapRegion"/>
+        /// </summary>
+        public static readonly BindableProperty MapRegionProperty =
+            BindableProperty.Create<TKCustomMap, MapSpan>(
+                p => p.MapRegion,
+                default(MapSpan),
+                BindingMode.TwoWay,
+                propertyChanged: MapRegionChanged);
+        /// <summary>
+        /// Bindable Property of <see cref="Routes"/>
+        /// </summary>
+        public static readonly BindableProperty RoutesProperty =
+            BindableProperty.Create<TKCustomMap, IEnumerable<TKRoute>>(
+                p => p.Routes,
+                null);
+        /// <summary>
+        /// Bindable Property of <see cref="RouteClickedCommand"/>
+        /// </summary>
+        public static readonly BindableProperty RouteClickedCommandProperty =
+            BindableProperty.Create<TKCustomMap, Command<TKRoute>>(
+                p => p.RouteClickedCommand,
+                null);
+        /// <summary>
+        /// Bindable Property of <see cref="RouteCalculationFinishedCommand"/>
+        /// </summary>
+        public static readonly BindableProperty RouteCalculationFinishedCommandProperty =
+            BindableProperty.Create<TKCustomMap, Command<TKRoute>>(
+                p => p.RouteCalculationFinishedCommand,
+                null);
+        /// <summary>
+        /// Bindable Property of <see cref="RouteCalculationFailedCommand"/>
+        /// </summary>
+        public static readonly BindableProperty RouteCalculationFailedCommandProperty =
+            BindableProperty.Create<TKCustomMap, Command<TKRoute>>(
+                p => p.RouteCalculationFailedCommand,
                 null);
         /// <summary>
         /// Gets/Sets the custom pins of the Map
@@ -177,12 +214,12 @@ namespace TK.CustomMap
             set { this.SetValue(AnimateMapCenterChangeProperty, value); }
         }
         /// <summary>
-        /// Gets/Sets the routes to display on the map
+        /// Gets/Sets the lines to display on the map
         /// </summary>
-        public IEnumerable<TKRoute> Routes
+        public IEnumerable<TKPolyline> Polylines
         {
-            get { return (IEnumerable<TKRoute>)this.GetValue(RoutesProperty); }
-            set { this.SetValue(RoutesProperty, value); }
+            get { return (IEnumerable<TKPolyline>)this.GetValue(PolylinesProperty); }
+            set { this.SetValue(PolylinesProperty, value); }
         }
         /// <summary>
         /// Gets/Sets the circles to display on the map
@@ -208,6 +245,72 @@ namespace TK.CustomMap
         {
             get { return (IEnumerable<TKPolygon>)this.GetValue(PolygonsProperty); }
             set { this.SetValue(PolygonsProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the visible map region
+        /// </summary>
+        public MapSpan MapRegion
+        {
+            get { return (MapSpan)this.GetValue(MapRegionProperty); }
+            set { this.SetValue(MapRegionProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the routes to calculate and display on the map
+        /// </summary>
+        public IEnumerable<TKRoute> Routes
+        {
+            get { return (IEnumerable<TKRoute>)this.GetValue(RoutesProperty); }
+            set { this.SetValue(RoutesProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the command when a route gets tapped
+        /// </summary>
+        public Command<TKRoute> RouteClickedCommand
+        {
+            get { return (Command<TKRoute>)this.GetValue(RouteClickedCommandProperty); }
+            set { this.SetValue(RouteClickedCommandProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the command when a route calculation finished successfully
+        /// </summary>
+        public Command<TKRoute> RouteCalculationFinishedCommand
+        {
+            get { return (Command<TKRoute>)this.GetValue(RouteCalculationFinishedCommandProperty); }
+            set { this.SetValue(RouteCalculationFinishedCommandProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the command when a route calculation failed
+        /// </summary>
+        public Command<TKRoute> RouteCalculationFailedCommand
+        {
+            get { return (Command<TKRoute>)this.GetValue(RouteCalculationFailedCommandProperty); }
+            set { this.SetValue(RouteCalculationFailedCommandProperty, value); }
+        }
+        /// <summary>
+        /// When <see cref="MapRegion"/> changed
+        /// </summary>
+        /// <param name="obj">The custom map</param>
+        /// <param name="oldValue">Old value</param>
+        /// <param name="newValue">New value</param>
+        private static void MapRegionChanged(BindableObject obj, MapSpan oldValue, MapSpan newValue)
+        {
+            var customMap = obj as TKCustomMap;
+            if (customMap == null) return;
+
+            if (!customMap.MapRegion.Equals(customMap.VisibleRegion))
+            {
+                customMap.MoveToRegion(customMap.MapRegion);
+            }
+        }
+        /// <inheritdoc/>
+        protected override void OnPropertyChanged(string propertyName = null)
+        {
+            base.OnPropertyChanged(propertyName);
+
+            if (propertyName == "VisibleRegion")
+            {
+                this.MapRegion = this.VisibleRegion;
+            }
         }
     }
 }

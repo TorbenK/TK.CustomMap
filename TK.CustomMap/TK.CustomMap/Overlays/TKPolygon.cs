@@ -7,15 +7,13 @@ namespace TK.CustomMap.Overlays
     /// <summary>
     /// A polygon to display on the map
     /// </summary>
-    public class TKPolygon : TKBase
+    public class TKPolygon : TKOverlay
     {
         public const string CoordinatesPropertyName = "Coordinates";
-        public const string FillColorPropertyName = "FillColor";
         public const string StrokeColorPropertyName = "StrokeColor";
         public const string StrokeWidthPropertyName = "StrokeWidth";
 
         private List<Position> _coordinates;
-        private Color _fillColor;
         private Color _strokeColor;
         private float _strokeWidth;
         /// <summary>
@@ -25,14 +23,6 @@ namespace TK.CustomMap.Overlays
         {
             get { return this._coordinates; }
             set { this.SetField(ref this._coordinates, value); }
-        }
-        /// <summary>
-        /// Gets/Sets the fill color of the polygon
-        /// </summary>
-        public Color FillColor
-        {
-            get { return this._fillColor; }
-            set { this.SetField(ref this._fillColor, value); }
         }
         /// <summary>
         /// Gets/Sets the stroke color of the polygon
