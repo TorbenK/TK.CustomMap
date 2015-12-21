@@ -1,13 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics.Contracts;
-using System.Linq;
 using TK.CustomMap.Api;
 using TK.CustomMap.Api.Google;
 using TK.CustomMap.Api.OSM;
 using TK.CustomMap.Overlays;
-using TK.CustomMap.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
@@ -128,7 +124,7 @@ namespace TK.CustomMap.Sample
 
                     if (action == "Add Pin")
                     {
-                        var pin = new MyPin
+                        var pin = new TKCustomMapPin
                         {
                             Position = position,
                             Title = string.Format("Pin {0}, {1}", position.Latitude, position.Longitude),

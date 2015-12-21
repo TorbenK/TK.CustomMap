@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -11,12 +12,9 @@ using TK.CustomMap.iOSUnified;
 using TK.CustomMap.Overlays;
 using UIKit;
 using Xamarin.Forms;
+using Xamarin.Forms.Maps;
 using Xamarin.Forms.Maps.iOS;
 using Xamarin.Forms.Platform.iOS;
-using TK.CustomMap.Utilities;
-using CoreLocation;
-using System;
-using Xamarin.Forms.Maps;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 
@@ -27,8 +25,6 @@ namespace TK.CustomMap.iOSUnified
     /// </summary>
     public class TKCustomMapRenderer : MapRenderer
     {
-        private const double MercatorRadius = 85445659.44705395;
-        private const int MaxGoogleLevels = 20;
 
         private const string AnnotationIdentifier = "TKCustomAnnotation";
         private const string AnnotationIdentifierDefaultPin = "TKCustomAnnotationDefaultPin";
@@ -50,20 +46,7 @@ namespace TK.CustomMap.iOSUnified
         {
             get { return this.Element as TKCustomMap; }
         }
-        private int ZoomLevel
-        {
-            get
-            {
-                
-                double longitudeDelta = this.Map.Region.Span.LongitudeDelta;
-                nfloat mapWidthInPixels = this.Map.Bounds.Size.Width;
-                double zoomScale = longitudeDelta * MercatorRadius * Math.PI / (180.0 * mapWidthInPixels);
-                double zoomer = MaxGoogleLevels - Math.Log(zoomScale);
-                if (zoomer < 0) zoomer = 0;
-                
-                return (int)Math.Round(zoomer);
-            }
-        }
+  
         /// <summary>
         /// Dummy function to avoid linker.
         /// </summary>
@@ -85,7 +68,13 @@ namespace TK.CustomMap.iOSUnified
             this.Map.CalloutAccessoryControlTapped += OnMapCalloutAccessoryControlTapped;
 
             this.Map.AddGestureRecognizer(new UILongPressGestureRecognizer(this.OnMapLongPress));
-            this.Map.AddGestureRecognizer(new UITapGestureRecognizer(this.OnMapClicked));
+
+            var customGestureRecognizer = new UITapGestureRecognizer(this.OnMapClicked)
+            {
+                ShouldReceiveTouch = (recognizer, touch) => !(touch.View is MKAnnotationView)
+            };
+
+            this.Map.AddGestureRecognizer(customGestureRecognizer);
 
             if (this.FormsMap.CustomPins != null)
             {
@@ -334,19 +323,11 @@ namespace TK.CustomMap.iOSUnified
             var pixelLocation = recognizer.LocationInView(this.Map);
             var coordinate = this.Map.ConvertPoint(pixelLocation, this.Map);
 
-            if (this.FormsMap.RouteClickedCommand != null)
+            if (this.FormsMap.Routes != null && this.FormsMap.RouteClickedCommand != null)
             {
                 foreach (var route in this.FormsMap.Routes.Where(i => i.Selectable))
                 {
-                    var internalItem = this._routes.Single(i => i.Value.Overlay.Equals(route));
-                    var coordinates = internalItem.Key.Points.Select(MKMapPoint.ToCoordinate);
-
-                    if (GmsPolyUtil.IsLocationOnPath(
-                        coordinate.ToPosition(),
-                        coordinates.Select(i => i.ToPosition()),
-                        true,
-                        this.ZoomLevel,
-                        this.Map.CenterCoordinate.Latitude))
+                    if (this.RouteHit(pixelLocation, this._routes.Single(i => i.Value.Overlay.Equals(route)).Key))
                     {
                         if (this.FormsMap.RouteClickedCommand.CanExecute(route))
                         {
@@ -416,10 +397,12 @@ namespace TK.CustomMap.iOSUnified
 
             if (FormsMap.CalloutClickedCommand != null)
             {
-                var button = new UIButton(UIButtonType.InfoLight);
-                button.Frame = new CGRect(0, 0, 23, 23);
-                button.HorizontalAlignment = UIControlContentHorizontalAlignment.Center;
-                button.VerticalAlignment = UIControlContentVerticalAlignment.Center;
+                var button = new UIButton(UIButtonType.InfoLight)
+                {
+                    Frame = new CGRect(0, 0, 23, 23),
+                    HorizontalAlignment = UIControlContentHorizontalAlignment.Center,
+                    VerticalAlignment = UIControlContentVerticalAlignment.Center
+                };
                 annotationView.RightCalloutAccessoryView = button;
             }
             
@@ -669,7 +652,7 @@ namespace TK.CustomMap.iOSUnified
                 {
                     item.Value.Renderer.StrokeColor = item.Value.Overlay.StrokeColor.ToUIColor();
                 }
-                else if (e.PropertyName == TKPolygon.ColorPropertyName)
+                else if (e.PropertyName == TKOverlay.ColorPropertyName)
                 {
                     item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
                 }
@@ -717,8 +700,6 @@ namespace TK.CustomMap.iOSUnified
                         }
                     }
                 }
-                MKLocalSearchRequest o = new MKLocalSearchRequest();
-                
             }
             else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
@@ -787,12 +768,15 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="route">The route to add</param>
         private void AddRoute(TKRoute route)
         {
-            MKDirectionsRequest req = new MKDirectionsRequest();
-            req.Source = new MKMapItem(new MKPlacemark(route.Source.ToLocationCoordinate(), new MKPlacemarkAddress()));
-            req.Destination = new MKMapItem(new MKPlacemark(route.Destination.ToLocationCoordinate(), new MKPlacemarkAddress()));
-            req.TransportType = route.TravelMode.ToTransportType();
+            var req = new MKDirectionsRequest
+            {
+                Source = new MKMapItem(new MKPlacemark(route.Source.ToLocationCoordinate(), new MKPlacemarkAddress())),
+                Destination =
+                    new MKMapItem(new MKPlacemark(route.Destination.ToLocationCoordinate(), new MKPlacemarkAddress())),
+                TransportType = route.TravelMode.ToTransportType()
+            };
 
-            MKDirections directions = new MKDirections(req);
+            var directions = new MKDirections(req);
             directions.CalculateDirections((r, e) => 
             {
                 if (r != null && r.Routes != null && r.Routes.Any())
@@ -838,7 +822,7 @@ namespace TK.CustomMap.iOSUnified
                 e.PropertyName != TKRoute.SourceProperty &&
                 e.PropertyName != TKRoute.DestinationProperty)
             {
-                if (e.PropertyName == TKPolyline.ColorPropertyName)
+                if (e.PropertyName == TKOverlay.ColorPropertyName)
                 {
                     item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
                     item.Value.Renderer.StrokeColor = item.Value.Overlay.Color.ToUIColor();
@@ -887,7 +871,7 @@ namespace TK.CustomMap.iOSUnified
             if (e.PropertyName != TKCircle.CenterPropertyName &&
                 e.PropertyName != TKCircle.RadiusPropertyName)
             {
-                if (e.PropertyName == TKCircle.ColorPropertyName)
+                if (e.PropertyName == TKOverlay.ColorPropertyName)
                 {
                     item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
                 }
@@ -925,7 +909,7 @@ namespace TK.CustomMap.iOSUnified
 
             if (e.PropertyName != TKPolyline.LineCoordinatesPropertyName)
             {
-                if (e.PropertyName == TKPolyline.ColorPropertyName)
+                if (e.PropertyName == TKOverlay.ColorPropertyName)
                 {
                     item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
                     item.Value.Renderer.StrokeColor = item.Value.Overlay.Color.ToUIColor();
@@ -998,7 +982,7 @@ namespace TK.CustomMap.iOSUnified
             var routeFunctions = (IRouteFunctions)route;
             var steps = new TKRouteStep[nativeRoute.Steps.Count()];
 
-            for (int i = 0; i < steps.Length; i++)
+            for (var i = 0; i < steps.Length; i++)
             {
                 steps[i] = new TKRouteStep();
                 var stepFunction = (IRouteStepFunctions)steps[i];
@@ -1013,15 +997,11 @@ namespace TK.CustomMap.iOSUnified
             routeFunctions.SetDistance(nativeRoute.Distance);
             routeFunctions.SetTravelTime(nativeRoute.ExpectedTravelTime);
 
-            
-            //CLLocationCoordinate2D coord = this.Map.ConvertPoint(new CGPoint(
-            //    nativeRoute.Polyline.BoundingMapRect.MidY, nativeRoute.Polyline.BoundingMapRect.MidX), this.Map);)
-
             routeFunctions.SetBounds(
                 MapSpan.FromCenterAndRadius(
                     nativeRoute.Polyline.Coordinate.ToPosition(),
                     Distance.FromKilometers(
-                        route.Source.DistanceTo(route.Destination, false))));
+                        route.Source.DistanceTo(route.Destination))));
         }
         /// <summary>
         /// Set the visibility of an annotation view
@@ -1121,6 +1101,85 @@ namespace TK.CustomMap.iOSUnified
             {
                 this.Map.SetCenterCoordinate(this.FormsMap.MapCenter.ToLocationCoordinate(), this.FormsMap.AnimateMapCenterChange);   
             }
+        }
+        /// <summary>
+        /// Returns the distance of a point to a polyline in meters 
+        /// from http://paulbourke.net/geometry/pointlineplane/DistancePoint.java
+        /// </summary>
+        /// <param name="pt">From Point</param>
+        /// <param name="poly">To Poly</param>
+        /// <returns>Distance in meters</returns>
+        private double DistanceOfPoint(MKMapPoint pt, MKPolyline poly)
+        {
+            double distance = float.MaxValue;
+            for (var n = 0; n < poly.PointCount - 1; n++) {
+
+                var ptA = poly.Points[n];
+                var ptB = poly.Points[n + 1];
+
+                var xDelta = ptB.X - ptA.X;
+                var yDelta = ptB.Y - ptA.Y;
+
+                if (xDelta == 0.0 && yDelta == 0.0) {
+
+                    // Points must not be equal
+                    continue;
+                }
+
+                var u = ((pt.X - ptA.X) * xDelta + (pt.Y - ptA.Y) * yDelta) / (xDelta * xDelta + yDelta * yDelta);
+                MKMapPoint ptClosest;
+                if (u < 0.0) {
+
+                    ptClosest = ptA;
+                }
+                else if (u > 1.0) {
+
+                    ptClosest = ptB;
+                }
+                else {
+
+                    ptClosest = new MKMapPoint(ptA.X + u * xDelta, ptA.Y + u * yDelta);
+                }
+                
+                distance = Math.Min(distance, MKMapPoint.ToCoordinate(ptClosest).ToPosition().DistanceTo(MKMapPoint.ToCoordinate(pt).ToPosition()) * 1000);
+            }
+
+            return distance;
+        }
+        /// <summary>
+        /// Converts pixel to meters
+        /// </summary>
+        /// <param name="px">Pixel</param>
+        /// <param name="point">Point</param>
+        /// <returns>Pixel in meters</returns>
+        private double MetersFromPixel(int px, CGPoint point)
+        {
+            var ptB = new CGPoint(point.X + px, point.Y);
+
+            var coordA = this.Map.ConvertPoint(point, this.Map);
+            var coordB = this.Map.ConvertPoint(ptB, this.Map);
+
+            return coordA.ToPosition().DistanceTo(coordB.ToPosition())*1000;
+        }
+
+        /// <summary>
+        /// Check whether a route was hit
+        /// </summary>
+        /// <param name="tapPoint">Point of tap</param>
+        /// <param name="polyline">The route polyline</param>
+        /// <returns><value>true</value> if hit</returns>
+        private bool RouteHit(CGPoint tapPoint, MKPolyline polyline)
+        {
+            var coordinate = this.Map.ConvertPoint(tapPoint, this.Map);
+            var maxMeters = this.MetersFromPixel(22, tapPoint);
+
+            var distance = this.DistanceOfPoint(MKMapPoint.FromCoordinate(coordinate), polyline);
+
+            if (distance <= maxMeters)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

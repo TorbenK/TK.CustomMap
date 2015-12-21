@@ -59,7 +59,7 @@ namespace TK.CustomMap.Droid
                     new TKNativeAndroidPlaceResult
                     {
                         Description = i.Description,
-                        PlaceId = i.PlaceId
+                        PlaceId = i.PlaceId,
                     }));
             }
             return result;
@@ -99,10 +99,12 @@ namespace TK.CustomMap.Droid
             var nativeResult = await PlacesClass.GeoDataApi.GetPlaceByIdAsync(this._apiClient, id);
 
             if (nativeResult == null || !nativeResult.Any()) return null;
-            
+
+            var nativeDetails = nativeResult.First();
+
             return new TKPlaceDetails 
             {
-                Coordinate = nativeResult.First().LatLng.ToPosition()
+                Coordinate = nativeDetails.LatLng.ToPosition()
             };
         }
     }

@@ -396,7 +396,7 @@ namespace TK.CustomMap.Droid
                     this._polylines[line].Points = null;
                 }
             }
-            else if (e.PropertyName == TKPolyline.ColorPropertyName)
+            else if (e.PropertyName == TKOverlay.ColorPropertyName)
             {
                 this._polylines[line].Color = line.Color.ToAndroid().ToArgb();
             }
@@ -686,7 +686,7 @@ namespace TK.CustomMap.Droid
 
                 this.AddRoute(route);
             }
-            else if (e.PropertyName == TKPolyline.ColorPropertyName)
+            else if (e.PropertyName == TKOverlay.ColorPropertyName)
             {
                 this._routes[route].Color = route.Color.ToAndroid().ToArgb();
             }
@@ -766,7 +766,7 @@ namespace TK.CustomMap.Droid
                 case TKPolygon.CoordinatesPropertyName:
                     this._polygons[tkPolygon].Points = tkPolygon.Coordinates.Select(i => i.ToLatLng()).ToList();
                     break;
-                case TKPolygon.ColorPropertyName:
+                case TKOverlay.ColorPropertyName:
                     this._polygons[tkPolygon].FillColor = tkPolygon.Color.ToAndroid().ToArgb();
                     break;
                 case TKPolygon.StrokeColorPropertyName:
@@ -850,7 +850,7 @@ namespace TK.CustomMap.Droid
                 case TKCircle.CenterPropertyName:
                     circle.Center = tkCircle.Center.ToLatLng();
                     break;
-                case TKCircle.ColorPropertyName:
+                case TKOverlay.ColorPropertyName:
                     circle.FillColor = tkCircle.Color.ToAndroid().ToArgb();
                     break;
                 case TKCircle.StrokeColorPropertyName:
@@ -964,7 +964,7 @@ namespace TK.CustomMap.Droid
             routeFunctions.SetBounds(
                 MapSpan.FromCenterAndRadius(
                     latLngBounds.Center.ToPosition(),
-                    Distance.FromKilometers(route.Source.DistanceTo(route.Destination, false))));
+                    Distance.FromKilometers(route.Source.DistanceTo(route.Destination))));
 
         }
         /// <summary>

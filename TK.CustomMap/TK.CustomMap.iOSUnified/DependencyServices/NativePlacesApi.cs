@@ -1,18 +1,15 @@
-﻿using CoreLocation;
-using MapKit;
-using System;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Runtime.CompilerServices;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
-using TK.CustomMap.Api;
-using Xamarin.Forms.Maps;
 using Foundation;
+using MapKit;
+using TK.CustomMap.Api;
 using TK.CustomMap.iOSUnified;
+using Xamarin.Forms;
+using Xamarin.Forms.Maps;
 
-[assembly: Xamarin.Forms.Dependency(typeof(NativePlacesApi))]
+[assembly: Dependency(typeof(NativePlacesApi))]
 
 namespace TK.CustomMap.iOSUnified
 {
@@ -30,13 +27,11 @@ namespace TK.CustomMap.iOSUnified
         public void Connect()
         {
             // Nothing to do on iOS
-            return;
         }
         ///<inheritdoc/>
         public void DisconnectAndRelease()
         {
             // Nothing to do on iOS
-            return;
         }
         ///<inheritdoc/>
         public async Task<IEnumerable<IPlaceResult>> GetPredictions(string query, MapSpan bounds)
@@ -59,7 +54,7 @@ namespace TK.CustomMap.iOSUnified
                 result.AddRange(nativeResult.MapItems.Select(i =>
                     new TKNativeiOSPlaceResult
                     {
-                        Description =  i.Placemark.Title,
+                        Description =  string.Format("{0}, {1} {2}", i.Placemark.Title, i.Placemark.AdministrativeArea, i.Placemark.SubAdministrativeArea),
                         Details = new TKPlaceDetails 
                         {
                             Coordinate = i.Placemark.Coordinate.ToPosition()

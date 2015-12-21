@@ -10,9 +10,13 @@ namespace TK.CustomMap.Sample
         {
             GmsPlace.Init("YOUR API KEY");
             GmsDirection.Init("YOUR API KEY");
-
             // The root page of your application
-            MainPage = new NavigationPage(new SamplePage());
+            var mainPage = new NavigationPage(new SamplePage());
+            if (Device.OS == TargetPlatform.iOS)
+            {
+                mainPage.BarBackgroundColor = Color.FromHex("#f1f1f1");
+            }
+            MainPage = mainPage;
         }
 
         protected override void OnStart()
