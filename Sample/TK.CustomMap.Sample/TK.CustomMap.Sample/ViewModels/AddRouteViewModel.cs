@@ -76,7 +76,8 @@ namespace TK.CustomMap.Sample
                         TravelMode = TKRouteTravelMode.Driving,
                         Source = this._from,
                         Destination = this._to,
-                        Color = Color.Blue
+                        Color = Color.Blue,
+                        LineWidth = 5
                     };
                     this.Pins.Add(new RoutePin 
                     {

@@ -986,7 +986,8 @@ namespace TK.CustomMap.Droid
                 {
                     if (pin.DefaultPinColor != Color.Default)
                     {
-                        bitmap = BitmapDescriptorFactory.DefaultMarker(pin.DefaultPinColor.ToAndroid().GetHue());
+                        var hue = pin.DefaultPinColor.ToAndroid().GetHue();
+                        bitmap = BitmapDescriptorFactory.DefaultMarker(Math.Min(hue, 359.99f));
                     }
                     else
                     {
