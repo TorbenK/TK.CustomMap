@@ -466,9 +466,12 @@ namespace TK.CustomMap.Droid
             var item = this._markers[pin];
             if(item == null) return;
 
-            if (item.Id.Equals(this._selectedMarker.Id))
+            if (this._selectedMarker != null)
             {
-                this.FormsMap.SelectedPin = null;
+                if (item.Id.Equals(this._selectedMarker.Id))
+                {
+                    this.FormsMap.SelectedPin = null;
+                }
             }
 
             item.Remove();

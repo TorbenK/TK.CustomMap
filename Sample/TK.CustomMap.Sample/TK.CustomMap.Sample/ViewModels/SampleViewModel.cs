@@ -285,12 +285,29 @@ namespace TK.CustomMap.Sample
         {
             get
             {
+                return new Command(async () => 
+                {
+                    var action = await Application.Current.MainPage.DisplayActionSheet(
+                        "Callout clicked",
+                        "Cancel",
+                        "Remove Pin");
+
+                    if (action == "Remove Pin")
+                    {
+                        this._pins.Remove(this.SelectedPin);
+                    }
+                });
+            }
+        }
+        public Command ClearMapCommand
+        {
+            get
+            {
                 return new Command(() => 
                 {
-                    Application.Current.MainPage.DisplayAlert(
-                        "Callout Clicked",
-                        string.Format("Callout of pin {0} clicked", this.SelectedPin.Title),
-                        "OK");
+                    this._pins.Clear();
+                    if (this._routes != null)
+                        this._routes.Clear();
                 });
             }
         }

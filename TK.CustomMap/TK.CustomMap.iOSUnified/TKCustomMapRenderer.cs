@@ -248,7 +248,7 @@ namespace TK.CustomMap.iOSUnified
             }
             else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                foreach (TKCustomMapAnnotation annotation in this.Map.Annotations)
+                foreach (var annotation in this.Map.Annotations.OfType<TKCustomMapAnnotation>())
                 {
                     annotation.CustomPin.PropertyChanged -= OnPinPropertyChanged;
                 }

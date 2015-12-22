@@ -15,5 +15,6 @@
           iOS="ic_directions.png" />
       </ToolbarItem.Icon>
     </ToolbarItem>
+    <ToolbarItem Text="Clear" Command="{Binding ClearMapCommand}" />
   </ContentPage.ToolbarItems>
 </ContentPage>
