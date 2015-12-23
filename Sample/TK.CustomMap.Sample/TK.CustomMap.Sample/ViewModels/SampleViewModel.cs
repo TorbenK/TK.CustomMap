@@ -189,7 +189,7 @@ namespace TK.CustomMap.Sample
                     if (gmsResult != null)
                     {
                         var details = await GmsPlace.Instance.GetDetails(gmsResult.PlaceId);
-                        this.MapCenter = new Position(details.Item.Geometry.Location.Latitude, details.Item.Geometry.Location.Latitude);
+                        this.MapCenter = new Position(details.Item.Geometry.Location.Latitude, details.Item.Geometry.Location.Longitude);
                         return;
                     }
                     var osmResult = p as OsmNominatimResult;
