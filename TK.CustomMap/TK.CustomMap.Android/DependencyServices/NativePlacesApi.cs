@@ -1,24 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using TK.CustomMap.Api;
 using System.Threading.Tasks;
-using Xamarin.Forms;
-using Android.Gms.Location.Places;
 using Android.Gms.Common.Apis;
-using System.Collections.ObjectModel;
+using Android.Gms.Location.Places;
 using Android.Gms.Maps.Model;
+using TK.CustomMap.Api;
+using TK.CustomMap.Droid;
+using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
-[assembly: Dependency(typeof(TK.CustomMap.Droid.NativePlacesApi))]
+[assembly: Dependency(typeof(NativePlacesApi))]
 
 namespace TK.CustomMap.Droid
 {
@@ -67,7 +59,7 @@ namespace TK.CustomMap.Droid
                     new TKNativeAndroidPlaceResult
                     {
                         Description = i.Description,
-                        PlaceId = i.PlaceId
+                        PlaceId = i.PlaceId,
                     }));
             }
             return result;
@@ -77,8 +69,8 @@ namespace TK.CustomMap.Droid
         {
             if(this._apiClient == null)
             {
-                this._apiClient = new Android.Gms.Common.Apis.GoogleApiClientBuilder(Forms.Context)
-                    .AddApi(Android.Gms.Location.Places.PlacesClass.GEO_DATA_API)
+                this._apiClient = new GoogleApiClientBuilder(Forms.Context)
+                    .AddApi(PlacesClass.GEO_DATA_API)
                     .Build();
             }
             if(!this._apiClient.IsConnected && !this._apiClient.IsConnecting)
@@ -107,10 +99,12 @@ namespace TK.CustomMap.Droid
             var nativeResult = await PlacesClass.GeoDataApi.GetPlaceByIdAsync(this._apiClient, id);
 
             if (nativeResult == null || !nativeResult.Any()) return null;
-            
+
+            var nativeDetails = nativeResult.First();
+
             return new TKPlaceDetails 
             {
-                Coordinate = nativeResult.First().LatLng.ToPosition()
+                Coordinate = nativeDetails.LatLng.ToPosition()
             };
         }
     }

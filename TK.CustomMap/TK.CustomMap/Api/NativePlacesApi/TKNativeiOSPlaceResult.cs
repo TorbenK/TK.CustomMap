@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TK.CustomMap.Api
+﻿namespace TK.CustomMap.Api
 {
     /// <summary>
     /// iOS Result set
@@ -17,5 +11,7 @@ namespace TK.CustomMap.Api
         /// Gets/Sets the details of the place
         /// </summary>
         public TKPlaceDetails Details { get; set; }
+        ///<inheritdoc />
+        public string Subtitle { get; set; }
     }
 }

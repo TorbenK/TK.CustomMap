@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xamarin.Forms.Maps;
-
-namespace TK.CustomMap.Overlays
+﻿namespace TK.CustomMap.Overlays
 {
     /// <summary>
     /// A Step of a route

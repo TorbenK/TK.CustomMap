@@ -32,5 +32,7 @@ namespace TK.CustomMap.Api.OSM
         /// </summary>
         [JsonProperty("display_name")]
         public string Description { get; set; }
+        ///<inheritdoc />
+        public string Subtitle { get; set; }
     }
 }
