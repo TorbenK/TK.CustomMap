@@ -76,6 +76,18 @@ namespace TK.CustomMap.Sample
             this._useSearchBar = useSearchBar;
             this.Init();
         }
+
+        public string Placeholder
+        {
+            get { return this._useSearchBar ? this._searchBar.Placeholder : this._entry.Placeholder; }
+            set
+            {
+                if (this._useSearchBar)
+                    this._searchBar.Placeholder = value;
+                else
+                    this._entry.Placeholder = value;
+            }
+        }
         public PlacesAutoComplete()
         {
             this._useSearchBar = true;

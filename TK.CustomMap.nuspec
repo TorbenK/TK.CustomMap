@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <title>Custom Map Control for Xamarin Forms</title>
     <authors>Torben Kruse</authors>
     <owners>Torben Kruse</owners>
@@ -59,16 +59,11 @@
       </group>
     </dependencies>
     <releaseNotes>
-      [1.2.0] 
+      [1.2.1] 
       Beta Release
       
-      New:
-      - Automatic Route calculation
-      - Clickable Routes
-      - Bindable Map Region
-      - Native Places API
       Fixed:
-      - Exception when setting MapRegion
+        Issue with removing/clearing observable collection of pins
     </releaseNotes>
   </metadata>
   <files>

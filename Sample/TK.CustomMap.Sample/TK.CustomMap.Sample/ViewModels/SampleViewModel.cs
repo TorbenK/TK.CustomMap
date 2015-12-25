@@ -160,20 +160,14 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return new Command<Position>((positon) => 
+                return new Command<Position>((positon) =>
                 {
                     this.SelectedPin = null;
 
                     // Determine if a point was inside a circle
-                    foreach (var c in this._circles)
+                    if ((from c in this._circles let distanceInMeters = c.Center.DistanceTo(positon) * 1000 where distanceInMeters <= c.Radius select c).Any())
                     {
-                        var distanceInMeters = c.Center.DistanceTo(positon) * 1000;
-
-                        if (distanceInMeters <= c.Radius)
-                        {
-                            Application.Current.MainPage.DisplayAlert("Circle tap", "Circle was tapped", "OK");
-                            return;
-                        }
+                        Application.Current.MainPage.DisplayAlert("Circle tap", "Circle was tapped", "OK");
                     }
                 });
             }
@@ -191,7 +185,7 @@ namespace TK.CustomMap.Sample
                     if (gmsResult != null)
                     {
                         var details = await GmsPlace.Instance.GetDetails(gmsResult.PlaceId);
-                        this.MapCenter = new Position(details.Item.Geometry.Location.Latitude, details.Item.Geometry.Location.Latitude);
+                        this.MapCenter = new Position(details.Item.Geometry.Location.Latitude, details.Item.Geometry.Location.Longitude);
                         return;
                     }
                     var osmResult = p as OsmNominatimResult;
