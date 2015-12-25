@@ -1,9 +1,13 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.Contracts;
+using System.Linq;
 using TK.CustomMap.Api;
 using TK.CustomMap.Api.Google;
 using TK.CustomMap.Api.OSM;
 using TK.CustomMap.Overlays;
+using TK.CustomMap.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
@@ -18,7 +22,9 @@ namespace TK.CustomMap.Sample
         private ObservableCollection<TKRoute> _routes;
         private ObservableCollection<TKCircle> _circles;
 
-
+        /// <summary>
+        /// Map region bound to <see cref="TKCustomMap"/>
+        /// </summary>
         public MapSpan MapRegion
         {
             get { return this._mapRegion; }
@@ -32,7 +38,7 @@ namespace TK.CustomMap.Sample
             }
         }
         /// <summary>
-        /// Pins bound to the <see cref="TkCustomMap"/>
+        /// Pins bound to the <see cref="TKCustomMap"/>
         /// </summary>
         public ObservableCollection<TKCustomMapPin> Pins
         {
@@ -47,7 +53,7 @@ namespace TK.CustomMap.Sample
             }
         }
         /// <summary>
-        /// Routes bound to the <see cref="TkCustomMap"/>
+        /// Routes bound to the <see cref="TKCustomMap"/>
         /// </summary>
         public ObservableCollection<TKRoute> Routes
         {
@@ -62,7 +68,7 @@ namespace TK.CustomMap.Sample
             }
         }
         /// <summary>
-        /// Circles bound to the <see cref="TkCustomMap"/>
+        /// Circles bound to the <see cref="TKCustomMap"/>
         /// </summary>
         public ObservableCollection<TKCircle> Circles
         {
@@ -77,7 +83,7 @@ namespace TK.CustomMap.Sample
             }
         }
         /// <summary>
-        /// Map center bound to the <see cref="TkCustomMap"/>
+        /// Map center bound to the <see cref="TKCustomMap"/>
         /// </summary>
         public Position MapCenter
         {
@@ -92,7 +98,7 @@ namespace TK.CustomMap.Sample
             }
         }
         /// <summary>
-        /// Selected pin bound to the <see cref="TkCustomMap"/>
+        /// Selected pin bound to the <see cref="TKCustomMap"/>
         /// </summary>
         public TKCustomMapPin SelectedPin
         {
@@ -107,7 +113,7 @@ namespace TK.CustomMap.Sample
             }
         }
         /// <summary>
-        /// Map Long Press bound to the <see cref="TkCustomMap"/>
+        /// Map Long Press bound to the <see cref="TKCustomMap"/>
         /// </summary>
         public Command<Position> MapLongPressCommand
         {
@@ -138,8 +144,8 @@ namespace TK.CustomMap.Sample
                         var circle = new TKCircle 
                         {
                             Center = position,
-                            Radius = 5000,
-                            Color = Color.FromRgba(100, 0, 0, 120)
+                            Radius = 10000,
+                            Color = Color.FromRgba(100, 0, 0, 80)
                         };
                         this._circles.Add(circle);
                     }
@@ -148,30 +154,20 @@ namespace TK.CustomMap.Sample
             }
         }
         /// <summary>
-        /// Map Clicked bound to the <see cref="TkCustomMap"/>
+        /// Map Clicked bound to the <see cref="TKCustomMap"/>
         /// </summary>
         public Command<Position> MapClickedCommand
         {
             get
             {
-                return new Command<Position>((positon) => 
+                return new Command<Position>((positon) =>
                 {
-                    this.SelectedPin = null;        
-            
-                    // Determine if a circle was clicked
-                    if(this._circles == null) return;
+                    this.SelectedPin = null;
 
-                    foreach (var c in this._circles)
+                    // Determine if a point was inside a circle
+                    if ((from c in this._circles let distanceInMeters = c.Center.DistanceTo(positon) * 1000 where distanceInMeters <= c.Radius select c).Any())
                     {
-                        var distanceInMeters = c.Center.DistanceTo(positon)*1000;
-
-                        if (distanceInMeters <= c.Radius)
-                        {
-                            Application.Current.MainPage.DisplayAlert(
-                                "Circle Tap",
-                                "Circle was tapped",
-                                "OK");
-                        }
+                        Application.Current.MainPage.DisplayAlert("Circle tap", "Circle was tapped", "OK");
                     }
                 });
             }
@@ -189,7 +185,7 @@ namespace TK.CustomMap.Sample
                     if (gmsResult != null)
                     {
                         var details = await GmsPlace.Instance.GetDetails(gmsResult.PlaceId);
-                        this.MapCenter = new Position(details.Item.Geometry.Location.Latitude, details.Item.Geometry.Location.Latitude);
+                        this.MapCenter = new Position(details.Item.Geometry.Location.Latitude, details.Item.Geometry.Location.Longitude);
                         return;
                     }
                     var osmResult = p as OsmNominatimResult;
@@ -217,7 +213,7 @@ namespace TK.CustomMap.Sample
             }
         }
         /// <summary>
-        /// Pin Selected bound to the <see cref="TkCustomMap"/>
+        /// Pin Selected bound to the <see cref="TKCustomMap"/>
         /// </summary>
         public Command PinSelectedCommand
         {
@@ -230,26 +226,33 @@ namespace TK.CustomMap.Sample
             }
         }
         /// <summary>
-        /// Drag End bound to the <see cref="TkCustomMap"/>
+        /// Drag End bound to the <see cref="TKCustomMap"/>
         /// </summary>
         public Command<TKCustomMapPin> DragEndCommand
         {
             get 
             {
-                return new Command<TKCustomMapPin>(pin =>
+                return new Command<TKCustomMapPin>(pin => 
                 {
                     var routePin = pin as RoutePin;
 
                     if (routePin != null)
                     {
                         if (routePin.IsSource)
+                        {
                             routePin.Route.Source = pin.Position;
+                        }
                         else
+                        {
                             routePin.Route.Destination = pin.Position;
+                        }
                     }
                 });
             }
         }
+        /// <summary>
+        /// Route clicked bound to the <see cref="TKCustomMap"/>
+        /// </summary>
         public Command<TKRoute> RouteClickedCommand
         {
             get
@@ -270,21 +273,41 @@ namespace TK.CustomMap.Sample
             }
         }
         /// <summary>
-        /// Callout clicked bound to the <see cref="TkCustomMap"/>
+        /// Callout clicked bound to the <see cref="TKCustomMap"/>
         /// </summary>
         public Command CalloutClickedCommand
         {
             get
             {
-                return new Command(() => 
+                return new Command(async () => 
                 {
-                    Application.Current.MainPage.DisplayAlert(
-                        "Callout Clicked",
-                        string.Format("Callout of pin {0} clicked", this.SelectedPin.Title),
-                        "OK");
+                    var action = await Application.Current.MainPage.DisplayActionSheet(
+                        "Callout clicked",
+                        "Cancel",
+                        "Remove Pin");
+
+                    if (action == "Remove Pin")
+                    {
+                        this._pins.Remove(this.SelectedPin);
+                    }
                 });
             }
         }
+        public Command ClearMapCommand
+        {
+            get
+            {
+                return new Command(() => 
+                {
+                    this._pins.Clear();
+                    if (this._routes != null)
+                        this._routes.Clear();
+                });
+            }
+        }
+        /// <summary>
+        /// Navigate to a new page to get route source/destination
+        /// </summary>
         public Command AddRouteCommand
         {
             get

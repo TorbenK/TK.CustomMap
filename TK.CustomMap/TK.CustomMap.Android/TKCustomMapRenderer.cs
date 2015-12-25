@@ -4,17 +4,19 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Android.Gms.Maps;
 using Android.Gms.Maps.Model;
 using TK.CustomMap;
-using TK.CustomMap.Api.Google;
 using TK.CustomMap.Droid;
 using TK.CustomMap.Overlays;
-using TK.CustomMap.Utilities;
 using Xamarin.Forms;
-using Xamarin.Forms.Maps;
 using Xamarin.Forms.Maps.Android;
 using Xamarin.Forms.Platform.Android;
+using Android.Gms.Location.Places;
+using Xamarin.Forms.Maps;
+using TK.CustomMap.Api.Google;
+using TK.CustomMap.Utilities;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 namespace TK.CustomMap.Droid
@@ -396,7 +398,7 @@ namespace TK.CustomMap.Droid
                     this._polylines[line].Points = null;
                 }
             }
-            else if (e.PropertyName == TKOverlay.ColorPropertyName)
+            else if (e.PropertyName == TKPolyline.ColorPropertyName)
             {
                 this._polylines[line].Color = line.Color.ToAndroid().ToArgb();
             }
@@ -464,9 +466,12 @@ namespace TK.CustomMap.Droid
             var item = this._markers[pin];
             if(item == null) return;
 
-            if (item.Id.Equals(this._selectedMarker.Id))
+            if (this._selectedMarker != null)
             {
-                this.FormsMap.SelectedPin = null;
+                if (item.Id.Equals(this._selectedMarker.Id))
+                {
+                    this.FormsMap.SelectedPin = null;
+                }
             }
 
             item.Remove();
@@ -680,13 +685,12 @@ namespace TK.CustomMap.Droid
                 e.PropertyName == TKRoute.TravelModelProperty)
             {
                 route.PropertyChanged -= OnRoutePropertyChanged;
-
                 this._routes[route].Remove();
                 this._routes.Remove(route);
 
                 this.AddRoute(route);
             }
-            else if (e.PropertyName == TKOverlay.ColorPropertyName)
+            else if (e.PropertyName == TKPolyline.ColorPropertyName)
             {
                 this._routes[route].Color = route.Color.ToAndroid().ToArgb();
             }
@@ -766,7 +770,7 @@ namespace TK.CustomMap.Droid
                 case TKPolygon.CoordinatesPropertyName:
                     this._polygons[tkPolygon].Points = tkPolygon.Coordinates.Select(i => i.ToLatLng()).ToList();
                     break;
-                case TKOverlay.ColorPropertyName:
+                case TKPolygon.ColorPropertyName:
                     this._polygons[tkPolygon].FillColor = tkPolygon.Color.ToAndroid().ToArgb();
                     break;
                 case TKPolygon.StrokeColorPropertyName:
@@ -850,7 +854,7 @@ namespace TK.CustomMap.Droid
                 case TKCircle.CenterPropertyName:
                     circle.Center = tkCircle.Center.ToLatLng();
                     break;
-                case TKOverlay.ColorPropertyName:
+                case TKCircle.ColorPropertyName:
                     circle.FillColor = tkCircle.Color.ToAndroid().ToArgb();
                     break;
                 case TKCircle.StrokeColorPropertyName:
@@ -964,7 +968,10 @@ namespace TK.CustomMap.Droid
             routeFunctions.SetBounds(
                 MapSpan.FromCenterAndRadius(
                     latLngBounds.Center.ToPosition(),
-                    Distance.FromKilometers(route.Source.DistanceTo(route.Destination))));
+                    Distance.FromKilometers(
+                        new Position(latLngBounds.Southwest.Latitude, latLngBounds.Southwest.Longitude)
+                        .DistanceTo(
+                            new Position(latLngBounds.Northeast.Latitude, latLngBounds.Northeast.Longitude)))));
 
         }
         /// <summary>
@@ -986,8 +993,7 @@ namespace TK.CustomMap.Droid
                 {
                     if (pin.DefaultPinColor != Color.Default)
                     {
-                        var hue = pin.DefaultPinColor.ToAndroid().GetHue();
-                        bitmap = BitmapDescriptorFactory.DefaultMarker(Math.Min(hue, 359.99f));
+                        bitmap = BitmapDescriptorFactory.DefaultMarker(pin.DefaultPinColor.ToAndroid().GetHue());
                     }
                     else
                     {

@@ -66,26 +66,6 @@ namespace TK.CustomMap.Sample
                     this._entry.Text = value;
             }
         }
-
-        public string Placeholder
-        {
-            get
-            {
-                if (this._useSearchBar)
-                    return this._searchBar.Placeholder;
-
-                return this._entry.Placeholder;
-            }
-            set
-            {
-                if (this._useSearchBar)
-                    this._searchBar.Placeholder = value;
-                else
-                    this._entry.Placeholder = value;
-
-            }
-        }
-
         public MapSpan Bounds
         {
             get { return (MapSpan)this.GetValue(BoundsProperty); }
@@ -95,6 +75,18 @@ namespace TK.CustomMap.Sample
         {
             this._useSearchBar = useSearchBar;
             this.Init();
+        }
+
+        public string Placeholder
+        {
+            get { return this._useSearchBar ? this._searchBar.Placeholder : this._entry.Placeholder; }
+            set
+            {
+                if (this._useSearchBar)
+                    this._searchBar.Placeholder = value;
+                else
+                    this._entry.Placeholder = value;
+            }
         }
         public PlacesAutoComplete()
         {
@@ -116,8 +108,7 @@ namespace TK.CustomMap.Sample
             this._autoCompleteListView.ItemTemplate = new DataTemplate(() =>
             {
                 var cell = new TextCell();
-                cell.SetBinding(TextCell.TextProperty, "Description");
-                cell.SetBinding(TextCell.DetailProperty, "Subtitle");
+                cell.SetBinding(ImageCell.TextProperty, "Description");
 
                 return cell;
             });
