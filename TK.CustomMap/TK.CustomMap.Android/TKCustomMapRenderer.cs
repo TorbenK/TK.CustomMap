@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Android.Gms.Common;
 using Android.Gms.Maps;
 using Android.Gms.Maps.Model;
 using TK.CustomMap;
@@ -124,7 +125,7 @@ namespace TK.CustomMap.Droid
         public void OnMapReady(GoogleMap googleMap)
         {
             this._googleMap = googleMap;
-
+            
             this._googleMap.MarkerClick += OnMarkerClick;
             this._googleMap.MapClick += OnMapClick;
             this._googleMap.MapLongClick += OnMapLongClick;
@@ -133,7 +134,7 @@ namespace TK.CustomMap.Droid
             this._googleMap.CameraChange += OnCameraChange;
             this._googleMap.MarkerDragStart += OnMarkerDragStart;
             this._googleMap.InfoWindowClick += OnInfoWindowClick;
-
+            
             this.MoveToCenter();
             this.UpdatePins();
             this.UpdateRoutes();
@@ -314,7 +315,7 @@ namespace TK.CustomMap.Droid
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-        private void OnPinPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private async void OnPinPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var pin = sender as TKCustomMapPin;
             if (pin == null) return;
@@ -331,10 +332,10 @@ namespace TK.CustomMap.Droid
                     marker.Snippet = pin.Subtitle;
                     break;
                 case TKCustomMapPin.ImagePropertyName:
-                    this.UpdateImage(pin, marker);
+                    await this.UpdateImage(pin, marker);
                     break;
                 case TKCustomMapPin.DefaultPinColorPropertyName:
-                    this.UpdateImage(pin, marker);
+                    await this.UpdateImage(pin, marker);
                     break;
                 case TKCustomMapPin.PositionPropertyName:
                     if (!this._isDragging)
@@ -441,7 +442,7 @@ namespace TK.CustomMap.Droid
         /// Adds a marker to the map
         /// </summary>
         /// <param name="pin">The Forms Pin</param>
-        private void AddPin(TKCustomMapPin pin)
+        private async void AddPin(TKCustomMapPin pin)
         {
             var markerWithIcon = new MarkerOptions();
             markerWithIcon.SetPosition(new LatLng(pin.Position.Latitude, pin.Position.Longitude));
@@ -451,7 +452,7 @@ namespace TK.CustomMap.Droid
             if (!string.IsNullOrWhiteSpace(pin.Subtitle))
                 markerWithIcon.SetSnippet(pin.Subtitle);
 
-            this.UpdateImage(pin, markerWithIcon);
+            await this.UpdateImage(pin, markerWithIcon);
             markerWithIcon.Draggable(pin.IsDraggable);
             markerWithIcon.Visible(pin.IsVisible);
 
@@ -979,7 +980,7 @@ namespace TK.CustomMap.Droid
         /// </summary>
         /// <param name="pin">The forms pin</param>
         /// <param name="markerOptions">The native marker options</param>
-        private async void UpdateImage(TKCustomMapPin pin, MarkerOptions markerOptions)
+        private async Task UpdateImage(TKCustomMapPin pin, MarkerOptions markerOptions)
         {
             BitmapDescriptor bitmap;
             try
@@ -1012,7 +1013,7 @@ namespace TK.CustomMap.Droid
         /// </summary>
         /// <param name="pin">The forms pin</param>
         /// <param name="marker">The native marker</param>
-        private async void UpdateImage(TKCustomMapPin pin, Marker marker)
+        private async Task UpdateImage(TKCustomMapPin pin, Marker marker)
         {
             BitmapDescriptor bitmap;
             try
