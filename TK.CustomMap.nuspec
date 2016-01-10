@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <title>Custom Map Control for Xamarin Forms</title>
     <authors>Torben Kruse</authors>
     <owners>Torben Kruse</owners>
@@ -59,11 +59,11 @@
       </group>
     </dependencies>
     <releaseNotes>
-      [1.2.1] 
+      [1.2.2] 
       Beta Release
       
       Fixed:
-        Issue with removing/clearing observable collection of pins
+        Issue with Images beeing loaded too late on Android
     </releaseNotes>
   </metadata>
   <files>
