@@ -1046,8 +1046,15 @@ namespace TK.CustomMap.iOSUnified
                     this.Map.AddAnnotation(new TKCustomMapAnnotation(pin));
                     return;
                 }
-
-                var image = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image);
+                UIImage image;
+                if (pin.Image is FileImageSource)
+                {
+                    image = await new FileImageSourceHandler().LoadImageAsync(pin.Image);
+                }
+                else
+                {
+                    image = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image);
+                }
                 Device.BeginInvokeOnMainThread(() =>
                 {
                     annotationView.Image = image;

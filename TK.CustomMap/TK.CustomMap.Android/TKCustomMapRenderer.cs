@@ -987,7 +987,16 @@ namespace TK.CustomMap.Droid
             {
                 if (pin.Image != null)
                 {
-                    var icon = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image, this.Context);
+                    Android.Graphics.Bitmap icon = null;
+
+                    if (pin.Image is FileImageSource)
+                    {
+                        icon = await new FileImageSourceHandler().LoadImageAsync(pin.Image, this.Context);
+                    }
+                    else
+                    {
+                        icon = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image, this.Context);
+                    }
                     bitmap = BitmapDescriptorFactory.FromBitmap(icon);
                 }
                 else
@@ -1020,7 +1029,16 @@ namespace TK.CustomMap.Droid
             {
                 if (pin.Image != null)
                 {
-                    var icon = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image, this.Context);
+                    Android.Graphics.Bitmap icon = null;
+
+                    if (pin.Image is FileImageSource)
+                    {
+                        icon = await new FileImageSourceHandler().LoadImageAsync(pin.Image, this.Context);
+                    }
+                    else
+                    {
+                        icon = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image, this.Context);
+                    }
                     bitmap = BitmapDescriptorFactory.FromBitmap(icon);
                 }
                 else
