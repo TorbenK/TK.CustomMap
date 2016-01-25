@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
-    <version>1.2.2</version>
+    <version>1.2.3</version>
     <title>Custom Map Control for Xamarin Forms</title>
     <authors>Torben Kruse</authors>
     <owners>Torben Kruse</owners>
@@ -63,7 +63,7 @@
       Beta Release
       
       Fixed:
-        Issue with Images beeing loaded too late on Android
+        Issue with loading local images
     </releaseNotes>
   </metadata>
   <files>
