@@ -22,6 +22,10 @@ namespace TK.CustomMap.Sample
         private ObservableCollection<TKRoute> _routes;
         private ObservableCollection<TKCircle> _circles;
 
+        public string TilesUrl
+        {
+            get { return null; }
+        }
         /// <summary>
         /// Map region bound to <see cref="TKCustomMap"/>
         /// </summary>
@@ -300,6 +304,7 @@ namespace TK.CustomMap.Sample
                 return new Command(() => 
                 {
                     this._pins.Clear();
+                    this._circles.Clear();
                     if (this._routes != null)
                         this._routes.Clear();
                 });

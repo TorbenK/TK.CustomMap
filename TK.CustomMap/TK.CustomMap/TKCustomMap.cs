@@ -142,6 +142,13 @@ namespace TK.CustomMap
                 p => p.RouteCalculationFailedCommand,
                 null);
         /// <summary>
+        /// Bindable Property of <see cref="TileUrl"/>
+        /// </summary>
+        public static readonly BindableProperty TilesUrlProperty =
+            BindableProperty.Create<TKCustomMap, string>(
+                p => p.TilesUrl,
+                null);  
+        /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
         public ObservableCollection<TKCustomMapPin> CustomPins
@@ -286,6 +293,16 @@ namespace TK.CustomMap
             get { return (Command<TKRoute>)this.GetValue(RouteCalculationFailedCommandProperty); }
             set { this.SetValue(RouteCalculationFailedCommandProperty, value); }
         }
+        /// <summary>
+        /// Gets/Sets the url for custom map tiles.  
+        /// <note type="note">Url must specify 3 placeholders({0}, {1}, {2}) which are used for providing x, y and zoom.</note>
+        /// </summary>
+        public string TilesUrl
+        {
+            get { return (string)this.GetValue(TilesUrlProperty); }
+            set { this.SetValue(TilesUrlProperty, value); }
+        }
+
         /// <summary>
         /// When <see cref="MapRegion"/> changed
         /// </summary>

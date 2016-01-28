@@ -36,8 +36,8 @@ namespace TK.CustomMap.Droid
         private readonly Dictionary<TKCustomMapPin, Marker> _markers = new Dictionary<TKCustomMapPin, Marker>();
         private Marker _selectedMarker;
         private bool _isDragging;
-        private bool _firstUpdate = true;
 
+        private TileOverlay _tileOverlay;
         private GoogleMap _googleMap;
 
         private TKCustomMap FormsMap
@@ -57,15 +57,6 @@ namespace TK.CustomMap.Droid
             {
                 mapView.GetMapAsync(this);
                 this.FormsMap.PropertyChanged += FormsMapPropertyChanged;
-
-                if (e.OldElement == null)
-                {
-                    if (this.FormsMap.CustomPins != null)
-                    {
-                        this.FormsMap.CustomPins.CollectionChanged += OnCustomPinsCollectionChanged;
-                    }
-
-                }
             }
         }
         ///<inheritdoc/>
@@ -90,7 +81,6 @@ namespace TK.CustomMap.Droid
 
             if (e.PropertyName == TKCustomMap.CustomPinsProperty.PropertyName)
             {
-                this._firstUpdate = true;
                 this.UpdatePins();
             }
             else if (e.PropertyName == TKCustomMap.SelectedPinProperty.PropertyName)
@@ -117,6 +107,10 @@ namespace TK.CustomMap.Droid
             {
                 this.UpdateRoutes();
             }
+            else if (e.PropertyName == TKCustomMap.TilesUrlProperty.PropertyName)
+            {
+                this.UpdateTilesUrl();
+            }
         }
         /// <summary>
         /// When the map is ready to use
@@ -135,6 +129,7 @@ namespace TK.CustomMap.Droid
             this._googleMap.MarkerDragStart += OnMarkerDragStart;
             this._googleMap.InfoWindowClick += OnInfoWindowClick;
             
+            this.UpdateTilesUrl();
             this.MoveToCenter();
             this.UpdatePins();
             this.UpdateRoutes();
@@ -302,12 +297,7 @@ namespace TK.CustomMap.Droid
             }
             else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                foreach (var item in this._markers)
-                {
-                    item.Key.PropertyChanged -= OnPinPropertyChanged;
-                }
-                this._firstUpdate = true;
-                this.UpdatePins();
+                this.UpdatePins(false);
             }
         }
         /// <summary>
@@ -411,31 +401,25 @@ namespace TK.CustomMap.Droid
         /// <summary>
         /// Creates all Markers on the map
         /// </summary>
-        private void UpdatePins()
+        private void UpdatePins(bool firstUpdate = true)
         {
             if (this._googleMap == null) return;
 
-            this._googleMap.Clear();
-            this._markers.Clear();
-
-            var items = this.FormsMap.CustomPins;
-
-            if (items == null || !items.Any()) return;
-
-            foreach (var pin in items)
+            foreach (var i in this._markers)
             {
-                this.AddPin(pin);
-
-                if (this._firstUpdate)
-                {
-                    pin.PropertyChanged += OnPinPropertyChanged;
-                }
+                this.RemovePin(i.Key, false);
             }
-            this._firstUpdate = false;
-
-            if (this.FormsMap.PinsReadyCommand != null && this.FormsMap.PinsReadyCommand.CanExecute(this.FormsMap))
+            this._markers.Clear();
+            if (this.FormsMap.CustomPins != null)
             {
-                this.FormsMap.PinsReadyCommand.Execute(this.FormsMap);
+                foreach (var pin in this.FormsMap.CustomPins)
+                {
+                    this.AddPin(pin);
+                }
+                if (firstUpdate)
+                {
+                    this.FormsMap.CustomPins.CollectionChanged += OnCustomPinsCollectionChanged;   
+                }
             }
         }
         /// <summary>
@@ -444,6 +428,8 @@ namespace TK.CustomMap.Droid
         /// <param name="pin">The Forms Pin</param>
         private async void AddPin(TKCustomMapPin pin)
         {
+            pin.PropertyChanged += OnPinPropertyChanged;
+
             var markerWithIcon = new MarkerOptions();
             markerWithIcon.SetPosition(new LatLng(pin.Position.Latitude, pin.Position.Longitude));
 
@@ -462,7 +448,7 @@ namespace TK.CustomMap.Droid
         /// Remove a pin from the map and the internal dictionary
         /// </summary>
         /// <param name="pin">The pin to remove</param>
-        private void RemovePin(TKCustomMapPin pin)
+        private void RemovePin(TKCustomMapPin pin, bool removeMarker = true)
         {
             var item = this._markers[pin];
             if(item == null) return;
@@ -477,7 +463,11 @@ namespace TK.CustomMap.Droid
 
             item.Remove();
             pin.PropertyChanged -= OnPinPropertyChanged;
-            this._markers.Remove(pin);
+
+            if (removeMarker)
+            {
+                this._markers.Remove(pin);
+            }
         }
         /// <summary>
         /// Set the selected item on the map
@@ -810,6 +800,7 @@ namespace TK.CustomMap.Droid
             }
             else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
+                
                 this.UpdateCircles(false);
             }
         }
@@ -1059,6 +1050,31 @@ namespace TK.CustomMap.Droid
             }
             marker.SetIcon(bitmap);
         }
+        /// <summary>
+        /// Updates the custom tile provider with the new url
+        /// </summary>
+        private void UpdateTilesUrl()
+        {
+            if (this._tileOverlay != null)
+            {
+                this._tileOverlay.Remove();
+                this.FormsMap.MapType = MapType.Street;
+            }
+
+            if (this.FormsMap == null || this._googleMap == null) return;
+
+            if (!string.IsNullOrEmpty(this.FormsMap.TilesUrl))
+            {
+                this._googleMap.MapType = GoogleMap.MapTypeNone;
+
+                this._tileOverlay = this._googleMap.AddTileOverlay(
+                    new TileOverlayOptions()
+                        .InvokeTileProvider(
+                            new TKCustomTileProvider(this.FormsMap.TilesUrl))
+                        .InvokeZIndex(-1));
+            }
+        }
+
 
         
     }
