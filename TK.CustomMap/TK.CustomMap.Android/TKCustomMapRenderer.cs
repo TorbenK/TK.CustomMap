@@ -419,7 +419,11 @@ namespace TK.CustomMap.Droid
                 }
                 if (firstUpdate)
                 {
-                    this.FormsMap.CustomPins.CollectionChanged += OnCustomPinsCollectionChanged;   
+                    var observAble = this.FormsMap.CustomPins as INotifyCollectionChanged;
+                    if (observAble != null)
+                    {
+                        observAble.CollectionChanged += OnCustomPinsCollectionChanged;
+                    }
                 }
             }
         }
@@ -538,7 +542,7 @@ namespace TK.CustomMap.Droid
 
                 if (firstUpdate)
                 {
-                    var observAble = this.FormsMap.Polylines as ObservableCollection<TKRoute>;
+                    var observAble = this.FormsMap.Polylines as INotifyCollectionChanged;
                     if (observAble != null)
                     {
                         observAble.CollectionChanged += OnLineCollectionChanged;
@@ -566,7 +570,7 @@ namespace TK.CustomMap.Droid
                 }
                 if (firstUpdate)
                 {
-                    var observAble = this.FormsMap.Circles as ObservableCollection<TKCircle>;
+                    var observAble = this.FormsMap.Circles as INotifyCollectionChanged;
                     if (observAble != null)
                     {
                         observAble.CollectionChanged += CirclesCollectionChanged;
@@ -595,7 +599,7 @@ namespace TK.CustomMap.Droid
                 }
                 if (firstUpdate)
                 {
-                    var observAble = this.FormsMap.Polygons as ObservableCollection<TKPolygon>;
+                    var observAble = this.FormsMap.Polygons as INotifyCollectionChanged;
                     if (observAble != null)
                     {
                         observAble.CollectionChanged += OnPolygonsCollectionChanged;
@@ -625,7 +629,7 @@ namespace TK.CustomMap.Droid
             }
             if (firstUpdate)
             {
-                var observAble = this.FormsMap.Routes as ObservableCollection<TKRoute>;
+                var observAble = this.FormsMap.Routes as INotifyCollectionChanged;
                 if (observAble != null)
                 {
                     observAble.CollectionChanged += OnRouteCollectionChanged;

@@ -15,7 +15,7 @@ namespace TK.CustomMap
         /// Bindable Property of <see cref="CustomPins" />
         /// </summary>
         public static readonly BindableProperty CustomPinsProperty = 
-            BindableProperty.Create<TKCustomMap, ObservableCollection<TKCustomMapPin>>(
+            BindableProperty.Create<TKCustomMap, IEnumerable<TKCustomMapPin>>(
                 p => p.CustomPins,
                 null);
         /// <summary>
@@ -151,7 +151,7 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
-        public ObservableCollection<TKCustomMapPin> CustomPins
+        public IEnumerable<TKCustomMapPin> CustomPins
         {
             get { return (ObservableCollection<TKCustomMapPin>)this.GetValue(CustomPinsProperty); }
             set { this.SetValue(CustomPinsProperty, value); } 

@@ -89,13 +89,9 @@ namespace TK.CustomMap.iOSUnified
             this.Map.AddGestureRecognizer(new UILongPressGestureRecognizer(this.OnMapLongPress));
             this.Map.AddGestureRecognizer(new UITapGestureRecognizer(this.OnMapClicked));
 
-            if (this.FormsMap.CustomPins != null)
-            {
-                this.UpdatePins();
-                this.FormsMap.CustomPins.CollectionChanged += OnCollectionChanged;
-            }
             this.UpdateTileOptions();
             this.SetMapCenter();
+            this.UpdatePins();
             this.UpdateRoutes();
             this.UpdateLines();
             this.UpdateCircles();
@@ -252,6 +248,11 @@ namespace TK.CustomMap.iOSUnified
                 {
                     if (!this.FormsMap.CustomPins.Contains(pin))
                     {
+                        if (this.FormsMap.SelectedPin.Equals(pin))
+                        {
+                            this.FormsMap.SelectedPin = null;
+                        }
+
                         var annotation = this.Map.Annotations
                             .OfType<TKCustomMapAnnotation>()
                             .SingleOrDefault(i => i.CustomPin.Equals(pin));
@@ -446,7 +447,7 @@ namespace TK.CustomMap.iOSUnified
         /// <summary>
         /// Creates the annotations
         /// </summary>
-        private void UpdatePins()
+        private void UpdatePins(bool firstUpdate = true)
         {
             this.Map.RemoveAnnotations(this.Map.Annotations);
 
@@ -454,14 +455,18 @@ namespace TK.CustomMap.iOSUnified
 
             foreach (var i in FormsMap.CustomPins)
             {
-                if (this._firstUpdate)
-                {
-                    i.PropertyChanged += OnPinPropertyChanged;
-                }
-                var pin = new TKCustomMapAnnotation(i);
-                this.Map.AddAnnotation(pin);
+                i.PropertyChanged -= OnPinPropertyChanged;
+                this.AddPin(i);
             }
-            this._firstUpdate = false;
+
+            if (firstUpdate)
+            {
+                var observAble = this.FormsMap.Polylines as INotifyCollectionChanged;
+                if (observAble != null)
+                {
+                    observAble.CollectionChanged += OnLineCollectionChanged;
+                }
+            }
 
             if (this.FormsMap.PinsReadyCommand != null && this.FormsMap.PinsReadyCommand.CanExecute(this.FormsMap))
             {
@@ -475,6 +480,10 @@ namespace TK.CustomMap.iOSUnified
         {
             if (this._lines.Any())
             {
+                foreach(var line in this._lines)
+                {
+                    line.Value.Overlay.PropertyChanged -= OnLinePropertyChanged;
+                }
                 this.Map.RemoveOverlays(this._lines.Select(i => i.Key).ToArray());
                 this._lines.Clear();
             }
@@ -488,7 +497,7 @@ namespace TK.CustomMap.iOSUnified
 
             if (firstUpdate)
             {
-                var observAble = this.FormsMap.Polylines as ObservableCollection<TKPolyline>;
+                var observAble = this.FormsMap.Polylines as INotifyCollectionChanged;
                 if (observAble != null)
                 {
                     observAble.CollectionChanged += OnLineCollectionChanged;
@@ -503,6 +512,10 @@ namespace TK.CustomMap.iOSUnified
         {
             if (this._routes.Any())
             {
+                foreach(var r in this._routes)
+                {
+                    r.Value.Overlay.PropertyChanged -= OnRoutePropertyChanged;
+                }
                 this.Map.RemoveOverlays(this._routes.Select(i => i.Key).ToArray());
                 this._routes.Clear();
             }
@@ -515,7 +528,7 @@ namespace TK.CustomMap.iOSUnified
 
             if (firstUpdate)
             {
-                var observAble = this.FormsMap.Routes as ObservableCollection<TKRoute>;
+                var observAble = this.FormsMap.Routes as INotifyCollectionChanged;
                 if (observAble != null)
                 {
                     observAble.CollectionChanged += OnRouteCollectionChanged;
@@ -555,10 +568,6 @@ namespace TK.CustomMap.iOSUnified
             }
             else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                foreach (var route in this._routes)
-                {
-                    route.Value.Overlay.PropertyChanged -= OnPolygonPropertyChanged;
-                }
                 this.UpdateRoutes(false);
             }
         }
@@ -569,6 +578,10 @@ namespace TK.CustomMap.iOSUnified
         {
             if (this._circles.Any())
             {
+                foreach(var circle in this._circles)
+                {
+                    circle.Value.Overlay.PropertyChanged -= OnCirclePropertyChanged;
+                }
                 this.Map.RemoveOverlays(this._circles.Select(i => i.Key).ToArray());
                 this._circles.Clear();
             }
@@ -581,7 +594,7 @@ namespace TK.CustomMap.iOSUnified
             }
             if (firstUpdate)
             {
-                var observAble = this.FormsMap.Circles as ObservableCollection<TKCircle>;
+                var observAble = this.FormsMap.Circles as INotifyCollectionChanged;
                 if (observAble != null)
                 {
                     observAble.CollectionChanged += OnCirclesCollectionChanged;
@@ -596,6 +609,10 @@ namespace TK.CustomMap.iOSUnified
         {
             if (this._polygons.Any())
             {
+                foreach(var poly in this._polygons)
+                {
+                    poly.Value.Overlay.PropertyChanged -= OnPolygonPropertyChanged;
+                }
                 this.Map.RemoveOverlays(this._polygons.Select(i => i.Key).ToArray());
                 this._polygons.Clear();
             }
@@ -608,7 +625,7 @@ namespace TK.CustomMap.iOSUnified
             }
             if (firstUpdate)
             {
-                var observAble = this.FormsMap.Polygons as ObservableCollection<TKPolygon>;
+                var observAble = this.FormsMap.Polygons as INotifyCollectionChanged;
                 if (observAble != null)
                 {
                     observAble.CollectionChanged += OnPolygonsCollectionChanged;
@@ -740,10 +757,6 @@ namespace TK.CustomMap.iOSUnified
             }
             else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                foreach (var circle in this._circles)
-                {
-                    circle.Value.Overlay.PropertyChanged -= OnCirclePropertyChanged;
-                }
                 this.UpdateCircles(false);
             }
         }
@@ -780,12 +793,19 @@ namespace TK.CustomMap.iOSUnified
             }
             else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                foreach (var route in this._lines)
-                {
-                    route.Value.Overlay.PropertyChanged -= OnLinePropertyChanged;
-                }
                 this.UpdateLines(false);
             }
+        }
+        /// <summary>
+        /// Adds a pin
+        /// </summary>
+        /// <param name="pin">The pin to add</param>
+        private void AddPin(TKCustomMapPin pin)
+        {
+            var annotation = new TKCustomMapAnnotation(pin);
+            this.Map.AddAnnotation(annotation);
+
+            pin.PropertyChanged += OnPinPropertyChanged;
         }
         /// <summary>
         /// Adds a route
