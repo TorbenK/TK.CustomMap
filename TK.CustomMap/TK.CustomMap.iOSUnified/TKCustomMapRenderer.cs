@@ -41,6 +41,8 @@ namespace TK.CustomMap.iOSUnified
         private bool _firstUpdate = true;
         private bool _isDragging;
         private IMKAnnotation _selectedAnnotation;
+        private MKTileOverlay _tileOverlay;
+        private MKTileOverlayRenderer _tileOverlayRenderer;
 
         private MKMapView Map
         {
@@ -92,6 +94,7 @@ namespace TK.CustomMap.iOSUnified
                 this.UpdatePins();
                 this.FormsMap.CustomPins.CollectionChanged += OnCollectionChanged;
             }
+            this.UpdateTileOptions();
             this.SetMapCenter();
             this.UpdateRoutes();
             this.UpdateLines();
@@ -175,6 +178,17 @@ namespace TK.CustomMap.iOSUnified
                 polygon.Renderer.LineWidth = polygon.Overlay.StrokeWidth;
                 return polygon.Renderer;
             }
+
+            if(overlay is MKTileOverlay)
+            {
+                if(this._tileOverlayRenderer != null)
+                {
+                    this._tileOverlayRenderer.Dispose();
+                }
+
+                return (this._tileOverlayRenderer = new MKTileOverlayRenderer(this._tileOverlay));
+            }
+
             return null;
         }
         /// <summary>
@@ -212,6 +226,10 @@ namespace TK.CustomMap.iOSUnified
             else if (e.PropertyName == TKCustomMap.RoutesProperty.PropertyName)
             {
                 this.UpdateRoutes();
+            }
+            else if(e.PropertyName == TKCustomMap.TilesUrlOptionsProperty.PropertyName)
+            {
+                this.UpdateTileOptions();
             }
         }
         /// <summary>
@@ -1075,6 +1093,35 @@ namespace TK.CustomMap.iOSUnified
                         pinAnnotationView.PinTintColor = UIColor.Red;
                     }
                 }
+            }
+        }
+        /// <summary>
+        /// Updates the tiles and adds or removes the overlay
+        /// </summary>
+        private void UpdateTileOptions()
+        {
+            if (this.Map == null) return;
+
+            if(this._tileOverlay != null)
+            {
+                this.Map.RemoveOverlay(this._tileOverlay);
+                this._tileOverlay = null;
+            }
+
+            if(this.FormsMap != null && this.FormsMap.TilesUrlOptions != null)
+            {
+                this._tileOverlay = new MKTileOverlay(
+                    this.FormsMap.TilesUrlOptions.TilesUrl
+                        .Replace("{0}", "{x}")
+                        .Replace("{1}", "{y}")
+                        .Replace("{2}", "{z}"));
+
+                this._tileOverlay.TileSize = new CGSize(
+                    this.FormsMap.TilesUrlOptions.TileWidth, 
+                    this.FormsMap.TilesUrlOptions.TileHeight);
+
+                this._tileOverlay.CanReplaceMapContent = true;
+                this.Map.AddOverlay(this._tileOverlay);
             }
         }
         /// <summary>

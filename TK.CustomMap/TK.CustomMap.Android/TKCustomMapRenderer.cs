@@ -107,9 +107,9 @@ namespace TK.CustomMap.Droid
             {
                 this.UpdateRoutes();
             }
-            else if (e.PropertyName == TKCustomMap.TilesUrlProperty.PropertyName)
+            else if (e.PropertyName == TKCustomMap.TilesUrlOptionsProperty.PropertyName)
             {
-                this.UpdateTilesUrl();
+                this.UpdateTileOptions();
             }
         }
         /// <summary>
@@ -129,7 +129,7 @@ namespace TK.CustomMap.Droid
             this._googleMap.MarkerDragStart += OnMarkerDragStart;
             this._googleMap.InfoWindowClick += OnInfoWindowClick;
             
-            this.UpdateTilesUrl();
+            this.UpdateTileOptions();
             this.MoveToCenter();
             this.UpdatePins();
             this.UpdateRoutes();
@@ -1051,9 +1051,9 @@ namespace TK.CustomMap.Droid
             marker.SetIcon(bitmap);
         }
         /// <summary>
-        /// Updates the custom tile provider with the new url
+        /// Updates the custom tile provider 
         /// </summary>
-        private void UpdateTilesUrl()
+        private void UpdateTileOptions()
         {
             if (this._tileOverlay != null)
             {
@@ -1063,14 +1063,14 @@ namespace TK.CustomMap.Droid
 
             if (this.FormsMap == null || this._googleMap == null) return;
 
-            if (!string.IsNullOrEmpty(this.FormsMap.TilesUrl))
+            if (this.FormsMap.TilesUrlOptions != null)
             {
                 this._googleMap.MapType = GoogleMap.MapTypeNone;
 
                 this._tileOverlay = this._googleMap.AddTileOverlay(
                     new TileOverlayOptions()
                         .InvokeTileProvider(
-                            new TKCustomTileProvider(this.FormsMap.TilesUrl))
+                            new TKCustomTileProvider(this.FormsMap.TilesUrlOptions))
                         .InvokeZIndex(-1));
             }
         }

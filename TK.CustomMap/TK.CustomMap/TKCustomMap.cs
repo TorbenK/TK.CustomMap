@@ -142,11 +142,11 @@ namespace TK.CustomMap
                 p => p.RouteCalculationFailedCommand,
                 null);
         /// <summary>
-        /// Bindable Property of <see cref="TileUrl"/>
+        /// Bindable Property of <see cref="TilesUrlOptions"/>
         /// </summary>
-        public static readonly BindableProperty TilesUrlProperty =
-            BindableProperty.Create<TKCustomMap, string>(
-                p => p.TilesUrl,
+        public static readonly BindableProperty TilesUrlOptionsProperty =
+            BindableProperty.Create<TKCustomMap, TKTileUrlOptions>(
+                p => p.TilesUrlOptions,
                 null);  
         /// <summary>
         /// Gets/Sets the custom pins of the Map
@@ -294,13 +294,12 @@ namespace TK.CustomMap
             set { this.SetValue(RouteCalculationFailedCommandProperty, value); }
         }
         /// <summary>
-        /// Gets/Sets the url for custom map tiles.  
-        /// <note type="note">Url must specify 3 placeholders({0}, {1}, {2}) which are used for providing x, y and zoom.</note>
+        /// Gets/Sets the options for displaying custom tiles via an url
         /// </summary>
-        public string TilesUrl
+        public TKTileUrlOptions TilesUrlOptions
         {
-            get { return (string)this.GetValue(TilesUrlProperty); }
-            set { this.SetValue(TilesUrlProperty, value); }
+            get { return (TKTileUrlOptions)this.GetValue(TilesUrlOptionsProperty); }
+            set { this.SetValue(TilesUrlOptionsProperty, value); }
         }
 
         /// <summary>
