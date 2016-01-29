@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using TK.CustomMap.Interfaces;
 using TK.CustomMap.Overlays;
+using TK.CustomMap.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
@@ -9,8 +12,10 @@ namespace TK.CustomMap
     /// <summary>
     /// An extensions of the <see cref="Xamarin.Forms.Maps.Map"/>
     /// </summary>
-    public class TKCustomMap : Map
+    public class TKCustomMap : Map, IMapFunctions
     {
+        private IRendererFunctions _renderer;
+
         /// <summary>
         /// Bindable Property of <see cref="CustomPins" />
         /// </summary>
@@ -327,6 +332,21 @@ namespace TK.CustomMap
             {
                 this.MapRegion = this.VisibleRegion;
             }
+        }
+        /// <summary>
+        /// Returns the currently visible map as a PNG image
+        /// </summary>
+        /// <returns>Map as image</returns>
+        public async Task<byte[]> GetSnapshot()
+        {
+            return await this._renderer.GetSnapshot();
+        }
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        void IMapFunctions.SetRenderer(IRendererFunctions renderer)
+        {
+            this._renderer = renderer;
         }
     }
 }

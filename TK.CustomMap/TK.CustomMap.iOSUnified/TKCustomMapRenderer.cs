@@ -17,6 +17,8 @@ using TK.CustomMap.Utilities;
 using CoreLocation;
 using System;
 using Xamarin.Forms.Maps;
+using TK.CustomMap.Interfaces;
+using System.Threading.Tasks;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 
@@ -25,7 +27,7 @@ namespace TK.CustomMap.iOSUnified
     /// <summary>
     /// iOS Renderer of <see cref="TK.CustomMap.TKCustomMap"/>
     /// </summary>
-    public class TKCustomMapRenderer : MapRenderer
+    public class TKCustomMapRenderer : MapRenderer, IRendererFunctions
     {
         private const double MercatorRadius = 85445659.44705395;
         private const int MaxGoogleLevels = 20;
@@ -78,7 +80,9 @@ namespace TK.CustomMap.iOSUnified
             base.OnElementChanged(e);
             
             if (e.OldElement != null || this.FormsMap == null || this.Map == null) return;
-            
+
+            ((IMapFunctions)this.FormsMap).SetRenderer(this);
+
             this.Map.GetViewForAnnotation = this.GetViewForAnnotation;
             this.Map.OverlayRenderer = this.GetOverlayRenderer; 
             this.Map.DidSelectAnnotationView += OnDidSelectAnnotationView;
@@ -1194,6 +1198,20 @@ namespace TK.CustomMap.iOSUnified
             {
                 this.Map.SetCenterCoordinate(this.FormsMap.MapCenter.ToLocationCoordinate(), this.FormsMap.AnimateMapCenterChange);   
             }
+        }
+        ///<inheritdoc/>
+        public async Task<byte[]> GetSnapshot()
+        {
+            UIImage img = null;
+            await Task.Factory.StartNew(() =>
+            {
+                UIGraphics.BeginImageContextWithOptions(this.Frame.Size, false, 0.0f);
+                this.Layer.RenderInContext(UIGraphics.GetCurrentContext());
+
+                img = UIGraphics.GetImageFromCurrentImageContext();
+                UIGraphics.EndImageContext();
+            });
+            return img.AsPNG().ToArray();
         }
     }
 }

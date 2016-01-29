@@ -63,6 +63,8 @@
     <Compile Include="Api\OSM\OsmNominatim.cs" />
     <Compile Include="Api\OSM\OsmNominatimResult.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Interfaces\IMapFunctions.cs" />
+    <Compile Include="Interfaces\IRendererFunctions.cs" />
     <Compile Include="Overlays\IRouteFunctions.cs" />
     <Compile Include="Overlays\IRouteStepFunctions.cs" />
     <Compile Include="Overlays\TKPolyline.cs" />

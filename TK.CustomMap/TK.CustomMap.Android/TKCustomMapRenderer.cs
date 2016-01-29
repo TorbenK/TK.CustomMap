@@ -18,6 +18,8 @@ using Android.Gms.Location.Places;
 using Xamarin.Forms.Maps;
 using TK.CustomMap.Api.Google;
 using TK.CustomMap.Utilities;
+using TK.CustomMap.Interfaces;
+using System.IO;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 namespace TK.CustomMap.Droid
@@ -25,7 +27,7 @@ namespace TK.CustomMap.Droid
       /// <summary>
       /// Android Renderer of <see cref="TK.CustomMap.TKCustomMap"/>
       /// </summary>
-    public class TKCustomMapRenderer : MapRenderer, IOnMapReadyCallback
+    public class TKCustomMapRenderer : MapRenderer, IRendererFunctions, IOnMapReadyCallback, GoogleMap.ISnapshotReadyCallback
     {
         private bool _init = true;
 
@@ -37,6 +39,7 @@ namespace TK.CustomMap.Droid
         
         private Marker _selectedMarker;
         private bool _isDragging;
+        private byte[] _snapShot;
 
         private TileOverlay _tileOverlay;
         private GoogleMap _googleMap;
@@ -56,6 +59,8 @@ namespace TK.CustomMap.Droid
             
             if (this.FormsMap != null && this._googleMap == null)
             {
+                ((IMapFunctions)this.FormsMap).SetRenderer(this);
+
                 mapView.GetMapAsync(this);
                 this.FormsMap.PropertyChanged += FormsMapPropertyChanged;
             }
@@ -1079,8 +1084,26 @@ namespace TK.CustomMap.Droid
                         .InvokeZIndex(-1));
             }
         }
+        /// <inheritdoc/>
+        public async Task<byte[]> GetSnapshot()
+        {
+            if (this._googleMap == null) return null;
 
+            this._snapShot = null;
+            this._googleMap.Snapshot(this);
 
-        
+            while (_snapShot == null) await Task.Delay(10);
+
+            return this._snapShot;
+        }
+        ///<inheritdoc/>
+        public void OnSnapshotReady(Android.Graphics.Bitmap snapshot)
+        {
+            using(var strm = new MemoryStream())
+            {
+                snapshot.Compress(Android.Graphics.Bitmap.CompressFormat.Png, 100, strm);
+                this._snapShot = strm.ToArray();   
+            }
+        }
     }
 }
