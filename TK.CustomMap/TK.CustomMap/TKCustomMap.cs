@@ -72,7 +72,7 @@ namespace TK.CustomMap
         public static readonly BindableProperty MapCenterProperty =
             BindableProperty.Create<TKCustomMap, Position>(
                 p => p.MapCenter,
-                new Position(40.7142700, -74.0059700),
+                default(Position),
                 BindingMode.TwoWay);
         /// <summary>
         /// Bindable Property of <see cref="AnimateMapCenterChange"/>
@@ -306,7 +306,21 @@ namespace TK.CustomMap
             get { return (TKTileUrlOptions)this.GetValue(TilesUrlOptionsProperty); }
             set { this.SetValue(TilesUrlOptionsProperty, value); }
         }
-
+        /// <summary>
+        /// Creates a new instance of <c>TKCustomMap</c>
+        /// </summary>
+        public TKCustomMap() 
+            : base() 
+        { }
+        /// <summary>
+        /// Creates a new instance of <c>TKCustomMap</c>
+        /// </summary>
+        /// <param name="region">The initial region of the map</param>
+        public TKCustomMap(MapSpan region)
+            : base(region)
+        {
+            this.MapCenter = region.Center;
+        }
         /// <summary>
         /// When <see cref="MapRegion"/> changed
         /// </summary>
