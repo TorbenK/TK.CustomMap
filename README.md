@@ -1,10 +1,4 @@
-# Extended Map Control for Xamarin Forms Maps
-
-## NuGet
-
-https://www.nuget.org/packages/TK.CustomMap/
-
-Check out the Wiki for Details.
+# Rich Map Control for Xamarin.Forms.Maps [![NuGet](https://img.shields.io/nuget/v/TK.CustomMap.svg?label=NuGet)](https://www.nuget.org/packages/TK.CustomMap/)
 
 ## Video
 
