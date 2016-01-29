@@ -34,6 +34,7 @@ namespace TK.CustomMap.Droid
         private readonly Dictionary<TKCircle, Circle> _circles = new Dictionary<TKCircle, Circle>();
         private readonly Dictionary<TKPolygon, Polygon> _polygons = new Dictionary<TKPolygon, Polygon>();
         private readonly Dictionary<TKCustomMapPin, Marker> _markers = new Dictionary<TKCustomMapPin, Marker>();
+        
         private Marker _selectedMarker;
         private bool _isDragging;
 

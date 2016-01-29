@@ -22,7 +22,20 @@ namespace TK.CustomMap.Droid
         /// <inheritdoc />
         public override URL GetTileUrl(int x, int y, int zoom)
         {
-            return new URL(string.Format(this._options.TilesUrl, x, y, zoom));
+            if (this.CheckTileExists(zoom))
+            {
+                return new URL(string.Format(this._options.TilesUrl, x, y, zoom));
+            }
+            return null;
+        }
+        /// <summary>
+        /// Check if the tile is available in the specified zoom
+        /// </summary>
+        /// <param name="zoom">The zoom to request the tile</param>
+        /// <returns><value>False</value> if tile in the specified zoom is not available</returns>
+        private bool CheckTileExists(int zoom)
+        {
+            return !(zoom > this._options.MaximumZoomLevel || zoom < this._options.MinimumZoomLevel);
         }
     }
 }

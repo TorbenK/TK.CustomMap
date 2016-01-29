@@ -68,6 +68,7 @@
     <Compile Include="Overlays\TKPolyline.cs" />
     <Compile Include="Overlays\TKRouteStep.cs" />
     <Compile Include="Overlays\TKRouteTravelMode.cs" />
+    <Compile Include="Overlays\TKTileUrlOptions.cs" />
     <Compile Include="Utilities\GmsMathUtils.cs" />
     <Compile Include="Overlays\TKCircle.cs" />
     <Compile Include="Overlays\TKOverlay.cs" />

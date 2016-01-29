@@ -22,9 +22,13 @@ namespace TK.CustomMap.Sample
         private ObservableCollection<TKRoute> _routes;
         private ObservableCollection<TKCircle> _circles;
 
-        public string TilesUrl
+        public TKTileUrlOptions TilesUrlOptions
         {
-            get { return null; }
+            get 
+            {
+                return new TKTileUrlOptions(
+                    "http://otile1.mqcdn.com/tiles/1.0.0/osm/{2}/{0}/{1}.jpg", 256, 256, 0, 18);
+            }
         }
         /// <summary>
         /// Map region bound to <see cref="TKCustomMap"/>

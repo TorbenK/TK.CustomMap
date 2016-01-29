@@ -1119,7 +1119,10 @@ namespace TK.CustomMap.iOSUnified
                 this._tileOverlay.TileSize = new CGSize(
                     this.FormsMap.TilesUrlOptions.TileWidth, 
                     this.FormsMap.TilesUrlOptions.TileHeight);
-
+                
+                this._tileOverlay.MinimumZ = this.FormsMap.TilesUrlOptions.MinimumZoomLevel;
+                this._tileOverlay.MaximumZ = this.FormsMap.TilesUrlOptions.MaximumZoomLevel;
+                
                 this._tileOverlay.CanReplaceMapContent = true;
                 this.Map.AddOverlay(this._tileOverlay);
             }
