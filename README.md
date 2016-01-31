@@ -1,5 +1,5 @@
 # Rich Map Control for Xamarin.Forms.Maps
-[![NuGet](https://badge.fury.io/nu/TK.CustomMap.svg)](https://www.nuget.org/packages/TK.CustomMap/)[![Build status](https://ci.appveyor.com/api/projects/status/t3rlse4w5omu44sy?svg=true)](https://ci.appveyor.com/project/TorbenK/tk-custommap)
+[![NuGet](https://badge.fury.io/nu/TK.CustomMap.svg)](https://www.nuget.org/packages/TK.CustomMap/) [![Build status](https://ci.appveyor.com/api/projects/status/t3rlse4w5omu44sy?svg=true)](https://ci.appveyor.com/project/TorbenK/tk-custommap)
 
 ## Android
 
