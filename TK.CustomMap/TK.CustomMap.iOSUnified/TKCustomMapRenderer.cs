@@ -40,7 +40,6 @@ namespace TK.CustomMap.iOSUnified
         private readonly Dictionary<MKCircle, TKOverlayItem<TKCircle, MKCircleRenderer>> _circles = new Dictionary<MKCircle, TKOverlayItem<TKCircle, MKCircleRenderer>>();
         private readonly Dictionary<MKPolygon, TKOverlayItem<TKPolygon, MKPolygonRenderer>> _polygons = new Dictionary<MKPolygon, TKOverlayItem<TKPolygon, MKPolygonRenderer>>();
 
-        private bool _firstUpdate = true;
         private bool _isDragging;
         private IMKAnnotation _selectedAnnotation;
         private MKTileOverlay _tileOverlay;
@@ -91,7 +90,11 @@ namespace TK.CustomMap.iOSUnified
             this.Map.CalloutAccessoryControlTapped += OnMapCalloutAccessoryControlTapped;
 
             this.Map.AddGestureRecognizer(new UILongPressGestureRecognizer(this.OnMapLongPress));
-            this.Map.AddGestureRecognizer(new UITapGestureRecognizer(this.OnMapClicked));
+
+            var tapRecognizer = new UITapGestureRecognizer(this.OnMapClicked);
+            tapRecognizer.ShouldReceiveTouch = (recognizer, touch) => !(touch.View is MKAnnotationView);
+
+            this.Map.AddGestureRecognizer(tapRecognizer);
 
             this.UpdateTileOptions();
             this.SetMapCenter();
@@ -181,7 +184,7 @@ namespace TK.CustomMap.iOSUnified
 
             if(overlay is MKTileOverlay)
             {
-                if(this._tileOverlayRenderer != null)
+                if (this._tileOverlayRenderer != null)
                 {
                     this._tileOverlayRenderer.Dispose();
                 }
@@ -200,7 +203,6 @@ namespace TK.CustomMap.iOSUnified
         {
             if (e.PropertyName == TKCustomMap.CustomPinsProperty.PropertyName)
             {
-                this._firstUpdate = true;
                 this.UpdatePins();
             }
             else if (e.PropertyName == TKCustomMap.SelectedPinProperty.PropertyName)
@@ -211,13 +213,13 @@ namespace TK.CustomMap.iOSUnified
             {
                 this.SetMapCenter();
             }
-            else if (e.PropertyName == TKCustomMap.RoutesProperty.PropertyName)
+            else if (e.PropertyName == TKCustomMap.PolylinesProperty.PropertyName)
             {
                 this.UpdateLines();
             }
             else if (e.PropertyName == TKCustomMap.CalloutClickedCommandProperty.PropertyName)
             {
-                this.UpdatePins();
+                this.UpdatePins(false);
             }
             else if(e.PropertyName == TKCustomMap.PolygonsProperty.PropertyName)
             {
@@ -275,8 +277,7 @@ namespace TK.CustomMap.iOSUnified
                 {
                     annotation.CustomPin.PropertyChanged -= OnPinPropertyChanged;
                 }
-                this._firstUpdate = true;
-                this.UpdatePins();
+                this.UpdatePins(false);
             }
         }
         /// <summary>
@@ -357,23 +358,30 @@ namespace TK.CustomMap.iOSUnified
             var pixelLocation = recognizer.LocationInView(this.Map);
             var coordinate = this.Map.ConvertPoint(pixelLocation, this.Map);
 
-            if (this.FormsMap.RouteClickedCommand != null)
+            if (this.FormsMap.Routes != null)
             {
-                foreach (var route in this.FormsMap.Routes.Where(i => i.Selectable))
+                if (this.FormsMap.RouteClickedCommand != null)
                 {
-                    var internalItem = this._routes.Single(i => i.Value.Overlay.Equals(route));
-                    var coordinates = internalItem.Key.Points.Select(i => this.Map.ConvertPoint(new CGPoint(i.X, i.Y), this.Map));
+                    double maxMeters = this.MetersFromPixel(22, pixelLocation);
+                    double nearestDistance = double.MaxValue;
+                    TKRoute nearestRoute = null;
 
-                    if (GmsPolyUtil.IsLocationOnPath(
-                        coordinate.ToPosition(),
-                        coordinates.Select(i => i.ToPosition()),
-                        true,
-                        this.ZoomLevel,
-                        this.Map.CenterCoordinate.Latitude))
+                    foreach (var route in this.FormsMap.Routes.Where(i => i.Selectable))
                     {
-                        if (this.FormsMap.RouteClickedCommand.CanExecute(route))
+                        var internalItem = this._routes.Single(i => i.Value.Overlay.Equals(route));
+                        var distance = this.DistanceOfPoint(MKMapPoint.FromCoordinate(coordinate), internalItem.Key);
+
+                        if (distance < nearestDistance)
                         {
-                            this.FormsMap.RouteClickedCommand.Execute(route);
+                            nearestDistance = distance;
+                            nearestRoute = internalItem.Value.Overlay;
+                        }
+                    }
+                    if (nearestDistance <= maxMeters)
+                    {
+                        if (this.FormsMap.RouteClickedCommand.CanExecute(nearestRoute))
+                        {
+                            this.FormsMap.RouteClickedCommand.Execute(nearestRoute);
                             return;
                         }
                     }
@@ -455,7 +463,7 @@ namespace TK.CustomMap.iOSUnified
         {
             this.Map.RemoveAnnotations(this.Map.Annotations);
 
-            if (this.FormsMap.CustomPins == null || !this.FormsMap.CustomPins.Any()) return;
+            if (this.FormsMap.CustomPins == null) return;
 
             foreach (var i in FormsMap.CustomPins)
             {
@@ -465,10 +473,10 @@ namespace TK.CustomMap.iOSUnified
 
             if (firstUpdate)
             {
-                var observAble = this.FormsMap.Polylines as INotifyCollectionChanged;
+                var observAble = this.FormsMap.CustomPins as INotifyCollectionChanged;
                 if (observAble != null)
                 {
-                    observAble.CollectionChanged += OnLineCollectionChanged;
+                    observAble.CollectionChanged += OnCollectionChanged;
                 }
             }
 
@@ -492,7 +500,7 @@ namespace TK.CustomMap.iOSUnified
                 this._lines.Clear();
             }
 
-            if (this.FormsMap.Routes == null) return;
+            if (this.FormsMap.Polylines == null) return;
 
             foreach (var line in this.FormsMap.Polylines)
             {
@@ -1055,9 +1063,7 @@ namespace TK.CustomMap.iOSUnified
             routeFunctions.SetTravelTime(nativeRoute.ExpectedTravelTime);
             routeFunctions.SetBounds(
                 MapSpan.FromCenterAndRadius(
-                    new Position(
-                        nativeRoute.Polyline.BoundingMapRect.MidX,
-                        nativeRoute.Polyline.BoundingMapRect.MidY),
+                    nativeRoute.Polyline.Coordinate.ToPosition(),
                     Distance.FromKilometers(
                         route.Source.DistanceTo(route.Destination))));
         }
@@ -1139,14 +1145,14 @@ namespace TK.CustomMap.iOSUnified
                         .Replace("{0}", "{x}")
                         .Replace("{1}", "{y}")
                         .Replace("{2}", "{z}"));
-
-                this._tileOverlay.TileSize = new CGSize(
-                    this.FormsMap.TilesUrlOptions.TileWidth, 
-                    this.FormsMap.TilesUrlOptions.TileHeight);
                 
+                this._tileOverlay.TileSize = new CGSize(
+                    this.FormsMap.TilesUrlOptions.TileWidth,
+                    this.FormsMap.TilesUrlOptions.TileHeight);
+
                 this._tileOverlay.MinimumZ = this.FormsMap.TilesUrlOptions.MinimumZoomLevel;
                 this._tileOverlay.MaximumZ = this.FormsMap.TilesUrlOptions.MaximumZoomLevel;
-                
+
                 this._tileOverlay.CanReplaceMapContent = true;
                 this.Map.AddOverlay(this._tileOverlay);
             }
@@ -1199,6 +1205,59 @@ namespace TK.CustomMap.iOSUnified
                 this.Map.SetCenterCoordinate(this.FormsMap.MapCenter.ToLocationCoordinate(), this.FormsMap.AnimateMapCenterChange);   
             }
         }
+
+        private double DistanceOfPoint(MKMapPoint pt, MKPolyline poly)
+        {
+            double distance = float.MaxValue;
+            for (int n = 0; n < poly.PointCount - 1; n++)
+            {
+
+                MKMapPoint ptA = poly.Points[n];
+                MKMapPoint ptB = poly.Points[n + 1];
+
+                double xDelta = ptB.X - ptA.X;
+                double yDelta = ptB.Y - ptA.Y;
+
+                if (xDelta == 0.0 && yDelta == 0.0)
+                {
+
+                    // Points must not be equal
+                    continue;
+                }
+
+                double u = ((pt.X - ptA.X) * xDelta + (pt.Y - ptA.Y) * yDelta) / (xDelta * xDelta + yDelta * yDelta);
+                MKMapPoint ptClosest;
+                if (u < 0.0)
+                {
+
+                    ptClosest = ptA;
+                }
+                else if (u > 1.0)
+                {
+
+                    ptClosest = ptB;
+                }
+                else
+                {
+
+                    ptClosest = new MKMapPoint(ptA.X + u * xDelta, ptA.Y + u * yDelta);
+                }
+
+                distance = Math.Min(distance, MKGeometry.MetersBetweenMapPoints(ptClosest, pt));
+            }
+
+            return distance;
+        }
+
+        private double MetersFromPixel(int px, CGPoint pt)
+        {
+            CGPoint ptB = new CGPoint(pt.X + px, pt.Y);
+
+            CLLocationCoordinate2D coordA = this.Map.ConvertPoint(pt, this.Map);
+            CLLocationCoordinate2D coordB = this.Map.ConvertPoint(ptB, this.Map);
+            
+            return MKGeometry.MetersBetweenMapPoints(MKMapPoint.FromCoordinate(coordA), MKMapPoint.FromCoordinate(coordB));
+        }
         ///<inheritdoc/>
         public async Task<byte[]> GetSnapshot()
         {
@@ -1213,5 +1272,6 @@ namespace TK.CustomMap.iOSUnified
             });
             return img.AsPNG().ToArray();
         }
+
     }
 }

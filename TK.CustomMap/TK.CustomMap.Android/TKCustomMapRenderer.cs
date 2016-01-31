@@ -430,6 +430,10 @@ namespace TK.CustomMap.Droid
                         observAble.CollectionChanged += OnCustomPinsCollectionChanged;
                     }
                 }
+                if (this.FormsMap.PinsReadyCommand != null && this.FormsMap.PinsReadyCommand.CanExecute(this.FormsMap))
+                {
+                    this.FormsMap.PinsReadyCommand.Execute(this.FormsMap);
+                }
             }
         }
         /// <summary>
@@ -1004,7 +1008,8 @@ namespace TK.CustomMap.Droid
                 {
                     if (pin.DefaultPinColor != Color.Default)
                     {
-                        bitmap = BitmapDescriptorFactory.DefaultMarker(pin.DefaultPinColor.ToAndroid().GetHue());
+                        var hue = pin.DefaultPinColor.ToAndroid().GetHue();
+                        bitmap = BitmapDescriptorFactory.DefaultMarker(Math.Min(hue, 359.99f));
                     }
                     else
                     {

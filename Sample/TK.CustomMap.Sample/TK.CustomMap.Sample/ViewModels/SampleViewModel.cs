@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System;
 using System.Linq;
 using TK.CustomMap.Api;
 using TK.CustomMap.Api.Google;
@@ -27,7 +28,9 @@ namespace TK.CustomMap.Sample
             get 
             {
                 return new TKTileUrlOptions(
-                    "http://otile1.mqcdn.com/tiles/1.0.0/osm/{2}/{0}/{1}.jpg", 256, 256, 0, 18);
+                    "http://a.basemaps.cartocdn.com/dark_all/{2}/{0}/{1}.png", 256, 256, 0, 18);
+                //return new TKTileUrlOptions(
+                //    "http://a.tile.openstreetmap.org/{2}/{0}/{1}.png", 256, 256, 0, 18);
             }
         }
         /// <summary>

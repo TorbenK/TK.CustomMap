@@ -2,8 +2,8 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
-    <version>1.2.3</version>
-    <title>Custom Map Control for Xamarin Forms</title>
+    <version>1.3.0</version>
+    <title>Extended, bindable Map of Xamarin.Forms.Maps</title>
     <authors>Torben Kruse</authors>
     <owners>Torben Kruse</owners>
     <licenseUrl>https://github.com/TorbenK/TK.CustomMap/blob/master/License.md</licenseUrl>
@@ -11,40 +11,10 @@
     <iconUrl>https://www.nuget.org/Content/Images/packageDefaultIcon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
-      TK.CustomMap provides the following enhancements to the Xamarin.Forms.Maps.Map:
-      
-      - Bindable Pins
-        - Change Image of Pins
-        - Make Pins Draggable
-        - Hide Pins
-      - Bindable Selected Pin
-      - Bindable Map Center
-      - Bindable Map Region
-      - Bindable Overlays (including Routes, Lines, Circles and cusotom Polygons)
-      - Automatic Route calculation
-      - Map Commands
-        - Long Press
-        - Click
-        - Pin Selected
-        - Drag End
-        - Pins Ready
-        - Callout click
-        - Route Click
-        - Route calculation finished/failed
-      
-      Extra Features:
-      - Google Maps Places API Wrapper(API Key needed) https://developers.google.com/places/
-        - Get Place predictions
-        - Get Place details
-      Google Maps Directions API Wrapper(API Key needed) https://developers.google.com/maps/documentation/directions/
-        - Calculate Routes
-      OSM Nominatim API Wrapper http://wiki.openstreetmap.org/wiki/Nominatim
-        - Get Place predictions
-      Native Places API
-        - Using Google Places for Android and MKLocalSearch for iOS
+      TK.CustomMap lets you customize pins, add overlays, calculate routes and many more! It is designed with MVVM in mind.
     </description>
-    <summary>Extended Map Control of the Xamarin.Forms.Maps.Map</summary>
-    <tags>xamarin, pcl, xam.pcl, plugin for xamarin, plugin, map, android, xamarin.forms, xamarin.forms.maps, extended map, custom map, ios, monoandroid, monodroid, monotouch</tags>
+    <summary>Extended, bindable Map of Xamarin.Forms.Maps</summary>
+    <tags>xamarin, map, xamarin.forms, xamarin.forms.maps, extended map, custom map</tags>
     <dependencies>
       <group>
         <dependency id="Xamarin.Forms" version="2.0.0.6490" />
@@ -59,11 +29,14 @@
       </group>
     </dependencies>
     <releaseNotes>
-      [1.2.2] 
+      [1.3.0] 
       Beta Release
       
-      Fixed:
-        Issue with loading local images
+      Several bug fixes
+      
+      New:
+        Custom Tiles support via an Web-Url template
+        
     </releaseNotes>
   </metadata>
   <files>

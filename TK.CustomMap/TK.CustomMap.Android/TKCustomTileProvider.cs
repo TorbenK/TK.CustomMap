@@ -13,7 +13,7 @@ namespace TK.CustomMap.Droid
         /// <summary>
         /// Creates a new instance of <see cref="TKCustomTileProvider" />
         /// </summary>
-        /// <param name="url">The url to fetch tiles from</param>
+        /// <param name="options">Options of the tiles</param>
         public TKCustomTileProvider(TKTileUrlOptions options) 
             : base(options.TileWidth, options.TileHeight)
         {
