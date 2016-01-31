@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using TK.CustomMap.Interfaces;
 using TK.CustomMap.Overlays;
+using TK.CustomMap.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
@@ -9,13 +12,15 @@ namespace TK.CustomMap
     /// <summary>
     /// An extensions of the <see cref="Xamarin.Forms.Maps.Map"/>
     /// </summary>
-    public class TKCustomMap : Map
+    public class TKCustomMap : Map, IMapFunctions
     {
+        private IRendererFunctions _renderer;
+
         /// <summary>
         /// Bindable Property of <see cref="CustomPins" />
         /// </summary>
         public static readonly BindableProperty CustomPinsProperty = 
-            BindableProperty.Create<TKCustomMap, ObservableCollection<TKCustomMapPin>>(
+            BindableProperty.Create<TKCustomMap, IEnumerable<TKCustomMapPin>>(
                 p => p.CustomPins,
                 null);
         /// <summary>
@@ -67,7 +72,7 @@ namespace TK.CustomMap
         public static readonly BindableProperty MapCenterProperty =
             BindableProperty.Create<TKCustomMap, Position>(
                 p => p.MapCenter,
-                new Position(40.7142700, -74.0059700),
+                default(Position),
                 BindingMode.TwoWay);
         /// <summary>
         /// Bindable Property of <see cref="AnimateMapCenterChange"/>
@@ -142,9 +147,16 @@ namespace TK.CustomMap
                 p => p.RouteCalculationFailedCommand,
                 null);
         /// <summary>
+        /// Bindable Property of <see cref="TilesUrlOptions"/>
+        /// </summary>
+        public static readonly BindableProperty TilesUrlOptionsProperty =
+            BindableProperty.Create<TKCustomMap, TKTileUrlOptions>(
+                p => p.TilesUrlOptions,
+                null);  
+        /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
-        public ObservableCollection<TKCustomMapPin> CustomPins
+        public IEnumerable<TKCustomMapPin> CustomPins
         {
             get { return (ObservableCollection<TKCustomMapPin>)this.GetValue(CustomPinsProperty); }
             set { this.SetValue(CustomPinsProperty, value); } 
@@ -287,6 +299,29 @@ namespace TK.CustomMap
             set { this.SetValue(RouteCalculationFailedCommandProperty, value); }
         }
         /// <summary>
+        /// Gets/Sets the options for displaying custom tiles via an url
+        /// </summary>
+        public TKTileUrlOptions TilesUrlOptions
+        {
+            get { return (TKTileUrlOptions)this.GetValue(TilesUrlOptionsProperty); }
+            set { this.SetValue(TilesUrlOptionsProperty, value); }
+        }
+        /// <summary>
+        /// Creates a new instance of <c>TKCustomMap</c>
+        /// </summary>
+        public TKCustomMap() 
+            : base() 
+        { }
+        /// <summary>
+        /// Creates a new instance of <c>TKCustomMap</c>
+        /// </summary>
+        /// <param name="region">The initial region of the map</param>
+        public TKCustomMap(MapSpan region)
+            : base(region)
+        {
+            this.MapCenter = region.Center;
+        }
+        /// <summary>
         /// When <see cref="MapRegion"/> changed
         /// </summary>
         /// <param name="obj">The custom map</param>
@@ -311,6 +346,21 @@ namespace TK.CustomMap
             {
                 this.MapRegion = this.VisibleRegion;
             }
+        }
+        /// <summary>
+        /// Returns the currently visible map as a PNG image
+        /// </summary>
+        /// <returns>Map as image</returns>
+        public async Task<byte[]> GetSnapshot()
+        {
+            return await this._renderer.GetSnapshot();
+        }
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        void IMapFunctions.SetRenderer(IRendererFunctions renderer)
+        {
+            this._renderer = renderer;
         }
     }
 }

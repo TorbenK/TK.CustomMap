@@ -63,11 +63,14 @@
     <Compile Include="Api\OSM\OsmNominatim.cs" />
     <Compile Include="Api\OSM\OsmNominatimResult.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Interfaces\IMapFunctions.cs" />
+    <Compile Include="Interfaces\IRendererFunctions.cs" />
     <Compile Include="Overlays\IRouteFunctions.cs" />
     <Compile Include="Overlays\IRouteStepFunctions.cs" />
     <Compile Include="Overlays\TKPolyline.cs" />
     <Compile Include="Overlays\TKRouteStep.cs" />
     <Compile Include="Overlays\TKRouteTravelMode.cs" />
+    <Compile Include="Overlays\TKTileUrlOptions.cs" />
     <Compile Include="Utilities\GmsMathUtils.cs" />
     <Compile Include="Overlays\TKCircle.cs" />
     <Compile Include="Overlays\TKOverlay.cs" />

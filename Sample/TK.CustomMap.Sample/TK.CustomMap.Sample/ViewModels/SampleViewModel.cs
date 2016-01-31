@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System;
 using System.Linq;
 using TK.CustomMap.Api;
 using TK.CustomMap.Api.Google;
@@ -22,6 +23,16 @@ namespace TK.CustomMap.Sample
         private ObservableCollection<TKRoute> _routes;
         private ObservableCollection<TKCircle> _circles;
 
+        public TKTileUrlOptions TilesUrlOptions
+        {
+            get 
+            {
+                return new TKTileUrlOptions(
+                    "http://a.basemaps.cartocdn.com/dark_all/{2}/{0}/{1}.png", 256, 256, 0, 18);
+                //return new TKTileUrlOptions(
+                //    "http://a.tile.openstreetmap.org/{2}/{0}/{1}.png", 256, 256, 0, 18);
+            }
+        }
         /// <summary>
         /// Map region bound to <see cref="TKCustomMap"/>
         /// </summary>
@@ -300,6 +311,7 @@ namespace TK.CustomMap.Sample
                 return new Command(() => 
                 {
                     this._pins.Clear();
+                    this._circles.Clear();
                     if (this._routes != null)
                         this._routes.Clear();
                 });
