@@ -17,15 +17,18 @@
     <tags>xamarin, map, xamarin.forms, xamarin.forms.maps, extended map, custom map</tags>
     <dependencies>
       <group>
-        <dependency id="Xamarin.Forms" version="2.0.0.6490" />
-        <dependency id="Xamarin.Forms.Maps" version="2.0.0.6490" />
+        <dependency id="Xamarin.Forms" version="2.0.1.6505" />
+        <dependency id="Xamarin.Forms.Maps" version="2.0.1.6505" />
         <dependency id="Microsoft.Bcl" version="1.1.10" />
-        <dependency id="Microsoft.Bcl.Build" version="1.0.14"/>
+        <dependency id="Microsoft.Bcl.Build" version="1.0.21"/>
         <dependency id="Microsoft.Net.Http" version="2.2.29" />
         <dependency id="modernhttpclient" version="2.4.2" />
       </group>
+      <group targetFramework="MonoAndroid10">
+        <dependency id="Xamarin.GooglePlayServices.Location" version="[26.0.0]" />
+      </group>
       <group targetFramework="portable-net45">
-        <dependency id="Newtonsoft.Json" version="7.0.1" />
+        <dependency id="Newtonsoft.Json" version="8.0.2" />
       </group>
     </dependencies>
     <releaseNotes>
