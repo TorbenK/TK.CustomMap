@@ -1,6 +1,26 @@
 # Extended Map Control for Xamarin.Forms.Maps
 [![NuGet](https://badge.fury.io/nu/TK.CustomMap.svg)](https://www.nuget.org/packages/TK.CustomMap/) [![Build status](https://ci.appveyor.com/api/projects/status/t3rlse4w5omu44sy?svg=true)](https://ci.appveyor.com/project/TorbenK/tk-custommap)
 
+This is an extended, bindable map control based on Xamarin.Forms.Maps. Here is a list of some available features:
+
+* Customize pins
+ * Custom image
+ * Draggable
+ * and more
+* Add overlays
+ * Circles
+ * Lines
+ * Custom polygons
+* Add and calculate routes
+* Start place prediction queries
+* Add custom map tiles via url template
+* Additional commands available
+ * Long press
+ * Map click
+ * and many more
+
+Look at the [wiki](https://github.com/TorbenK/TK.CustomMap/wiki) for all available features and documentation.
+
 # Setup
 
 Install the [NuGet package](https://www.nuget.org/packages/TK.CustomMap/).
