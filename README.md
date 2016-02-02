@@ -19,6 +19,8 @@ This is an extended, bindable map control based on Xamarin.Forms.Maps. Here is a
  * Map click
  * and many more
 
+Look at the [wiki](https://github.com/TorbenK/TK.CustomMap/wiki) for all available features and documentation.
+
 # Setup
 
 Install the [NuGet package](https://www.nuget.org/packages/TK.CustomMap/).
