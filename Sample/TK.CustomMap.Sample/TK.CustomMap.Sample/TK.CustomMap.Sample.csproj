@@ -42,6 +42,9 @@
     <Compile Include="Pages\HtmlInstructionsPage.xaml.cs">
       <DependentUpon>HtmlInstructionsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\PinListPage.xaml.cs">
+      <DependentUpon>PinListPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PlacesAutoComplete.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Pages\SamplePage.xaml.cs">
@@ -86,6 +89,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Pages\HtmlInstructionsPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Pages\PinListPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
       <SubType>Designer</SubType>
     </EmbeddedResource>

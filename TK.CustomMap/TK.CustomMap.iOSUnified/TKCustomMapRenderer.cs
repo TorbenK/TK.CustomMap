@@ -119,13 +119,11 @@ namespace TK.CustomMap.iOSUnified
             if (polyline != null)
             {
                 // check if this polyline is a route
-                var route = this._routes[polyline];
-                if (route == null)
+                var isRoute = this._routes.ContainsKey(polyline);
+                if (!isRoute)
                 {
                     // not a route, check if it is a line
                     var line = this._lines[polyline];
-
-                    if (line == null) return null;
 
                     if (line.Renderer == null)
                     {
@@ -138,22 +136,24 @@ namespace TK.CustomMap.iOSUnified
                     // return renderer for the line
                     return line.Renderer;
                 }
-
-                if (route.Renderer == null)
+                else
                 {
-                    route.Renderer = new MKPolylineRenderer(polyline);
+                    var route = this._routes[polyline];
+                    if (route.Renderer == null)
+                    {
+                        route.Renderer = new MKPolylineRenderer(polyline);
+                    }
+                    route.Renderer.FillColor = route.Overlay.Color.ToUIColor();
+                    route.Renderer.LineWidth = route.Overlay.LineWidth;
+                    route.Renderer.StrokeColor = route.Overlay.Color.ToUIColor();
+                    return route.Renderer;
                 }
-                route.Renderer.FillColor = route.Overlay.Color.ToUIColor();
-                route.Renderer.LineWidth = route.Overlay.LineWidth;
-                route.Renderer.StrokeColor = route.Overlay.Color.ToUIColor();
-                return route.Renderer;
             }
 
             var mkCircle = overlay as MKCircle;
             if (mkCircle != null)
             {
                 var circle = this._circles[mkCircle];
-                if (circle == null) return null;
 
                 if (circle.Renderer == null)
                 {
@@ -169,7 +169,6 @@ namespace TK.CustomMap.iOSUnified
             if (mkPolygon != null)
             {
                 var polygon = this._polygons[mkPolygon];
-                if (polygon == null) return null;
 
                 if (polygon.Renderer == null)
                 {

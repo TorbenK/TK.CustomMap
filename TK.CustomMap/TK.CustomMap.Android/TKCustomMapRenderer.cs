@@ -495,6 +495,8 @@ namespace TK.CustomMap.Droid
             }
             if (this.FormsMap.SelectedPin != null)
             {
+                if (!this._markers.ContainsKey(this.FormsMap.SelectedPin)) return;
+
                 var selectedPin = this._markers[this.FormsMap.SelectedPin];
                 this._selectedMarker = selectedPin;
                 if (this.FormsMap.SelectedPin.ShowCallout)
@@ -1073,7 +1075,7 @@ namespace TK.CustomMap.Droid
             if (this._tileOverlay != null)
             {
                 this._tileOverlay.Remove();
-                this.FormsMap.MapType = MapType.Street;
+                this._googleMap.MapType = GoogleMap.MapTypeNormal;
             }
 
             if (this.FormsMap == null || this._googleMap == null) return;

@@ -29,6 +29,7 @@ namespace TK.CustomMap.Sample
             mapView.SetBinding(TKCustomMap.PinDragEndCommandProperty, "DragEndCommand");
             mapView.SetBinding(TKCustomMap.CirclesProperty, "Circles");
             mapView.SetBinding(TKCustomMap.CalloutClickedCommandProperty, "CalloutClickedCommand");
+            mapView.SetBinding(TKCustomMap.PolylinesProperty, "Lines");
             mapView.SetBinding(TKCustomMap.PolygonsProperty, "Polygons");
             mapView.SetBinding(TKCustomMap.MapRegionProperty, "MapRegion");
             mapView.SetBinding(TKCustomMap.RouteClickedCommandProperty, "RouteClickedCommand");

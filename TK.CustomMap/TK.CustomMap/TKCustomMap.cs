@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using TK.CustomMap.Interfaces;
@@ -96,14 +97,14 @@ namespace TK.CustomMap
                 p => p.Circles,
                 null);
         /// <summary>
-        /// Bindable Property of <see cref="CustomInfoWindow"/>
+        /// Bindable Property of <see cref="CalloutClickedCommand"/>
         /// </summary>
         public static readonly BindableProperty CalloutClickedCommandProperty =
             BindableProperty.Create<TKCustomMap, Command>(
                 p => p.CalloutClickedCommand,
                 null);
         /// <summary>
-        /// Bindable Property of <see cref="Rectangles"/>
+        /// Bindable Property of <see cref="Polygons"/>
         /// </summary>
         public static readonly BindableProperty PolygonsProperty =
             BindableProperty.Create<TKCustomMap, IEnumerable<TKPolygon>>(
