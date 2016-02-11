@@ -72,7 +72,7 @@ namespace TK.CustomMap.Sample
                     pin.DefaultPinColor = Color.Green;
                     await Task.Delay(1000);
 
-                    pin.Image = Device.OnPlatform("Icon.png", "icon.png", string.Empty);
+                    pin.Image = Device.OnPlatform("Icon-Small.png", "icon.png", string.Empty);
                     await Task.Delay(1000);
                     pin.Image = null;
                     await Task.Delay(1000);

@@ -1,7 +1,11 @@
 ﻿using CoreLocation;
 using MapKit;
+using System.Threading.Tasks;
 using TK.CustomMap.Overlays;
+using UIKit;
+using Xamarin.Forms;
 using Xamarin.Forms.Maps;
+using Xamarin.Forms.Platform.iOS;
 
 namespace TK.CustomMap.iOSUnified
 {
@@ -46,6 +50,27 @@ namespace TK.CustomMap.iOSUnified
                 default:
                     return MKDirectionsTransportType.Automobile;
             }
+        }
+        /// <summary>
+        /// Converts an <see cref="ImageSource"/> to the native iOS <see cref="UIImage"/>
+        /// </summary>
+        /// <param name="source">Self intance</param>
+        /// <returns>The UIImage</returns>
+        public static async Task<UIImage> ToImage(this ImageSource source)
+        {
+            if (source is FileImageSource)
+            {
+                return await new FileImageSourceHandler().LoadImageAsync(source);
+            }
+            if (source is UriImageSource)
+            {
+                return await new ImageLoaderSourceHandler().LoadImageAsync(source);
+            }
+            if (source is StreamImageSource)
+            {
+                return await new StreamImagesourceHandler().LoadImageAsync(source);
+            }
+            return null;
         }
     }
 }

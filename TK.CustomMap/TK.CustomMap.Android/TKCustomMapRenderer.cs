@@ -994,17 +994,7 @@ namespace TK.CustomMap.Droid
             {
                 if (pin.Image != null)
                 {
-                    Android.Graphics.Bitmap icon = null;
-
-                    if (pin.Image is FileImageSource)
-                    {
-                        icon = await new FileImageSourceHandler().LoadImageAsync(pin.Image, this.Context);
-                    }
-                    else
-                    {
-                        icon = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image, this.Context);
-                    }
-                    bitmap = BitmapDescriptorFactory.FromBitmap(icon);
+                    bitmap = BitmapDescriptorFactory.FromBitmap(await pin.Image.ToBitmap(this.Context));
                 }
                 else
                 {
@@ -1037,23 +1027,14 @@ namespace TK.CustomMap.Droid
             {
                 if (pin.Image != null)
                 {
-                    Android.Graphics.Bitmap icon = null;
-
-                    if (pin.Image is FileImageSource)
-                    {
-                        icon = await new FileImageSourceHandler().LoadImageAsync(pin.Image, this.Context);
-                    }
-                    else
-                    {
-                        icon = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image, this.Context);
-                    }
-                    bitmap = BitmapDescriptorFactory.FromBitmap(icon);
+                    bitmap = BitmapDescriptorFactory.FromBitmap(await pin.Image.ToBitmap(this.Context));
                 }
                 else
                 {
                     if (pin.DefaultPinColor != Color.Default)
                     {
-                        bitmap = BitmapDescriptorFactory.DefaultMarker((float)pin.DefaultPinColor.Hue);
+                        var hue = pin.DefaultPinColor.ToAndroid().GetHue();
+                        bitmap = BitmapDescriptorFactory.DefaultMarker(hue);
                     }
                     else
                     {
