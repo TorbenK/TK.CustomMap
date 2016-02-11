@@ -119,13 +119,11 @@ namespace TK.CustomMap.iOSUnified
             if (polyline != null)
             {
                 // check if this polyline is a route
-                var route = this._routes[polyline];
-                if (route == null)
+                var isRoute = this._routes.ContainsKey(polyline);
+                if (!isRoute)
                 {
                     // not a route, check if it is a line
                     var line = this._lines[polyline];
-
-                    if (line == null) return null;
 
                     if (line.Renderer == null)
                     {
@@ -138,22 +136,24 @@ namespace TK.CustomMap.iOSUnified
                     // return renderer for the line
                     return line.Renderer;
                 }
-
-                if (route.Renderer == null)
+                else
                 {
-                    route.Renderer = new MKPolylineRenderer(polyline);
+                    var route = this._routes[polyline];
+                    if (route.Renderer == null)
+                    {
+                        route.Renderer = new MKPolylineRenderer(polyline);
+                    }
+                    route.Renderer.FillColor = route.Overlay.Color.ToUIColor();
+                    route.Renderer.LineWidth = route.Overlay.LineWidth;
+                    route.Renderer.StrokeColor = route.Overlay.Color.ToUIColor();
+                    return route.Renderer;
                 }
-                route.Renderer.FillColor = route.Overlay.Color.ToUIColor();
-                route.Renderer.LineWidth = route.Overlay.LineWidth;
-                route.Renderer.StrokeColor = route.Overlay.Color.ToUIColor();
-                return route.Renderer;
             }
 
             var mkCircle = overlay as MKCircle;
             if (mkCircle != null)
             {
                 var circle = this._circles[mkCircle];
-                if (circle == null) return null;
 
                 if (circle.Renderer == null)
                 {
@@ -169,7 +169,6 @@ namespace TK.CustomMap.iOSUnified
             if (mkPolygon != null)
             {
                 var polygon = this._polygons[mkPolygon];
-                if (polygon == null) return null;
 
                 if (polygon.Renderer == null)
                 {
@@ -245,7 +244,7 @@ namespace TK.CustomMap.iOSUnified
             {
                 foreach(TKCustomMapPin pin in e.NewItems)
                 {
-                    this.Map.AddAnnotation(new TKCustomMapAnnotation(pin));
+                    this.AddPin(pin);
                 }
             }
             else if (e.Action == NotifyCollectionChangedAction.Remove)
@@ -254,7 +253,7 @@ namespace TK.CustomMap.iOSUnified
                 {
                     if (!this.FormsMap.CustomPins.Contains(pin))
                     {
-                        if (this.FormsMap.SelectedPin.Equals(pin))
+                        if (this.FormsMap.SelectedPin != null && this.FormsMap.SelectedPin.Equals(pin))
                         {
                             this.FormsMap.SelectedPin = null;
                         }
@@ -431,9 +430,9 @@ namespace TK.CustomMap.iOSUnified
             if (annotationView == null)
             {
                 if(customAnnotation.CustomPin.Image != null)
-                    annotationView = new MKAnnotationView();
+                    annotationView = new MKAnnotationView(customAnnotation, AnnotationIdentifier);
                 else
-                    annotationView = new MKPinAnnotationView(customAnnotation, AnnotationIdentifier);
+                    annotationView = new MKPinAnnotationView(customAnnotation, AnnotationIdentifierDefaultPin);
             }
             else 
             {
@@ -1094,15 +1093,7 @@ namespace TK.CustomMap.iOSUnified
                     this.Map.AddAnnotation(new TKCustomMapAnnotation(pin));
                     return;
                 }
-                UIImage image;
-                if (pin.Image is FileImageSource)
-                {
-                    image = await new FileImageSourceHandler().LoadImageAsync(pin.Image);
-                }
-                else
-                {
-                    image = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image);
-                }
+                UIImage image = await pin.Image.ToImage();
                 Device.BeginInvokeOnMainThread(() =>
                 {
                     annotationView.Image = image;
@@ -1182,11 +1173,11 @@ namespace TK.CustomMap.iOSUnified
                 if (selectedAnnotation != null)
                 {
                     var annotationView = this.Map.ViewForAnnotation(selectedAnnotation);
+                    this._selectedAnnotation = selectedAnnotation;
                     if (annotationView != null)
                     {
-                        annotationView.Selected = true;
+                        this.Map.SelectAnnotation(selectedAnnotation, true);
                     }
-                    this._selectedAnnotation = selectedAnnotation;
 
                     if (this.FormsMap.PinSelectedCommand != null && this.FormsMap.PinSelectedCommand.CanExecute(null))
                     {

@@ -16,5 +16,7 @@
       </ToolbarItem.Icon>
     </ToolbarItem>
     <ToolbarItem Text="Clear" Command="{Binding ClearMapCommand}" />
+    <ToolbarItem Text="List" Command="{Binding ShowListCommand}" />
+    <ToolbarItem Text="Start Test" Command="{Binding RunSimulationCommand}" />
   </ContentPage.ToolbarItems>
 </ContentPage>
