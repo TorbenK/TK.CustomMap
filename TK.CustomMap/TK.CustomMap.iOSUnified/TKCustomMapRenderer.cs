@@ -260,7 +260,7 @@ namespace TK.CustomMap.iOSUnified
             {
                 foreach(TKCustomMapPin pin in e.NewItems)
                 {
-                    this.Map.AddAnnotation(new TKCustomMapAnnotation(pin));
+                    this.AddPin(pin);
                 }
             }
             else if (e.Action == NotifyCollectionChangedAction.Remove)
@@ -269,7 +269,7 @@ namespace TK.CustomMap.iOSUnified
                 {
                     if (!this.FormsMap.CustomPins.Contains(pin))
                     {
-                        if (this.FormsMap.SelectedPin.Equals(pin))
+                        if (this.FormsMap.SelectedPin != null && this.FormsMap.SelectedPin.Equals(pin))
                         {
                             this.FormsMap.SelectedPin = null;
                         }
@@ -446,9 +446,9 @@ namespace TK.CustomMap.iOSUnified
             if (annotationView == null)
             {
                 if(customAnnotation.CustomPin.Image != null)
-                    annotationView = new MKAnnotationView();
+                    annotationView = new MKAnnotationView(customAnnotation, AnnotationIdentifier);
                 else
-                    annotationView = new MKPinAnnotationView(customAnnotation, AnnotationIdentifier);
+                    annotationView = new MKPinAnnotationView(customAnnotation, AnnotationIdentifierDefaultPin);
             }
             else 
             {
@@ -1109,15 +1109,7 @@ namespace TK.CustomMap.iOSUnified
                     this.Map.AddAnnotation(new TKCustomMapAnnotation(pin));
                     return;
                 }
-                UIImage image;
-                if (pin.Image is FileImageSource)
-                {
-                    image = await new FileImageSourceHandler().LoadImageAsync(pin.Image);
-                }
-                else
-                {
-                    image = await new ImageLoaderSourceHandler().LoadImageAsync(pin.Image);
-                }
+                UIImage image = await pin.Image.ToImage();
                 Device.BeginInvokeOnMainThread(() =>
                 {
                     annotationView.Image = image;
@@ -1197,11 +1189,11 @@ namespace TK.CustomMap.iOSUnified
                 if (selectedAnnotation != null)
                 {
                     var annotationView = this.Map.ViewForAnnotation(selectedAnnotation);
+                    this._selectedAnnotation = selectedAnnotation;
                     if (annotationView != null)
                     {
-                        annotationView.Selected = true;
+                        this.Map.SelectAnnotation(selectedAnnotation, true);
                     }
-                    this._selectedAnnotation = selectedAnnotation;
 
                     if (this.FormsMap.PinSelectedCommand != null && this.FormsMap.PinSelectedCommand.CanExecute(null))
                     {

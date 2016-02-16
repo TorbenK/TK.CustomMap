@@ -1,7 +1,13 @@
+using System;
 using Android.Gms.Maps.Model;
+using Android.Graphics;
+using System.Threading.Tasks;
+using Android.Content;
 using TK.CustomMap.Api.Google;
 using TK.CustomMap.Overlays;
+using Xamarin.Forms;
 using Xamarin.Forms.Maps;
+using Xamarin.Forms.Platform.Android;
 
 namespace TK.CustomMap.Droid
 {
@@ -46,6 +52,28 @@ namespace TK.CustomMap.Droid
                 default:
                     return GmsDirectionTravelMode.Driving;
             }
+        }
+        /// <summary>
+        /// Convert a <see cref="ImageSource"/> to the native Android <see cref="Bitmap"/>
+        /// </summary>
+        /// <param name="source">Self instance</param>
+        /// <param name="context">Android Context</param>
+        /// <returns>The Bitmap</returns>
+        public static async Task<Bitmap> ToBitmap(this ImageSource source, Context context)
+        {
+            if (source is FileImageSource)
+            {
+                return await new FileImageSourceHandler().LoadImageAsync(source, context);
+            }
+            if (source is UriImageSource)
+            {
+                return await new ImageLoaderSourceHandler().LoadImageAsync(source, context);
+            }
+            if (source is StreamImageSource)
+            {
+                return await new StreamImagesourceHandler().LoadImageAsync(source, context);
+            }
+            return null;
         }
     }
 }
