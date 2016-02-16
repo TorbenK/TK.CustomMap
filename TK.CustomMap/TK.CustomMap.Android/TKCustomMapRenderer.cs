@@ -122,7 +122,7 @@ namespace TK.CustomMap.Droid
         /// When the map is ready to use
         /// </summary>
         /// <param name="googleMap">The map instance</param>
-        public void OnMapReady(GoogleMap googleMap)
+        public virtual void OnMapReady(GoogleMap googleMap)
         {
             this._googleMap = googleMap;
             
@@ -134,6 +134,7 @@ namespace TK.CustomMap.Droid
             this._googleMap.CameraChange += OnCameraChange;
             this._googleMap.MarkerDragStart += OnMarkerDragStart;
             this._googleMap.InfoWindowClick += OnInfoWindowClick;
+            this._googleMap.MyLocationChange += OnUserLocationChange;
             
             this.UpdateTileOptions();
             this.MoveToCenter();
@@ -142,6 +143,22 @@ namespace TK.CustomMap.Droid
             this.UpdateLines();
             this.UpdateCircles();
             this.UpdatePolygons();
+        }
+        /// <summary>
+        /// When the location of the user changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnUserLocationChange(object sender, GoogleMap.MyLocationChangeEventArgs e)
+        {
+            if (e.Location == null || this.FormsMap == null || this.FormsMap.UserLocationChangedCommand == null) return;
+   
+            var newPosition = new Position(e.Location.Latitude, e.Location.Longitude);
+
+            if(this.FormsMap.UserLocationChangedCommand.CanExecute(newPosition))
+            {
+                this.FormsMap.UserLocationChangedCommand.Execute(newPosition);
+            }
         }
         /// <summary>
         /// When the info window gets clicked
@@ -1111,6 +1128,21 @@ namespace TK.CustomMap.Droid
                 snapshot.Compress(Android.Graphics.Bitmap.CompressFormat.Png, 100, strm);
                 this._snapShot = strm.ToArray();   
             }
+        }
+        ///<inheritdoc/>
+        public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false)
+        {
+            if (this._googleMap == null) throw new InvalidOperationException("Map not ready");
+            if (positions == null) throw new InvalidOperationException("positions can't be null");
+
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+            positions.ToList().ForEach(i => builder.Include(i.ToLatLng()));
+
+            if(animate)
+                this._googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(builder.Build(), 30));
+            else
+                this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(builder.Build(), 30));
         }
     }
 }

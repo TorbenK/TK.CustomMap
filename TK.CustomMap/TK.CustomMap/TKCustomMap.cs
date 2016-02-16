@@ -153,7 +153,14 @@ namespace TK.CustomMap
         public static readonly BindableProperty TilesUrlOptionsProperty =
             BindableProperty.Create<TKCustomMap, TKTileUrlOptions>(
                 p => p.TilesUrlOptions,
-                null);  
+                null);
+        /// <summary>
+        /// Bindable Property of <see cref="UserLocationChangedCommand"/>
+        /// </summary>
+        public static readonly BindableProperty UserLocationChangedCommandProperty =
+            BindableProperty.Create<TKCustomMap, Command<Position>>(
+                p => p.UserLocationChangedCommand,
+                null);
         /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
@@ -308,6 +315,14 @@ namespace TK.CustomMap
             set { this.SetValue(TilesUrlOptionsProperty, value); }
         }
         /// <summary>
+        /// Gets/Sets the command when the user location changed
+        /// </summary>
+        public Command<Position> UserLocationChangedCommand
+        {
+            get { return (Command<Position>)this.GetValue(UserLocationChangedCommandProperty); }
+            set { this.SetValue(UserLocationChangedCommandProperty, value); }
+        }
+        /// <summary>
         /// Creates a new instance of <c>TKCustomMap</c>
         /// </summary>
         public TKCustomMap() 
@@ -355,6 +370,15 @@ namespace TK.CustomMap
         public async Task<byte[]> GetSnapshot()
         {
             return await this._renderer.GetSnapshot();
+        }
+        /// <summary>
+        /// Fits the map region to make all given positions visible
+        /// </summary>
+        /// <param name="positions">Positions to fit inside the MapRegion</param>
+        /// <param name="animate">If the camera change should be animated</param>
+        public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false)
+        {
+            this._renderer.FitMapRegionToPositions(positions, animate);
         }
         /// <summary>
         /// <inheritdoc/>

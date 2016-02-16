@@ -86,9 +86,10 @@ namespace TK.CustomMap.iOSUnified
             this.Map.OverlayRenderer = this.GetOverlayRenderer; 
             this.Map.DidSelectAnnotationView += OnDidSelectAnnotationView;
             this.Map.RegionChanged += OnMapRegionChanged;
+            this.Map.DidUpdateUserLocation += OnDidUpdateUserLocation;
             this.Map.ChangedDragState += OnChangedDragState;
             this.Map.CalloutAccessoryControlTapped += OnMapCalloutAccessoryControlTapped;
-
+            
             this.Map.AddGestureRecognizer(new UILongPressGestureRecognizer(this.OnMapLongPress));
 
             var tapRecognizer = new UITapGestureRecognizer(this.OnMapClicked);
@@ -105,7 +106,6 @@ namespace TK.CustomMap.iOSUnified
             this.UpdatePolygons();
             this.FormsMap.PropertyChanged += OnMapPropertyChanged;
         }
-
         /// <summary>
         /// Get the overlay renderer
         /// </summary>
@@ -192,6 +192,22 @@ namespace TK.CustomMap.iOSUnified
             }
 
             return null;
+        }
+        /// <summary>
+        /// When the user location changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnDidUpdateUserLocation(object sender, MKUserLocationEventArgs e)
+        {
+            if (e.UserLocation == null || this.FormsMap == null || this.FormsMap.UserLocationChangedCommand == null) return;
+
+            var newPosition = e.UserLocation.Location.Coordinate.ToPosition();
+
+            if (this.FormsMap.UserLocationChangedCommand.CanExecute(newPosition))
+            {
+                this.FormsMap.UserLocationChangedCommand.Execute(newPosition);
+            }
         }
         /// <summary>
         /// When a property of the forms map changed
@@ -333,7 +349,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-        private void OnDidSelectAnnotationView(object sender, MKAnnotationViewEventArgs e)
+        public virtual void OnDidSelectAnnotationView(object sender, MKAnnotationViewEventArgs e)
         {
             var pin = e.View.Annotation as TKCustomMapAnnotation;
             if(pin == null) return;
@@ -415,7 +431,7 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="mapView">The map</param>
         /// <param name="annotation">The annotation</param>
         /// <returns>The annotation view</returns>
-        private MKAnnotationView GetViewForAnnotation(MKMapView mapView, IMKAnnotation annotation)
+        public virtual MKAnnotationView GetViewForAnnotation(MKMapView mapView, IMKAnnotation annotation)
         {
             var customAnnotation = annotation as TKCustomMapAnnotation;
 
@@ -1204,7 +1220,12 @@ namespace TK.CustomMap.iOSUnified
                 this.Map.SetCenterCoordinate(this.FormsMap.MapCenter.ToLocationCoordinate(), this.FormsMap.AnimateMapCenterChange);   
             }
         }
-
+        /// <summary>
+        /// Calculates the closest distance of a point to a polyline
+        /// </summary>
+        /// <param name="pt">The point</param>
+        /// <param name="poly">The polyline</param>
+        /// <returns>The closes distance</returns>
         private double DistanceOfPoint(MKMapPoint pt, MKPolyline poly)
         {
             double distance = float.MaxValue;
@@ -1247,7 +1268,12 @@ namespace TK.CustomMap.iOSUnified
 
             return distance;
         }
-
+        /// <summary>
+        /// Returns the meters between two points
+        /// </summary>
+        /// <param name="px">X in pixels</param>
+        /// <param name="pt">Position</param>
+        /// <returns>Distance in meters</returns>
         private double MetersFromPixel(int px, CGPoint pt)
         {
             CGPoint ptB = new CGPoint(pt.X + px, pt.Y);
@@ -1271,6 +1297,20 @@ namespace TK.CustomMap.iOSUnified
             });
             return img.AsPNG().ToArray();
         }
+        /// <inheritdoc/>
+        public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false)
+        {
+            if(this.Map == null) return;
 
+            MKMapRect zoomRect = MKMapRect.Null;
+
+            foreach(var position in positions)
+            {
+                MKMapPoint point = MKMapPoint.FromCoordinate(position.ToLocationCoordinate());
+                MKMapRect pointRect = new MKMapRect(point.X, point.Y, 0.1, 0.1);
+                zoomRect = MKMapRect.Union(zoomRect, pointRect);
+            }
+            this.Map.SetVisibleMapRect(zoomRect, animate);
+        }
     }
 }
