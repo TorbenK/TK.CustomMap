@@ -20,6 +20,7 @@ using TK.CustomMap.Api.Google;
 using TK.CustomMap.Utilities;
 using TK.CustomMap.Interfaces;
 using System.IO;
+using TK.CustomMap.Models;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 namespace TK.CustomMap.Droid
@@ -56,8 +57,23 @@ namespace TK.CustomMap.Droid
 
             MapView mapView = this.Control as MapView;
             if (mapView == null) return;
+
+            if(e.OldElement != null && this._googleMap != null)
+            {
+                e.OldElement.PropertyChanged -= FormsMapPropertyChanged;
+
+                this._googleMap.MarkerClick -= OnMarkerClick;
+                this._googleMap.MapClick -= OnMapClick;
+                this._googleMap.MapLongClick -= OnMapLongClick;
+                this._googleMap.MarkerDragEnd -= OnMarkerDragEnd;
+                this._googleMap.MarkerDrag -= OnMarkerDrag;
+                this._googleMap.CameraChange -= OnCameraChange;
+                this._googleMap.MarkerDragStart -= OnMarkerDragStart;
+                this._googleMap.InfoWindowClick -= OnInfoWindowClick;
+                this._googleMap.MyLocationChange -= OnUserLocationChange;
+            }
             
-            if (this.FormsMap != null && this._googleMap == null)
+            if (e.NewElement != null)
             {
                 ((IMapFunctions)this.FormsMap).SetRenderer(this);
 
@@ -117,6 +133,10 @@ namespace TK.CustomMap.Droid
             {
                 this.UpdateTileOptions();
             }
+            else if(e.PropertyName == TKCustomMap.ShowTrafficProperty.PropertyName)
+            {
+                this.UpdateShowTraffic();
+            }
         }
         /// <summary>
         /// When the map is ready to use
@@ -143,6 +163,7 @@ namespace TK.CustomMap.Droid
             this.UpdateLines();
             this.UpdateCircles();
             this.UpdatePolygons();
+            this.UpdateShowTraffic();
         }
         /// <summary>
         /// When the location of the user changed
@@ -590,6 +611,7 @@ namespace TK.CustomMap.Droid
                 i.Key.PropertyChanged -= CirclePropertyChanged;
                 i.Value.Remove();
             }
+            this._circles.Clear();
             if (this.FormsMap.Circles != null)
             {
                 foreach (var circle in this.FormsMap.Circles)
@@ -619,6 +641,7 @@ namespace TK.CustomMap.Droid
                 i.Key.PropertyChanged -= OnPolygonPropertyChanged;
                 i.Value.Remove();
             }
+            this._polygons.Clear();
             if (this.FormsMap.Polygons != null)
             {
                 foreach (var i in this.FormsMap.Polygons)
@@ -645,9 +668,11 @@ namespace TK.CustomMap.Droid
 
             foreach (var i in this._routes)
             {
-                i.Key.PropertyChanged -= OnRoutePropertyChanged;
+                if(i.Key != null)
+                    i.Key.PropertyChanged -= OnRoutePropertyChanged;
                 i.Value.Remove();
             }
+            this._routes.Clear();
             if (this.FormsMap.Routes != null)
             {
                 foreach (var i in this.FormsMap.Routes)
@@ -918,47 +943,64 @@ namespace TK.CustomMap.Droid
         /// <param name="route">The route to add</param>
         private async void AddRoute(TKRoute route)
         {
+            if (route == null) return;
+
             route.PropertyChanged += OnRoutePropertyChanged;
 
             GmsDirectionResult routeData = null;
-            try
+            string errorMessage = null;
+            
+            routeData = await GmsDirection.Instance.CalculateRoute(route.Source, route.Destination, route.TravelMode.ToGmsTravelMode());
+
+            if (routeData != null && routeData.Routes != null)
             {
-                routeData = await GmsDirection.Instance.CalculateRoute(route.Source, route.Destination, route.TravelMode.ToGmsTravelMode());
-                
-                if (routeData == null || routeData.Routes == null) return;
-
-                var r = routeData.Routes.FirstOrDefault();
-                if (r == null || r.Polyline.Positions == null || !r.Polyline.Positions.Any()) return;
-
-                this.SetRouteData(route, r);
-
-                var routeOptions = new PolylineOptions();
-
-                if (route.Color != Color.Default)
+                if (routeData.Status != GmsDirectionResultStatus.Ok)
                 {
-                    routeOptions.InvokeColor(route.Color.ToAndroid().ToArgb());
+                    var r = routeData.Routes.FirstOrDefault();
+                    if (r == null && r.Polyline.Positions != null && r.Polyline.Positions.Any())
+                    {
+                        this.SetRouteData(route, r);
+
+                        var routeOptions = new PolylineOptions();
+
+                        if (route.Color != Color.Default)
+                        {
+                            routeOptions.InvokeColor(route.Color.ToAndroid().ToArgb());
+                        }
+                        if (route.LineWidth > 0)
+                        {
+                            routeOptions.InvokeWidth(route.LineWidth);
+                        }
+                        routeOptions.Add(r.Polyline.Positions.Select(i => i.ToLatLng()).ToArray());
+
+                        this._routes.Add(route, this._googleMap.AddPolyline(routeOptions));
+
+                        if (this.FormsMap.RouteCalculationFinishedCommand != null && this.FormsMap.RouteCalculationFinishedCommand.CanExecute(route))
+                        {
+                            this.FormsMap.RouteCalculationFinishedCommand.Execute(route);
+                        }
+                    }
+                    else
+                    {
+                        errorMessage = "Unexpected result";
+                    }
                 }
-                if (route.LineWidth > 0)
+                else
                 {
-                    routeOptions.InvokeWidth(route.LineWidth);
-                }
-                routeOptions.Add(r.Polyline.Positions.Select(i => i.ToLatLng()).ToArray());
-
-                this._routes.Add(route, this._googleMap.AddPolyline(routeOptions));
-
-                if (this.FormsMap.RouteCalculationFinishedCommand != null && this.FormsMap.RouteCalculationFinishedCommand.CanExecute(route))
-                {
-                    this.FormsMap.RouteCalculationFinishedCommand.Execute(route);
+                    errorMessage = routeData.Status.ToString();
                 }
             }
-            finally
+            else
             {
-                if ((routeData == null || routeData.Status != GmsDirectionResultStatus.Ok) && this.FormsMap.RouteCalculationFailedCommand != null)
+                errorMessage = "Could not connect to api";                        
+            }
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                var routeCalculationError = new TKRouteCalculationError(route, errorMessage);
+
+                if (this.FormsMap.RouteCalculationFailedCommand.CanExecute(routeCalculationError))
                 {
-                    if (this.FormsMap.RouteCalculationFailedCommand.CanExecute(route))
-                    {
-                        this.FormsMap.RouteCalculationFailedCommand.Execute(route);
-                    }
+                    this.FormsMap.RouteCalculationFailedCommand.Execute(routeCalculationError);
                 }
             }
         }
@@ -1088,6 +1130,15 @@ namespace TK.CustomMap.Droid
                             new TKCustomTileProvider(this.FormsMap.TilesUrlOptions))
                         .InvokeZIndex(-1));
             }
+        }
+        /// <summary>
+        /// Sets traffic enabled on the google map
+        /// </summary>
+        private void UpdateShowTraffic()
+        {
+            if (this.FormsMap == null || this._googleMap == null) return;
+
+            this._googleMap.TrafficEnabled = this.FormsMap.ShowTraffic;
         }
         /// <inheritdoc/>
         public async Task<byte[]> GetSnapshot()

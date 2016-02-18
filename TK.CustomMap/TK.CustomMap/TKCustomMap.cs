@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using TK.CustomMap.Interfaces;
+using TK.CustomMap.Models;
 using TK.CustomMap.Overlays;
 using TK.CustomMap.Utilities;
 using Xamarin.Forms;
@@ -83,6 +84,13 @@ namespace TK.CustomMap
                 p => p.AnimateMapCenterChange,
                 false);
         /// <summary>
+        /// Bindable Property of <see cref="ShowTraffic"/>
+        /// </summary>
+        public static readonly BindableProperty ShowTrafficProperty =
+            BindableProperty.Create<TKCustomMap, bool>(
+                p => p.ShowTraffic,
+                false);
+        /// <summary>
         /// Bindable Property of <see cref="Routes"/>
         /// </summary>
         public static readonly BindableProperty PolylinesProperty =
@@ -144,7 +152,7 @@ namespace TK.CustomMap
         /// Bindable Property of <see cref="RouteCalculationFailedCommand"/>
         /// </summary>
         public static readonly BindableProperty RouteCalculationFailedCommandProperty =
-            BindableProperty.Create<TKCustomMap, Command<TKRoute>>(
+            BindableProperty.Create<TKCustomMap, Command<TKRouteCalculationError>>(
                 p => p.RouteCalculationFailedCommand,
                 null);
         /// <summary>
@@ -301,9 +309,9 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets the command when a route calculation failed
         /// </summary>
-        public Command<TKRoute> RouteCalculationFailedCommand
+        public Command<TKRouteCalculationError> RouteCalculationFailedCommand
         {
-            get { return (Command<TKRoute>)this.GetValue(RouteCalculationFailedCommandProperty); }
+            get { return (Command<TKRouteCalculationError>)this.GetValue(RouteCalculationFailedCommandProperty); }
             set { this.SetValue(RouteCalculationFailedCommandProperty, value); }
         }
         /// <summary>
@@ -321,6 +329,14 @@ namespace TK.CustomMap
         {
             get { return (Command<Position>)this.GetValue(UserLocationChangedCommandProperty); }
             set { this.SetValue(UserLocationChangedCommandProperty, value); }
+        }
+        /// <summary>
+        /// Gets/Sets if traffic information should be displayed
+        /// </summary>
+        public bool ShowTraffic
+        {
+            get { return (bool)this.GetValue(ShowTrafficProperty); }
+            set { this.SetValue(ShowTrafficProperty, value); }
         }
         /// <summary>
         /// Creates a new instance of <c>TKCustomMap</c>

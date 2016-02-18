@@ -19,6 +19,7 @@ using System;
 using Xamarin.Forms.Maps;
 using TK.CustomMap.Interfaces;
 using System.Threading.Tasks;
+using TK.CustomMap.Models;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 
@@ -44,6 +45,8 @@ namespace TK.CustomMap.iOSUnified
         private IMKAnnotation _selectedAnnotation;
         private MKTileOverlay _tileOverlay;
         private MKTileOverlayRenderer _tileOverlayRenderer;
+        private UIGestureRecognizer _longPressGestureRecognizer;
+        private UIGestureRecognizer _tapGestureRecognizer;
 
         private MKMapView Map
         {
@@ -80,31 +83,53 @@ namespace TK.CustomMap.iOSUnified
             
             if (e.OldElement != null || this.FormsMap == null || this.Map == null) return;
 
-            ((IMapFunctions)this.FormsMap).SetRenderer(this);
+            if(e.OldElement != null && this.Map != null)
+            {
+                e.OldElement.PropertyChanged -= OnMapPropertyChanged;
 
-            this.Map.GetViewForAnnotation = this.GetViewForAnnotation;
-            this.Map.OverlayRenderer = this.GetOverlayRenderer; 
-            this.Map.DidSelectAnnotationView += OnDidSelectAnnotationView;
-            this.Map.RegionChanged += OnMapRegionChanged;
-            this.Map.DidUpdateUserLocation += OnDidUpdateUserLocation;
-            this.Map.ChangedDragState += OnChangedDragState;
-            this.Map.CalloutAccessoryControlTapped += OnMapCalloutAccessoryControlTapped;
-            
-            this.Map.AddGestureRecognizer(new UILongPressGestureRecognizer(this.OnMapLongPress));
+                this.Map.GetViewForAnnotation = null;
+                this.Map.OverlayRenderer = null;
+                this.Map.DidSelectAnnotationView -= OnDidSelectAnnotationView;
+                this.Map.RegionChanged -= OnMapRegionChanged;
+                this.Map.DidUpdateUserLocation -= OnDidUpdateUserLocation;
+                this.Map.ChangedDragState -= OnChangedDragState;
+                this.Map.CalloutAccessoryControlTapped -= OnMapCalloutAccessoryControlTapped;
 
-            var tapRecognizer = new UITapGestureRecognizer(this.OnMapClicked);
-            tapRecognizer.ShouldReceiveTouch = (recognizer, touch) => !(touch.View is MKAnnotationView);
+                this.Map.RemoveGestureRecognizer(this._longPressGestureRecognizer);
+                this.Map.RemoveGestureRecognizer(this._tapGestureRecognizer);
+                this._longPressGestureRecognizer.Dispose();
+                this._tapGestureRecognizer.Dispose();
+            }
 
-            this.Map.AddGestureRecognizer(tapRecognizer);
+            if (e.NewElement != null)
+            {
+                ((IMapFunctions)this.FormsMap).SetRenderer(this);
 
-            this.UpdateTileOptions();
-            this.SetMapCenter();
-            this.UpdatePins();
-            this.UpdateRoutes();
-            this.UpdateLines();
-            this.UpdateCircles();
-            this.UpdatePolygons();
-            this.FormsMap.PropertyChanged += OnMapPropertyChanged;
+                this.Map.GetViewForAnnotation = this.GetViewForAnnotation;
+                this.Map.OverlayRenderer = this.GetOverlayRenderer;
+                this.Map.DidSelectAnnotationView += OnDidSelectAnnotationView;
+                this.Map.RegionChanged += OnMapRegionChanged;
+                this.Map.DidUpdateUserLocation += OnDidUpdateUserLocation;
+                this.Map.ChangedDragState += OnChangedDragState;
+                this.Map.CalloutAccessoryControlTapped += OnMapCalloutAccessoryControlTapped;
+
+                this.Map.AddGestureRecognizer((this._longPressGestureRecognizer = new UILongPressGestureRecognizer(this.OnMapLongPress)));
+
+                this._tapGestureRecognizer = new UITapGestureRecognizer(this.OnMapClicked);
+                this._tapGestureRecognizer.ShouldReceiveTouch = (recognizer, touch) => !(touch.View is MKAnnotationView);
+
+                this.Map.AddGestureRecognizer(this._tapGestureRecognizer);
+
+                this.UpdateTileOptions();
+                this.SetMapCenter();
+                this.UpdatePins();
+                this.UpdateRoutes();
+                this.UpdateLines();
+                this.UpdateCircles();
+                this.UpdatePolygons();
+                this.UpdateShowTraffic();
+                this.FormsMap.PropertyChanged += OnMapPropertyChanged;
+            }
         }
         /// <summary>
         /// Get the overlay renderer
@@ -247,6 +272,10 @@ namespace TK.CustomMap.iOSUnified
             else if(e.PropertyName == TKCustomMap.TilesUrlOptionsProperty.PropertyName)
             {
                 this.UpdateTileOptions();
+            }
+            else if(e.PropertyName == TKCustomMap.ShowTrafficProperty.PropertyName)
+            {
+                this.UpdateShowTraffic();
             }
         }
         /// <summary>
@@ -539,7 +568,7 @@ namespace TK.CustomMap.iOSUnified
         {
             if (this._routes.Any())
             {
-                foreach(var r in this._routes)
+                foreach(var r in this._routes.Where(i => i.Value != null))
                 {
                     r.Value.Overlay.PropertyChanged -= OnRoutePropertyChanged;
                 }
@@ -860,7 +889,7 @@ namespace TK.CustomMap.iOSUnified
             MKDirections directions = new MKDirections(req);
             directions.CalculateDirections(new MKDirectionsHandler((r, e) => 
             {
-                if (r != null && r.Routes != null && r.Routes.Any())
+                if (e != null)
                 {
                     var nativeRoute = r.Routes.First();
 
@@ -878,9 +907,11 @@ namespace TK.CustomMap.iOSUnified
                 }
                 else
                 {
-                    if (this.FormsMap.RouteCalculationFailedCommand != null && this.FormsMap.RouteCalculationFailedCommand.CanExecute(route))
+                    var routeCalculationError = new TKRouteCalculationError(route, e.ToString());
+
+                    if (this.FormsMap.RouteCalculationFailedCommand != null && this.FormsMap.RouteCalculationFailedCommand.CanExecute(routeCalculationError))
                     {
-                        this.FormsMap.RouteCalculationFailedCommand.Execute(route);
+                        this.FormsMap.RouteCalculationFailedCommand.Execute(routeCalculationError);
                     }
                 }
             }));
@@ -1207,10 +1238,21 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         private void SetMapCenter()
         {
+            if(this.FormsMap == null || this.Map == null) return;
+
             if (!this.FormsMap.MapCenter.Equals(this.Map.CenterCoordinate.ToPosition()))
             {
                 this.Map.SetCenterCoordinate(this.FormsMap.MapCenter.ToLocationCoordinate(), this.FormsMap.AnimateMapCenterChange);   
             }
+        }
+        /// <summary>
+        /// Sets traffic enabled on the map
+        /// </summary>
+        private void UpdateShowTraffic()
+        {
+            if (this.FormsMap == null || this.Map == null) return;
+
+            this.Map.ShowsTraffic = this.FormsMap.ShowTraffic;
         }
         /// <summary>
         /// Calculates the closest distance of a point to a polyline

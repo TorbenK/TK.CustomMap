@@ -65,6 +65,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Interfaces\IMapFunctions.cs" />
     <Compile Include="Interfaces\IRendererFunctions.cs" />
+    <Compile Include="Models\TKRouteCalculationError.cs" />
     <Compile Include="Overlays\IRouteFunctions.cs" />
     <Compile Include="Overlays\IRouteStepFunctions.cs" />
     <Compile Include="Overlays\TKPolyline.cs" />
