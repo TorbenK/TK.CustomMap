@@ -277,6 +277,10 @@ namespace TK.CustomMap.iOSUnified
             {
                 this.UpdateShowTraffic();
             }
+            else if(e.PropertyName == TKCustomMap.MapRegionProperty.PropertyName)
+            {
+                this.UpdateMapRegion();
+            }
         }
         /// <summary>
         /// When the collection of pins changed
@@ -1242,7 +1246,7 @@ namespace TK.CustomMap.iOSUnified
 
             if (!this.FormsMap.MapCenter.Equals(this.Map.CenterCoordinate.ToPosition()))
             {
-                this.Map.SetCenterCoordinate(this.FormsMap.MapCenter.ToLocationCoordinate(), this.FormsMap.AnimateMapCenterChange);   
+                this.Map.SetCenterCoordinate(this.FormsMap.MapCenter.ToLocationCoordinate(), this.FormsMap.IsRegionChangeAnimated);   
             }
         }
         /// <summary>
@@ -1253,6 +1257,18 @@ namespace TK.CustomMap.iOSUnified
             if (this.FormsMap == null || this.Map == null) return;
 
             this.Map.ShowsTraffic = this.FormsMap.ShowTraffic;
+        }
+        /// <summary>
+        /// Updates the map region when changed
+        /// </summary>
+        private void UpdateMapRegion()
+        {
+            if (this.FormsMap == null) return;
+
+            if(this.FormsMap.MapRegion != this.FormsMap.VisibleRegion)
+            {
+                this.MoveToMapRegion(this.FormsMap.MapRegion, this.FormsMap.IsRegionChangeAnimated);
+            }
         }
         /// <summary>
         /// Calculates the closest distance of a point to a polyline
@@ -1345,6 +1361,30 @@ namespace TK.CustomMap.iOSUnified
                 zoomRect = MKMapRect.Union(zoomRect, pointRect);
             }
             this.Map.SetVisibleMapRect(zoomRect, animate);
+        }
+        /// <inheritdoc/>
+        public void MoveToMapRegion(MapSpan region, bool animate)
+        {
+            if (this.Map == null) return;
+
+            var coordinateRegion = MKCoordinateRegion.FromDistance(
+                region.Center.ToLocationCoordinate(), 
+                region.Radius.Meters, 
+                region.Radius.Meters);
+
+            this.Map.SetRegion(coordinateRegion, animate);
+        }
+        /// <summary>
+        /// Returns the <see cref="TKCustomMapPin"/> by the native <see cref="IMKAnnotation"/>
+        /// </summary>
+        /// <param name="annotation">The annotation to search with</param>
+        /// <returns>The forms pin</returns>
+        protected TKCustomMapPin GetPinByAnnotation(IMKAnnotation annotation)
+        {
+            var customAnnotation = annotation as TKCustomMapAnnotation;
+            if (customAnnotation == null) return null;
+
+            return customAnnotation.CustomPin;
         }
     }
 }

@@ -226,7 +226,7 @@ namespace TK.CustomMap.Utilities
             // double tileWidthAtZoomLevelAtEquatorInDegrees = 360.0/Math.pow(2.0, map.getCameraPosition().zoom);
             double pixelSizeInMetersAtLatitude = (circumferenceOfEarthInMeters * Math.Cos(centerLatitude * (Math.PI / 180.0))) / Math.Pow(2.0, zoom + 8.0);
             double tolerance = pixelSizeInMetersAtLatitude * Math.Sqrt(2.0) * 10.0;
-
+            
             return IsLocationOnPath(point, polyline, geodesic, tolerance);
         }
 

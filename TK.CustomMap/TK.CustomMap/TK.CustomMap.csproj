@@ -82,6 +82,7 @@
     <Compile Include="TKCustomMapPin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\GmsPolyUtil.cs" />
+    <Compile Include="Utilities\GmsSphericalUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="ModernHttpClient, Version=2.4.2.0, Culture=neutral, processorArchitecture=MSIL">

@@ -16,8 +16,16 @@ namespace TK.CustomMap
     /// </summary>
     public class TKCustomMap : Map, IMapFunctions
     {
-        private IRendererFunctions _renderer;
-
+        /// <summary>
+        /// Property Key for the read-only bindable Property <see cref="MapFunctions"/>
+        /// </summary>
+        private static readonly BindablePropertyKey MapFunctionsPropertyKey = BindableProperty.CreateReadOnly<TKCustomMap, IRendererFunctions>(
+            p => p.MapFunctions,
+            null);
+        /// <summary>
+        /// Bindable Property of <see cref="MapFunctions"/>
+        /// </summary>
+        public static readonly BindableProperty MapFunctionsProperty = MapFunctionsPropertyKey.BindableProperty;
         /// <summary>
         /// Bindable Property of <see cref="CustomPins" />
         /// </summary>
@@ -77,11 +85,11 @@ namespace TK.CustomMap
                 default(Position),
                 BindingMode.TwoWay);
         /// <summary>
-        /// Bindable Property of <see cref="AnimateMapCenterChange"/>
+        /// Bindable Property of <see cref="IsRegionChangeAnimated"/>
         /// </summary>
-        public static readonly BindableProperty AnimateMapCenterChangeProperty =
+        public static readonly BindableProperty IsRegionChangeAnimatedProperty =
             BindableProperty.Create<TKCustomMap, bool>(
-                p => p.AnimateMapCenterChange,
+                p => p.IsRegionChangeAnimated,
                 false);
         /// <summary>
         /// Bindable Property of <see cref="ShowTraffic"/>
@@ -125,8 +133,7 @@ namespace TK.CustomMap
             BindableProperty.Create<TKCustomMap, MapSpan>(
                 p => p.MapRegion,
                 default(MapSpan),
-                BindingMode.TwoWay,
-                propertyChanged: MapRegionChanged);
+                BindingMode.TwoWay);
         /// <summary>
         /// Bindable Property of <see cref="Routes"/>
         /// </summary>
@@ -174,7 +181,7 @@ namespace TK.CustomMap
         /// </summary>
         public IEnumerable<TKCustomMapPin> CustomPins
         {
-            get { return (ObservableCollection<TKCustomMapPin>)this.GetValue(CustomPinsProperty); }
+            get { return (IEnumerable<TKCustomMapPin>)this.GetValue(CustomPinsProperty); }
             set { this.SetValue(CustomPinsProperty, value); } 
         }
         /// <summary>
@@ -234,12 +241,12 @@ namespace TK.CustomMap
             set { this.SetValue(MapCenterProperty, value); }
         }
         /// <summary>
-        /// Gets/Sets if a change of <see cref="MapCenter"/> should be animated
+        /// Gets/Sets if a change of <see cref="MapCenter"/> or <see cref="MapRegion"/> should be animated
         /// </summary>
-        public bool AnimateMapCenterChange
+        public bool IsRegionChangeAnimated
         {
-            get { return (bool)this.GetValue(AnimateMapCenterChangeProperty); }
-            set { this.SetValue(AnimateMapCenterChangeProperty, value); }
+            get { return (bool)this.GetValue(IsRegionChangeAnimatedProperty); }
+            set { this.SetValue(IsRegionChangeAnimatedProperty, value); }
         }
         /// <summary>
         /// Gets/Sets the lines to display on the map
@@ -331,6 +338,14 @@ namespace TK.CustomMap
             set { this.SetValue(UserLocationChangedCommandProperty, value); }
         }
         /// <summary>
+        /// Gets/Sets the avaiable functions on the map/renderer
+        /// </summary>
+        public  IRendererFunctions MapFunctions
+        {
+            get { return (IRendererFunctions)this.GetValue(MapFunctionsProperty); }
+            private set { this.SetValue(MapFunctionsPropertyKey, value); }
+        }
+        /// <summary>
         /// Gets/Sets if traffic information should be displayed
         /// </summary>
         public bool ShowTraffic
@@ -353,22 +368,6 @@ namespace TK.CustomMap
         {
             this.MapCenter = region.Center;
         }
-        /// <summary>
-        /// When <see cref="MapRegion"/> changed
-        /// </summary>
-        /// <param name="obj">The custom map</param>
-        /// <param name="oldValue">Old value</param>
-        /// <param name="newValue">New value</param>
-        private static void MapRegionChanged(BindableObject obj, MapSpan oldValue, MapSpan newValue)
-        {
-            var customMap = obj as TKCustomMap;
-            if (customMap == null) return;
-
-            if (!customMap.MapRegion.Equals(customMap.VisibleRegion))
-            {
-                customMap.MoveToRegion(customMap.MapRegion);
-            }
-        }
         /// <inheritdoc/>
         protected override void OnPropertyChanged(string propertyName = null)
         {
@@ -385,7 +384,7 @@ namespace TK.CustomMap
         /// <returns>Map as image</returns>
         public async Task<byte[]> GetSnapshot()
         {
-            return await this._renderer.GetSnapshot();
+            return await this.MapFunctions.GetSnapshot();
         }
         /// <summary>
         /// Fits the map region to make all given positions visible
@@ -394,14 +393,14 @@ namespace TK.CustomMap
         /// <param name="animate">If the camera change should be animated</param>
         public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false)
         {
-            this._renderer.FitMapRegionToPositions(positions, animate);
+            this.MapFunctions.FitMapRegionToPositions(positions, animate);
         }
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
         void IMapFunctions.SetRenderer(IRendererFunctions renderer)
         {
-            this._renderer = renderer;
+            this.MapFunctions = renderer;
         }
     }
 }

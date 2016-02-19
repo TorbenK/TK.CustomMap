@@ -35,7 +35,8 @@ namespace TK.CustomMap.Sample
             mapView.SetBinding(TKCustomMap.RouteClickedCommandProperty, "RouteClickedCommand");
             mapView.SetBinding(TKCustomMap.RouteCalculationFinishedCommandProperty, "RouteCalculationFinishedCommand");
             mapView.SetBinding(TKCustomMap.TilesUrlOptionsProperty, "TilesUrlOptions");
-            mapView.AnimateMapCenterChange = true;
+            mapView.SetBinding(TKCustomMap.MapFunctionsProperty, "MapFunctions");
+            mapView.IsRegionChangeAnimated = true;
 
             autoComplete.SetBinding(PlacesAutoComplete.BoundsProperty, "MapRegion");
 

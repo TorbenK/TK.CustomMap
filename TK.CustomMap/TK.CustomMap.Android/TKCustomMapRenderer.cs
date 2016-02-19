@@ -137,6 +137,10 @@ namespace TK.CustomMap.Droid
             {
                 this.UpdateShowTraffic();
             }
+            else if(e.PropertyName == TKCustomMap.MapRegionProperty.PropertyName)
+            {
+                this.UpdateMapRegion();
+            }
         }
         /// <summary>
         /// When the map is ready to use
@@ -558,7 +562,7 @@ namespace TK.CustomMap.Droid
             {
                 var cameraUpdate = CameraUpdateFactory.NewLatLng(this.FormsMap.MapCenter.ToLatLng());
 
-                if (this.FormsMap.AnimateMapCenterChange && !this._init)
+                if (this.FormsMap.IsRegionChangeAnimated && !this._init)
                 {
                     this._googleMap.AnimateCamera(cameraUpdate);
                 }
@@ -1132,6 +1136,18 @@ namespace TK.CustomMap.Droid
             }
         }
         /// <summary>
+        /// Updates the visible map region
+        /// </summary>
+        private void UpdateMapRegion()
+        {
+            if (this.FormsMap == null) return;
+
+            if(this.FormsMap.VisibleRegion != this.FormsMap.MapRegion)
+            {
+                this.MoveToMapRegion(this.FormsMap.MapRegion, this.FormsMap.IsRegionChangeAnimated);
+            }
+        }
+        /// <summary>
         /// Sets traffic enabled on the google map
         /// </summary>
         private void UpdateShowTraffic()
@@ -1175,6 +1191,33 @@ namespace TK.CustomMap.Droid
                 this._googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(builder.Build(), 30));
             else
                 this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(builder.Build(), 30));
+        }
+        ///<inheritdoc/>
+        public void MoveToMapRegion(MapSpan region, bool animate)
+        {
+            if (this._googleMap == null) return;
+
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+            builder
+                .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 0).ToLatLng())
+                .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 90).ToLatLng())
+                .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 180).ToLatLng())
+                .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 270).ToLatLng());
+
+            if (animate)
+                this._googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(builder.Build(), 0));
+            else
+                this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(builder.Build(), 0));
+        }
+        /// <summary>
+        /// Gets the <see cref="TKCustomMapPin"/> by the native <see cref="Marker"/>
+        /// </summary>
+        /// <param name="marker">The marker to search the pin for</param>
+        /// <returns>The forms pin</returns>
+        protected TKCustomMapPin GetPinByMarker(Marker marker)
+        {
+            return this._markers.SingleOrDefault(i => i.Value.Id == marker.Id).Key;
         }
     }
 }
