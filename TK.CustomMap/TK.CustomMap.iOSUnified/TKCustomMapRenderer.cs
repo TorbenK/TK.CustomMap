@@ -521,7 +521,7 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="firstUpdate">First update of collection or not</param>
         private void UpdateRoutes(bool firstUpdate = true)
         {
-            if (this._routes.Any())
+			if (this.Map != null && this._routes.Any())
             {
                 foreach(var r in this._routes)
                 {
@@ -530,12 +530,16 @@ namespace TK.CustomMap.iOSUnified
                 this.Map.RemoveOverlays(this._routes.Select(i => i.Key).ToArray());
                 this._routes.Clear();
             }
-            if (this.FormsMap.Routes == null) return;
 
-            foreach (var route in this.FormsMap.Routes)
-            {
-                this.AddRoute(route);
-            }
+			if (this.FormsMap != null)
+			{
+				if (this.FormsMap.Routes == null) return;
+
+				foreach (var route in this.FormsMap.Routes)
+				{
+					this.AddRoute(route);
+				}
+			}
 
             if (firstUpdate)
             {
@@ -851,21 +855,28 @@ namespace TK.CustomMap.iOSUnified
                     this.SetRouteData(route, nativeRoute);
 
                     this._routes.Add(nativeRoute.Polyline, new TKOverlayItem<TKRoute, MKPolylineRenderer>(route));
-                    this.Map.AddOverlay(nativeRoute.Polyline);
+					if (this.Map != null)
+                    	this.Map.AddOverlay(nativeRoute.Polyline);
 
                     route.PropertyChanged += OnRoutePropertyChanged;
 
-                    if (this.FormsMap.RouteCalculationFinishedCommand != null && this.FormsMap.RouteCalculationFinishedCommand.CanExecute(route))
-                    {
-                        this.FormsMap.RouteCalculationFinishedCommand.Execute(route);
-                    }
+					if (this.FormsMap != null)
+					{
+						if (this.FormsMap.RouteCalculationFinishedCommand != null && this.FormsMap.RouteCalculationFinishedCommand.CanExecute(route))
+						{
+							this.FormsMap.RouteCalculationFinishedCommand.Execute(route);
+						}
+					}
                 }
                 else
-                {
-                    if (this.FormsMap.RouteCalculationFailedCommand != null && this.FormsMap.RouteCalculationFailedCommand.CanExecute(route))
-                    {
-                        this.FormsMap.RouteCalculationFailedCommand.Execute(route);
-                    }
+				{
+					if (this.FormsMap != null)
+					{
+	                    if (this.FormsMap.RouteCalculationFailedCommand != null && this.FormsMap.RouteCalculationFailedCommand.CanExecute(route))
+	                    {
+	                        this.FormsMap.RouteCalculationFailedCommand.Execute(route);
+	                    }
+					}
                 }
             }));
         }
