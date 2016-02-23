@@ -27,5 +27,10 @@ namespace TK.CustomMap.Overlays
         /// </summary>
         /// <param name="distance">The distance of the route</param>
         void SetDistance(double distance);
+        /// <summary>
+        /// Sets the <value>IsCalculated</value>
+        /// </summary>
+        /// <param name="calculated">Calculated</param>
+        void SetIsCalculated(bool calculated);
     }
 }

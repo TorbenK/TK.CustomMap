@@ -1116,6 +1116,7 @@ namespace TK.CustomMap.iOSUnified
                     nativeRoute.Polyline.Coordinate.ToPosition(),
                     Distance.FromKilometers(
                         route.Source.DistanceTo(route.Destination))));
+            routeFunctions.SetIsCalculated(true);
         }
         /// <summary>
         /// Set the visibility of an annotation view
@@ -1333,6 +1334,26 @@ namespace TK.CustomMap.iOSUnified
             
             return MKGeometry.MetersBetweenMapPoints(MKMapPoint.FromCoordinate(coordA), MKMapPoint.FromCoordinate(coordB));
         }
+        /// <summary>
+        /// Convert a <see cref="MKCoordinateRegion"/> to <see cref="MKMapRect"/>
+        /// http://stackoverflow.com/questions/9270268/convert-mkcoordinateregion-to-mkmaprect
+        /// </summary>
+        /// <param name="region">Region to convert</param>
+        /// <returns>The map rect</returns>
+        private MKMapRect RegionToRect(MKCoordinateRegion region)
+        {
+            MKMapPoint a = MKMapPoint.FromCoordinate(
+                new CLLocationCoordinate2D(
+                    region.Center.Latitude + region.Span.LatitudeDelta / 2,
+                    region.Center.Longitude - region.Span.LongitudeDelta / 2));
+
+            MKMapPoint b = MKMapPoint.FromCoordinate(
+                new CLLocationCoordinate2D(
+                    region.Center.Latitude - region.Span.LatitudeDelta / 2,
+                    region.Center.Longitude + region.Span.LongitudeDelta / 2));
+
+            return new MKMapRect(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Abs(a.X - b.X), Math.Abs(a.Y - b.Y));
+        }
         ///<inheritdoc/>
         public async Task<byte[]> GetSnapshot()
         {
@@ -1371,8 +1392,26 @@ namespace TK.CustomMap.iOSUnified
                 region.Center.ToLocationCoordinate(), 
                 region.Radius.Meters, 
                 region.Radius.Meters);
-
+            
             this.Map.SetRegion(coordinateRegion, animate);
+        }
+        /// <inheritdoc/>
+        public void MoveToMapRegions(IEnumerable<MapSpan> regions, bool animate)
+        {
+            if (this.Map == null) return;
+
+            MKMapRect rect = new MKMapRect();
+            foreach(var region in regions)
+            {
+                MKMapRect.Union(
+                    rect,
+                    this.RegionToRect(
+                        MKCoordinateRegion.FromDistance(
+                            region.Center.ToLocationCoordinate(),
+                            region.Radius.Meters,
+                            region.Radius.Meters)));
+            }
+            this.Map.SetVisibleMapRect(rect, animate);
         }
         /// <summary>
         /// Returns the <see cref="TKCustomMapPin"/> by the native <see cref="IMKAnnotation"/>

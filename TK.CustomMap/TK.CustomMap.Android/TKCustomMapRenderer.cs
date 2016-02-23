@@ -1043,7 +1043,7 @@ namespace TK.CustomMap.Droid
                         new Position(latLngBounds.Southwest.Latitude, latLngBounds.Southwest.Longitude)
                         .DistanceTo(
                             new Position(latLngBounds.Northeast.Latitude, latLngBounds.Northeast.Longitude)))));
-
+            routeFunctions.SetIsCalculated(true);
         }
         /// <summary>
         /// Updates the image of a pin
@@ -1156,6 +1156,25 @@ namespace TK.CustomMap.Droid
 
             this._googleMap.TrafficEnabled = this.FormsMap.ShowTraffic;
         }
+        /// <summary>
+        /// Creates a <see cref="LatLngBounds"/> from a collection of <see cref="MapSpan"/>
+        /// </summary>
+        /// <param name="spans">The spans to get calculate the bounds from</param>
+        /// <returns>The bounds</returns>
+        private LatLngBounds BoundsFromMapSpans(params MapSpan[] spans)
+        {
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+            foreach (var region in spans)
+            {
+                builder
+                    .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 0).ToLatLng())
+                    .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 90).ToLatLng())
+                    .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 180).ToLatLng())
+                    .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 270).ToLatLng());
+            }
+            return builder.Build();
+        }
         /// <inheritdoc/>
         public async Task<byte[]> GetSnapshot()
         {
@@ -1197,18 +1216,20 @@ namespace TK.CustomMap.Droid
         {
             if (this._googleMap == null) return;
 
-            LatLngBounds.Builder builder = new LatLngBounds.Builder();
-
-            builder
-                .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 0).ToLatLng())
-                .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 90).ToLatLng())
-                .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 180).ToLatLng())
-                .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 270).ToLatLng());
+            if (animate)
+                this._googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(region), 0));
+            else
+                this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(region), 0));
+        }
+        ///<inheritdoc/>
+        public void MoveToMapRegions(IEnumerable<MapSpan> regions, bool animate)
+        {
+            if (this._googleMap == null) return;
 
             if (animate)
-                this._googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(builder.Build(), 0));
+                this._googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(regions.ToArray()), 0));
             else
-                this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(builder.Build(), 0));
+                this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(regions.ToArray()), 0));
         }
         /// <summary>
         /// Gets the <see cref="TKCustomMapPin"/> by the native <see cref="Marker"/>

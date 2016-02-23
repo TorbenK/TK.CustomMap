@@ -26,5 +26,11 @@ namespace TK.CustomMap.Interfaces
         /// <param name="region">Region to move the map to</param>
         /// <param name="animate">If the region change should be animated or not</param>
         void MoveToMapRegion(MapSpan region, bool animate);
+        /// <summary>
+        /// Moves the visible region to the specified collection <see cref="MapSpan"/>
+        /// </summary>
+        /// <param name="regions">Regions to move the map to</param>
+        /// <param name="animate">If the region change should be animated or not</param>
+        void MoveToMapRegions(IEnumerable<MapSpan> regions, bool animate);
     }
 }
