@@ -958,7 +958,7 @@ namespace TK.CustomMap.Droid
 
             if (routeData != null && routeData.Routes != null)
             {
-                if (routeData.Status != GmsDirectionResultStatus.Ok)
+                if (routeData.Status == GmsDirectionResultStatus.Ok)
                 {
                     var r = routeData.Routes.FirstOrDefault();
 					if (r != null && r.Polyline.Positions != null && r.Polyline.Positions.Any())
