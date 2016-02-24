@@ -893,7 +893,7 @@ namespace TK.CustomMap.iOSUnified
             MKDirections directions = new MKDirections(req);
             directions.CalculateDirections(new MKDirectionsHandler((r, e) => 
             {
-                if (e != null)
+                if (e == null)
                 {
                     var nativeRoute = r.Routes.First();
 
