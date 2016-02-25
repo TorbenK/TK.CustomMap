@@ -1,8 +1,7 @@
-using System;
-using Android.Gms.Maps.Model;
-using Android.Graphics;
 using System.Threading.Tasks;
 using Android.Content;
+using Android.Gms.Maps.Model;
+using Android.Graphics;
 using TK.CustomMap.Api.Google;
 using TK.CustomMap.Overlays;
 using Xamarin.Forms;

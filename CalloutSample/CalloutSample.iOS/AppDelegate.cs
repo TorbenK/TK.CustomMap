@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Foundation;
+using TK.CustomMap.iOSUnified;
 using UIKit;
 
 namespace CalloutSample.iOS
@@ -23,6 +24,7 @@ namespace CalloutSample.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             global::Xamarin.Forms.Forms.Init();
+            TKCustomMapRenderer.InitMapRenderer();
             LoadApplication(new App());
 
             return base.FinishedLaunching(app, options);

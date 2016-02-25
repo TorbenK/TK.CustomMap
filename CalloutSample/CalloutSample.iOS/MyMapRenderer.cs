@@ -3,8 +3,13 @@ using MapKit;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using CalloutSample;
+using CalloutSample.iOS;
 using TK.CustomMap.iOSUnified;
 using UIKit;
+using Xamarin.Forms;
+
+[assembly:ExportRenderer(typeof(MyMap), typeof(MyMapRenderer))]
 
 namespace CalloutSample.iOS
 {

@@ -22,10 +22,11 @@ namespace CalloutSample
                         new MyMap
                         {
                             MapCenter = new Position(40.7142700, -74.0059700),
-                            CustomPins = new List<TKCustomMapPin>(new TKCustomMapPin[] 
+                            CustomPins = new List<TKCustomMapPin>(new[] 
                             {
                                 new TKCustomMapPin
                                 {
+                                    Title = "Custom Callout Sample",
                                     Position = new Position(40.7142700, -74.0059700),
                                     ShowCallout = true
                                 }

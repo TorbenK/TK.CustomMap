@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using TK.CustomMap.Interfaces;
 using TK.CustomMap.Models;
 using TK.CustomMap.Overlays;
-using TK.CustomMap.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
@@ -394,6 +391,15 @@ namespace TK.CustomMap
         public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false)
         {
             this.MapFunctions.FitMapRegionToPositions(positions, animate);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="regions"></param>
+        /// <param name="animate"></param>
+        public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate = false)
+        {
+            this.MapFunctions.FitToMapRegions(regions, animate);
         }
         /// <summary>
         /// <inheritdoc/>

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.Interfaces
@@ -31,6 +30,6 @@ namespace TK.CustomMap.Interfaces
         /// </summary>
         /// <param name="regions">Regions to move the map to</param>
         /// <param name="animate">If the region change should be animated or not</param>
-        void MoveToMapRegions(IEnumerable<MapSpan> regions, bool animate);
+        void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate);
     }
 }

@@ -1,26 +1,25 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Android.Gms.Common;
 using Android.Gms.Maps;
 using Android.Gms.Maps.Model;
+using Android.Graphics;
 using TK.CustomMap;
+using TK.CustomMap.Api.Google;
 using TK.CustomMap.Droid;
+using TK.CustomMap.Interfaces;
+using TK.CustomMap.Models;
 using TK.CustomMap.Overlays;
+using TK.CustomMap.Utilities;
 using Xamarin.Forms;
+using Xamarin.Forms.Maps;
 using Xamarin.Forms.Maps.Android;
 using Xamarin.Forms.Platform.Android;
-using Android.Gms.Location.Places;
-using Xamarin.Forms.Maps;
-using TK.CustomMap.Api.Google;
-using TK.CustomMap.Utilities;
-using TK.CustomMap.Interfaces;
-using System.IO;
-using TK.CustomMap.Models;
+using Color = Xamarin.Forms.Color;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 namespace TK.CustomMap.Droid
@@ -225,6 +224,8 @@ namespace TK.CustomMap.Droid
         /// <param name="e">Event Arguments</param>
         private void OnCameraChange(object sender, GoogleMap.CameraChangeEventArgs e)
         {
+            if(this.FormsMap == null) return;
+
             this.FormsMap.MapCenter = e.Position.Target.ToPosition();
             base.OnCameraChange(e.Position);
         }
@@ -958,11 +959,13 @@ namespace TK.CustomMap.Droid
 
             if (routeData != null && routeData.Routes != null)
             {
-                if (routeData.Status != GmsDirectionResultStatus.Ok)
+                if (routeData.Status == GmsDirectionResultStatus.Ok)
                 {
                     var r = routeData.Routes.FirstOrDefault();
-                    if (r == null && r.Polyline.Positions != null && r.Polyline.Positions.Any())
+                    if (r != null && r.Polyline.Positions != null && r.Polyline.Positions.Any())
                     {
+                        if(this.FormsMap == null || this.Map == null) return;
+
                         this.SetRouteData(route, r);
 
                         var routeOptions = new PolylineOptions();
@@ -1042,7 +1045,7 @@ namespace TK.CustomMap.Droid
                     Distance.FromKilometers(
                         new Position(latLngBounds.Southwest.Latitude, latLngBounds.Southwest.Longitude)
                         .DistanceTo(
-                            new Position(latLngBounds.Northeast.Latitude, latLngBounds.Northeast.Longitude)))));
+                            new Position(latLngBounds.Northeast.Latitude, latLngBounds.Northeast.Longitude)) / 2)));
             routeFunctions.SetIsCalculated(true);
         }
         /// <summary>
@@ -1188,11 +1191,11 @@ namespace TK.CustomMap.Droid
             return this._snapShot;
         }
         ///<inheritdoc/>
-        public void OnSnapshotReady(Android.Graphics.Bitmap snapshot)
+        public void OnSnapshotReady(Bitmap snapshot)
         {
             using(var strm = new MemoryStream())
             {
-                snapshot.Compress(Android.Graphics.Bitmap.CompressFormat.Png, 100, strm);
+                snapshot.Compress(Bitmap.CompressFormat.Png, 100, strm);
                 this._snapShot = strm.ToArray();   
             }
         }
@@ -1222,7 +1225,7 @@ namespace TK.CustomMap.Droid
                 this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(region), 0));
         }
         ///<inheritdoc/>
-        public void MoveToMapRegions(IEnumerable<MapSpan> regions, bool animate)
+        public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate)
         {
             if (this._googleMap == null) return;
 

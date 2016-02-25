@@ -1,25 +1,23 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using CoreGraphics;
+using CoreLocation;
 using Foundation;
 using MapKit;
 using TK.CustomMap;
 using TK.CustomMap.iOSUnified;
+using TK.CustomMap.Interfaces;
+using TK.CustomMap.Models;
 using TK.CustomMap.Overlays;
 using UIKit;
 using Xamarin.Forms;
+using Xamarin.Forms.Maps;
 using Xamarin.Forms.Maps.iOS;
 using Xamarin.Forms.Platform.iOS;
-using TK.CustomMap.Utilities;
-using CoreLocation;
-using System;
-using Xamarin.Forms.Maps;
-using TK.CustomMap.Interfaces;
-using System.Threading.Tasks;
-using TK.CustomMap.Models;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 
@@ -28,6 +26,7 @@ namespace TK.CustomMap.iOSUnified
     /// <summary>
     /// iOS Renderer of <see cref="TK.CustomMap.TKCustomMap"/>
     /// </summary>
+    [Preserve(AllMembers = true)]
     public class TKCustomMapRenderer : MapRenderer, IRendererFunctions
     {
         private const double MercatorRadius = 85445659.44705395;
@@ -544,11 +543,12 @@ namespace TK.CustomMap.iOSUnified
                 {
                     line.Value.Overlay.PropertyChanged -= OnLinePropertyChanged;
                 }
-                this.Map.RemoveOverlays(this._lines.Select(i => i.Key).ToArray());
+                if(this.Map != null)
+                    this.Map.RemoveOverlays(this._lines.Select(i => i.Key).ToArray());
                 this._lines.Clear();
             }
 
-            if (this.FormsMap.Polylines == null) return;
+            if (this.FormsMap == null || this.FormsMap.Polylines == null) return;
 
             foreach (var line in this.FormsMap.Polylines)
             {
@@ -891,11 +891,13 @@ namespace TK.CustomMap.iOSUnified
             req.TransportType = route.TravelMode.ToTransportType();
 
             MKDirections directions = new MKDirections(req);
-            directions.CalculateDirections(new MKDirectionsHandler((r, e) => 
+            directions.CalculateDirections((r, e) => 
             {
-                if (e != null)
+                if (e == null)
                 {
                     var nativeRoute = r.Routes.First();
+
+                    if (this.FormsMap == null || this.Map == null) return;
 
                     this.SetRouteData(route, nativeRoute);
 
@@ -918,7 +920,7 @@ namespace TK.CustomMap.iOSUnified
                         this.FormsMap.RouteCalculationFailedCommand.Execute(routeCalculationError);
                     }
                 }
-            }));
+            });
         }
         /// <summary>
         /// When a property of a route changed
@@ -1390,28 +1392,28 @@ namespace TK.CustomMap.iOSUnified
 
             var coordinateRegion = MKCoordinateRegion.FromDistance(
                 region.Center.ToLocationCoordinate(), 
-                region.Radius.Meters, 
-                region.Radius.Meters);
+                region.Radius.Meters * 2, 
+                region.Radius.Meters * 2);
             
             this.Map.SetRegion(coordinateRegion, animate);
         }
         /// <inheritdoc/>
-        public void MoveToMapRegions(IEnumerable<MapSpan> regions, bool animate)
+        public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate)
         {
             if (this.Map == null) return;
 
-            MKMapRect rect = new MKMapRect();
+            MKMapRect rect = MKMapRect.Null;
             foreach(var region in regions)
             {
-                MKMapRect.Union(
+                rect = MKMapRect.Union(
                     rect,
                     this.RegionToRect(
                         MKCoordinateRegion.FromDistance(
                             region.Center.ToLocationCoordinate(),
-                            region.Radius.Meters,
-                            region.Radius.Meters)));
+                            region.Radius.Meters * 2,
+                            region.Radius.Meters * 2)));
             }
-            this.Map.SetVisibleMapRect(rect, animate);
+            this.Map.SetVisibleMapRect(rect, new UIEdgeInsets(15, 15, 15, 15), animate);
         }
         /// <summary>
         /// Returns the <see cref="TKCustomMapPin"/> by the native <see cref="IMKAnnotation"/>
