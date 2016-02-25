@@ -224,7 +224,8 @@ namespace TK.CustomMap.Droid
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
         private void OnCameraChange(object sender, GoogleMap.CameraChangeEventArgs e)
-        {
+		{
+			if (this.FormsMap == null) return;
             this.FormsMap.MapCenter = e.Position.Target.ToPosition();
             base.OnCameraChange(e.Position);
         }
@@ -958,10 +959,10 @@ namespace TK.CustomMap.Droid
 
             if (routeData != null && routeData.Routes != null)
             {
-                if (routeData.Status != GmsDirectionResultStatus.Ok)
+                if (routeData.Status == GmsDirectionResultStatus.Ok)
                 {
                     var r = routeData.Routes.FirstOrDefault();
-                    if (r == null && r.Polyline.Positions != null && r.Polyline.Positions.Any())
+					if (r != null && r.Polyline.Positions != null && r.Polyline.Positions.Any())
                     {
                         this.SetRouteData(route, r);
 
