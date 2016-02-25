@@ -576,10 +576,11 @@ namespace TK.CustomMap.iOSUnified
                 {
                     r.Value.Overlay.PropertyChanged -= OnRoutePropertyChanged;
                 }
-                this.Map.RemoveOverlays(this._routes.Select(i => i.Key).ToArray());
+				if (this.Map != null)
+               		this.Map.RemoveOverlays(this._routes.Select(i => i.Key).ToArray());
                 this._routes.Clear();
             }
-            if (this.FormsMap.Routes == null) return;
+			if (this.FormsMap == null || this.FormsMap.Routes == null) return;
 
             foreach (var route in this.FormsMap.Routes)
             {
@@ -900,11 +901,12 @@ namespace TK.CustomMap.iOSUnified
                     this.SetRouteData(route, nativeRoute);
 
                     this._routes.Add(nativeRoute.Polyline, new TKOverlayItem<TKRoute, MKPolylineRenderer>(route));
-                    this.Map.AddOverlay(nativeRoute.Polyline);
+					if (this.Map != null)
+                    	this.Map.AddOverlay(nativeRoute.Polyline);
 
                     route.PropertyChanged += OnRoutePropertyChanged;
 
-                    if (this.FormsMap.RouteCalculationFinishedCommand != null && this.FormsMap.RouteCalculationFinishedCommand.CanExecute(route))
+					if (this.FormsMap != null && this.FormsMap.RouteCalculationFinishedCommand != null && this.FormsMap.RouteCalculationFinishedCommand.CanExecute(route))
                     {
                         this.FormsMap.RouteCalculationFinishedCommand.Execute(route);
                     }
