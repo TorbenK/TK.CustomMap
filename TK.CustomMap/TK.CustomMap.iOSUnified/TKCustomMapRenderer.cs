@@ -1,24 +1,23 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using CoreGraphics;
+using CoreLocation;
 using Foundation;
 using MapKit;
 using TK.CustomMap;
 using TK.CustomMap.iOSUnified;
+using TK.CustomMap.Interfaces;
+using TK.CustomMap.Models;
 using TK.CustomMap.Overlays;
 using UIKit;
 using Xamarin.Forms;
+using Xamarin.Forms.Maps;
 using Xamarin.Forms.Maps.iOS;
 using Xamarin.Forms.Platform.iOS;
-using TK.CustomMap.Utilities;
-using CoreLocation;
-using System;
-using Xamarin.Forms.Maps;
-using TK.CustomMap.Interfaces;
-using System.Threading.Tasks;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 
@@ -27,6 +26,7 @@ namespace TK.CustomMap.iOSUnified
     /// <summary>
     /// iOS Renderer of <see cref="TK.CustomMap.TKCustomMap"/>
     /// </summary>
+    [Preserve(AllMembers = true)]
     public class TKCustomMapRenderer : MapRenderer, IRendererFunctions
     {
         private const double MercatorRadius = 85445659.44705395;
@@ -44,6 +44,8 @@ namespace TK.CustomMap.iOSUnified
         private IMKAnnotation _selectedAnnotation;
         private MKTileOverlay _tileOverlay;
         private MKTileOverlayRenderer _tileOverlayRenderer;
+        private UIGestureRecognizer _longPressGestureRecognizer;
+        private UIGestureRecognizer _tapGestureRecognizer;
 
         private MKMapView Map
         {
@@ -80,32 +82,54 @@ namespace TK.CustomMap.iOSUnified
             
             if (e.OldElement != null || this.FormsMap == null || this.Map == null) return;
 
-            ((IMapFunctions)this.FormsMap).SetRenderer(this);
+            if(e.OldElement != null && this.Map != null)
+            {
+                e.OldElement.PropertyChanged -= OnMapPropertyChanged;
 
-            this.Map.GetViewForAnnotation = this.GetViewForAnnotation;
-            this.Map.OverlayRenderer = this.GetOverlayRenderer; 
-            this.Map.DidSelectAnnotationView += OnDidSelectAnnotationView;
-            this.Map.RegionChanged += OnMapRegionChanged;
-            this.Map.ChangedDragState += OnChangedDragState;
-            this.Map.CalloutAccessoryControlTapped += OnMapCalloutAccessoryControlTapped;
+                this.Map.GetViewForAnnotation = null;
+                this.Map.OverlayRenderer = null;
+                this.Map.DidSelectAnnotationView -= OnDidSelectAnnotationView;
+                this.Map.RegionChanged -= OnMapRegionChanged;
+                this.Map.DidUpdateUserLocation -= OnDidUpdateUserLocation;
+                this.Map.ChangedDragState -= OnChangedDragState;
+                this.Map.CalloutAccessoryControlTapped -= OnMapCalloutAccessoryControlTapped;
 
-            this.Map.AddGestureRecognizer(new UILongPressGestureRecognizer(this.OnMapLongPress));
+                this.Map.RemoveGestureRecognizer(this._longPressGestureRecognizer);
+                this.Map.RemoveGestureRecognizer(this._tapGestureRecognizer);
+                this._longPressGestureRecognizer.Dispose();
+                this._tapGestureRecognizer.Dispose();
+            }
 
-            var tapRecognizer = new UITapGestureRecognizer(this.OnMapClicked);
-            tapRecognizer.ShouldReceiveTouch = (recognizer, touch) => !(touch.View is MKAnnotationView);
+            if (e.NewElement != null)
+            {
+                ((IMapFunctions)this.FormsMap).SetRenderer(this);
 
-            this.Map.AddGestureRecognizer(tapRecognizer);
+                this.Map.GetViewForAnnotation = this.GetViewForAnnotation;
+                this.Map.OverlayRenderer = this.GetOverlayRenderer;
+                this.Map.DidSelectAnnotationView += OnDidSelectAnnotationView;
+                this.Map.RegionChanged += OnMapRegionChanged;
+                this.Map.DidUpdateUserLocation += OnDidUpdateUserLocation;
+                this.Map.ChangedDragState += OnChangedDragState;
+                this.Map.CalloutAccessoryControlTapped += OnMapCalloutAccessoryControlTapped;
 
-            this.UpdateTileOptions();
-            this.SetMapCenter();
-            this.UpdatePins();
-            this.UpdateRoutes();
-            this.UpdateLines();
-            this.UpdateCircles();
-            this.UpdatePolygons();
-            this.FormsMap.PropertyChanged += OnMapPropertyChanged;
+                this.Map.AddGestureRecognizer((this._longPressGestureRecognizer = new UILongPressGestureRecognizer(this.OnMapLongPress)));
+
+                this._tapGestureRecognizer = new UITapGestureRecognizer(this.OnMapClicked);
+                this._tapGestureRecognizer.ShouldReceiveTouch = (recognizer, touch) => !(touch.View is MKAnnotationView);
+
+                this.Map.AddGestureRecognizer(this._tapGestureRecognizer);
+
+                this.UpdateTileOptions();
+                this.SetMapCenter();
+                this.UpdatePins();
+                this.UpdateRoutes();
+                this.UpdateLines();
+                this.UpdateCircles();
+                this.UpdatePolygons();
+                this.UpdateShowTraffic();
+                this.FormsMap.PropertyChanged += OnMapPropertyChanged;
+            }
         }
-
         /// <summary>
         /// Get the overlay renderer
         /// </summary>
@@ -194,6 +218,22 @@ namespace TK.CustomMap.iOSUnified
             return null;
         }
         /// <summary>
+        /// When the user location changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnDidUpdateUserLocation(object sender, MKUserLocationEventArgs e)
+        {
+            if (e.UserLocation == null || this.FormsMap == null || this.FormsMap.UserLocationChangedCommand == null) return;
+
+            var newPosition = e.UserLocation.Location.Coordinate.ToPosition();
+
+            if (this.FormsMap.UserLocationChangedCommand.CanExecute(newPosition))
+            {
+                this.FormsMap.UserLocationChangedCommand.Execute(newPosition);
+            }
+        }
+        /// <summary>
         /// When a property of the forms map changed
         /// </summary>
         /// <param name="sender">Event Sender</param>
@@ -231,6 +271,14 @@ namespace TK.CustomMap.iOSUnified
             else if(e.PropertyName == TKCustomMap.TilesUrlOptionsProperty.PropertyName)
             {
                 this.UpdateTileOptions();
+            }
+            else if(e.PropertyName == TKCustomMap.ShowTrafficProperty.PropertyName)
+            {
+                this.UpdateShowTraffic();
+            }
+            else if(e.PropertyName == TKCustomMap.MapRegionProperty.PropertyName)
+            {
+                this.UpdateMapRegion();
             }
         }
         /// <summary>
@@ -333,7 +381,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-        private void OnDidSelectAnnotationView(object sender, MKAnnotationViewEventArgs e)
+        public virtual void OnDidSelectAnnotationView(object sender, MKAnnotationViewEventArgs e)
         {
             var pin = e.View.Annotation as TKCustomMapAnnotation;
             if(pin == null) return;
@@ -415,7 +463,7 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="mapView">The map</param>
         /// <param name="annotation">The annotation</param>
         /// <returns>The annotation view</returns>
-        private MKAnnotationView GetViewForAnnotation(MKMapView mapView, IMKAnnotation annotation)
+        public virtual MKAnnotationView GetViewForAnnotation(MKMapView mapView, IMKAnnotation annotation)
         {
             var customAnnotation = annotation as TKCustomMapAnnotation;
 
@@ -495,11 +543,12 @@ namespace TK.CustomMap.iOSUnified
                 {
                     line.Value.Overlay.PropertyChanged -= OnLinePropertyChanged;
                 }
-                this.Map.RemoveOverlays(this._lines.Select(i => i.Key).ToArray());
+                if(this.Map != null)
+                    this.Map.RemoveOverlays(this._lines.Select(i => i.Key).ToArray());
                 this._lines.Clear();
             }
 
-            if (this.FormsMap.Polylines == null) return;
+            if (this.FormsMap == null || this.FormsMap.Polylines == null) return;
 
             foreach (var line in this.FormsMap.Polylines)
             {
@@ -523,7 +572,7 @@ namespace TK.CustomMap.iOSUnified
         {
             if (this._routes.Any())
             {
-                foreach(var r in this._routes)
+                foreach(var r in this._routes.Where(i => i.Value != null))
                 {
                     r.Value.Overlay.PropertyChanged -= OnRoutePropertyChanged;
                 }
@@ -842,11 +891,13 @@ namespace TK.CustomMap.iOSUnified
             req.TransportType = route.TravelMode.ToTransportType();
 
             MKDirections directions = new MKDirections(req);
-            directions.CalculateDirections(new MKDirectionsHandler((r, e) => 
+            directions.CalculateDirections((r, e) => 
             {
-                if (r != null && r.Routes != null && r.Routes.Any())
+                if (e == null)
                 {
                     var nativeRoute = r.Routes.First();
+
+                    if (this.FormsMap == null || this.Map == null) return;
 
                     this.SetRouteData(route, nativeRoute);
 
@@ -862,12 +913,14 @@ namespace TK.CustomMap.iOSUnified
                 }
                 else
                 {
-                    if (this.FormsMap.RouteCalculationFailedCommand != null && this.FormsMap.RouteCalculationFailedCommand.CanExecute(route))
+                    var routeCalculationError = new TKRouteCalculationError(route, e.ToString());
+
+                    if (this.FormsMap.RouteCalculationFailedCommand != null && this.FormsMap.RouteCalculationFailedCommand.CanExecute(routeCalculationError))
                     {
-                        this.FormsMap.RouteCalculationFailedCommand.Execute(route);
+                        this.FormsMap.RouteCalculationFailedCommand.Execute(routeCalculationError);
                     }
                 }
-            }));
+            });
         }
         /// <summary>
         /// When a property of a route changed
@@ -1065,6 +1118,7 @@ namespace TK.CustomMap.iOSUnified
                     nativeRoute.Polyline.Coordinate.ToPosition(),
                     Distance.FromKilometers(
                         route.Source.DistanceTo(route.Destination))));
+            routeFunctions.SetIsCalculated(true);
         }
         /// <summary>
         /// Set the visibility of an annotation view
@@ -1191,12 +1245,40 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         private void SetMapCenter()
         {
+            if(this.FormsMap == null || this.Map == null) return;
+
             if (!this.FormsMap.MapCenter.Equals(this.Map.CenterCoordinate.ToPosition()))
             {
-                this.Map.SetCenterCoordinate(this.FormsMap.MapCenter.ToLocationCoordinate(), this.FormsMap.AnimateMapCenterChange);   
+                this.Map.SetCenterCoordinate(this.FormsMap.MapCenter.ToLocationCoordinate(), this.FormsMap.IsRegionChangeAnimated);   
             }
         }
+        /// <summary>
+        /// Sets traffic enabled on the map
+        /// </summary>
+        private void UpdateShowTraffic()
+        {
+            if (this.FormsMap == null || this.Map == null) return;
 
+            this.Map.ShowsTraffic = this.FormsMap.ShowTraffic;
+        }
+        /// <summary>
+        /// Updates the map region when changed
+        /// </summary>
+        private void UpdateMapRegion()
+        {
+            if (this.FormsMap == null) return;
+
+            if(this.FormsMap.MapRegion != this.FormsMap.VisibleRegion)
+            {
+                this.MoveToMapRegion(this.FormsMap.MapRegion, this.FormsMap.IsRegionChangeAnimated);
+            }
+        }
+        /// <summary>
+        /// Calculates the closest distance of a point to a polyline
+        /// </summary>
+        /// <param name="pt">The point</param>
+        /// <param name="poly">The polyline</param>
+        /// <returns>The closes distance</returns>
         private double DistanceOfPoint(MKMapPoint pt, MKPolyline poly)
         {
             double distance = float.MaxValue;
@@ -1239,7 +1321,12 @@ namespace TK.CustomMap.iOSUnified
 
             return distance;
         }
-
+        /// <summary>
+        /// Returns the meters between two points
+        /// </summary>
+        /// <param name="px">X in pixels</param>
+        /// <param name="pt">Position</param>
+        /// <returns>Distance in meters</returns>
         private double MetersFromPixel(int px, CGPoint pt)
         {
             CGPoint ptB = new CGPoint(pt.X + px, pt.Y);
@@ -1248,6 +1335,26 @@ namespace TK.CustomMap.iOSUnified
             CLLocationCoordinate2D coordB = this.Map.ConvertPoint(ptB, this.Map);
             
             return MKGeometry.MetersBetweenMapPoints(MKMapPoint.FromCoordinate(coordA), MKMapPoint.FromCoordinate(coordB));
+        }
+        /// <summary>
+        /// Convert a <see cref="MKCoordinateRegion"/> to <see cref="MKMapRect"/>
+        /// http://stackoverflow.com/questions/9270268/convert-mkcoordinateregion-to-mkmaprect
+        /// </summary>
+        /// <param name="region">Region to convert</param>
+        /// <returns>The map rect</returns>
+        private MKMapRect RegionToRect(MKCoordinateRegion region)
+        {
+            MKMapPoint a = MKMapPoint.FromCoordinate(
+                new CLLocationCoordinate2D(
+                    region.Center.Latitude + region.Span.LatitudeDelta / 2,
+                    region.Center.Longitude - region.Span.LongitudeDelta / 2));
+
+            MKMapPoint b = MKMapPoint.FromCoordinate(
+                new CLLocationCoordinate2D(
+                    region.Center.Latitude - region.Span.LatitudeDelta / 2,
+                    region.Center.Longitude + region.Span.LongitudeDelta / 2));
+
+            return new MKMapRect(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Abs(a.X - b.X), Math.Abs(a.Y - b.Y));
         }
         ///<inheritdoc/>
         public async Task<byte[]> GetSnapshot()
@@ -1263,6 +1370,62 @@ namespace TK.CustomMap.iOSUnified
             });
             return img.AsPNG().ToArray();
         }
+        /// <inheritdoc/>
+        public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false)
+        {
+            if(this.Map == null) return;
 
+            MKMapRect zoomRect = MKMapRect.Null;
+
+            foreach(var position in positions)
+            {
+                MKMapPoint point = MKMapPoint.FromCoordinate(position.ToLocationCoordinate());
+                MKMapRect pointRect = new MKMapRect(point.X, point.Y, 0.1, 0.1);
+                zoomRect = MKMapRect.Union(zoomRect, pointRect);
+            }
+            this.Map.SetVisibleMapRect(zoomRect, animate);
+        }
+        /// <inheritdoc/>
+        public void MoveToMapRegion(MapSpan region, bool animate)
+        {
+            if (this.Map == null) return;
+
+            var coordinateRegion = MKCoordinateRegion.FromDistance(
+                region.Center.ToLocationCoordinate(), 
+                region.Radius.Meters * 2, 
+                region.Radius.Meters * 2);
+            
+            this.Map.SetRegion(coordinateRegion, animate);
+        }
+        /// <inheritdoc/>
+        public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate)
+        {
+            if (this.Map == null) return;
+
+            MKMapRect rect = MKMapRect.Null;
+            foreach(var region in regions)
+            {
+                rect = MKMapRect.Union(
+                    rect,
+                    this.RegionToRect(
+                        MKCoordinateRegion.FromDistance(
+                            region.Center.ToLocationCoordinate(),
+                            region.Radius.Meters * 2,
+                            region.Radius.Meters * 2)));
+            }
+            this.Map.SetVisibleMapRect(rect, new UIEdgeInsets(15, 15, 15, 15), animate);
+        }
+        /// <summary>
+        /// Returns the <see cref="TKCustomMapPin"/> by the native <see cref="IMKAnnotation"/>
+        /// </summary>
+        /// <param name="annotation">The annotation to search with</param>
+        /// <returns>The forms pin</returns>
+        protected TKCustomMapPin GetPinByAnnotation(IMKAnnotation annotation)
+        {
+            var customAnnotation = annotation as TKCustomMapAnnotation;
+            if (customAnnotation == null) return null;
+
+            return customAnnotation.CustomPin;
+        }
     }
 }

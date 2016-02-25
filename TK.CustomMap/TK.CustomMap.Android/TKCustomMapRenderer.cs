@@ -1,25 +1,25 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Android.Gms.Common;
 using Android.Gms.Maps;
 using Android.Gms.Maps.Model;
+using Android.Graphics;
 using TK.CustomMap;
+using TK.CustomMap.Api.Google;
 using TK.CustomMap.Droid;
+using TK.CustomMap.Interfaces;
+using TK.CustomMap.Models;
 using TK.CustomMap.Overlays;
+using TK.CustomMap.Utilities;
 using Xamarin.Forms;
+using Xamarin.Forms.Maps;
 using Xamarin.Forms.Maps.Android;
 using Xamarin.Forms.Platform.Android;
-using Android.Gms.Location.Places;
-using Xamarin.Forms.Maps;
-using TK.CustomMap.Api.Google;
-using TK.CustomMap.Utilities;
-using TK.CustomMap.Interfaces;
-using System.IO;
+using Color = Xamarin.Forms.Color;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 namespace TK.CustomMap.Droid
@@ -56,8 +56,23 @@ namespace TK.CustomMap.Droid
 
             MapView mapView = this.Control as MapView;
             if (mapView == null) return;
+
+            if(e.OldElement != null && this._googleMap != null)
+            {
+                e.OldElement.PropertyChanged -= FormsMapPropertyChanged;
+
+                this._googleMap.MarkerClick -= OnMarkerClick;
+                this._googleMap.MapClick -= OnMapClick;
+                this._googleMap.MapLongClick -= OnMapLongClick;
+                this._googleMap.MarkerDragEnd -= OnMarkerDragEnd;
+                this._googleMap.MarkerDrag -= OnMarkerDrag;
+                this._googleMap.CameraChange -= OnCameraChange;
+                this._googleMap.MarkerDragStart -= OnMarkerDragStart;
+                this._googleMap.InfoWindowClick -= OnInfoWindowClick;
+                this._googleMap.MyLocationChange -= OnUserLocationChange;
+            }
             
-            if (this.FormsMap != null && this._googleMap == null)
+            if (e.NewElement != null)
             {
                 ((IMapFunctions)this.FormsMap).SetRenderer(this);
 
@@ -117,12 +132,20 @@ namespace TK.CustomMap.Droid
             {
                 this.UpdateTileOptions();
             }
+            else if(e.PropertyName == TKCustomMap.ShowTrafficProperty.PropertyName)
+            {
+                this.UpdateShowTraffic();
+            }
+            else if(e.PropertyName == TKCustomMap.MapRegionProperty.PropertyName)
+            {
+                this.UpdateMapRegion();
+            }
         }
         /// <summary>
         /// When the map is ready to use
         /// </summary>
         /// <param name="googleMap">The map instance</param>
-        public void OnMapReady(GoogleMap googleMap)
+        public virtual void OnMapReady(GoogleMap googleMap)
         {
             this._googleMap = googleMap;
             
@@ -134,6 +157,7 @@ namespace TK.CustomMap.Droid
             this._googleMap.CameraChange += OnCameraChange;
             this._googleMap.MarkerDragStart += OnMarkerDragStart;
             this._googleMap.InfoWindowClick += OnInfoWindowClick;
+            this._googleMap.MyLocationChange += OnUserLocationChange;
             
             this.UpdateTileOptions();
             this.MoveToCenter();
@@ -142,6 +166,23 @@ namespace TK.CustomMap.Droid
             this.UpdateLines();
             this.UpdateCircles();
             this.UpdatePolygons();
+            this.UpdateShowTraffic();
+        }
+        /// <summary>
+        /// When the location of the user changed
+        /// </summary>
+        /// <param name="sender">Event Sender</param>
+        /// <param name="e">Event Arguments</param>
+        private void OnUserLocationChange(object sender, GoogleMap.MyLocationChangeEventArgs e)
+        {
+            if (e.Location == null || this.FormsMap == null || this.FormsMap.UserLocationChangedCommand == null) return;
+   
+            var newPosition = new Position(e.Location.Latitude, e.Location.Longitude);
+
+            if(this.FormsMap.UserLocationChangedCommand.CanExecute(newPosition))
+            {
+                this.FormsMap.UserLocationChangedCommand.Execute(newPosition);
+            }
         }
         /// <summary>
         /// When the info window gets clicked
@@ -183,6 +224,8 @@ namespace TK.CustomMap.Droid
         /// <param name="e">Event Arguments</param>
         private void OnCameraChange(object sender, GoogleMap.CameraChangeEventArgs e)
         {
+            if(this.FormsMap == null) return;
+
             this.FormsMap.MapCenter = e.Position.Target.ToPosition();
             base.OnCameraChange(e.Position);
         }
@@ -520,7 +563,7 @@ namespace TK.CustomMap.Droid
             {
                 var cameraUpdate = CameraUpdateFactory.NewLatLng(this.FormsMap.MapCenter.ToLatLng());
 
-                if (this.FormsMap.AnimateMapCenterChange && !this._init)
+                if (this.FormsMap.IsRegionChangeAnimated && !this._init)
                 {
                     this._googleMap.AnimateCamera(cameraUpdate);
                 }
@@ -573,6 +616,7 @@ namespace TK.CustomMap.Droid
                 i.Key.PropertyChanged -= CirclePropertyChanged;
                 i.Value.Remove();
             }
+            this._circles.Clear();
             if (this.FormsMap.Circles != null)
             {
                 foreach (var circle in this.FormsMap.Circles)
@@ -602,6 +646,7 @@ namespace TK.CustomMap.Droid
                 i.Key.PropertyChanged -= OnPolygonPropertyChanged;
                 i.Value.Remove();
             }
+            this._polygons.Clear();
             if (this.FormsMap.Polygons != null)
             {
                 foreach (var i in this.FormsMap.Polygons)
@@ -628,9 +673,11 @@ namespace TK.CustomMap.Droid
 
             foreach (var i in this._routes)
             {
-                i.Key.PropertyChanged -= OnRoutePropertyChanged;
+                if(i.Key != null)
+                    i.Key.PropertyChanged -= OnRoutePropertyChanged;
                 i.Value.Remove();
             }
+            this._routes.Clear();
             if (this.FormsMap.Routes != null)
             {
                 foreach (var i in this.FormsMap.Routes)
@@ -901,47 +948,66 @@ namespace TK.CustomMap.Droid
         /// <param name="route">The route to add</param>
         private async void AddRoute(TKRoute route)
         {
+            if (route == null) return;
+
             route.PropertyChanged += OnRoutePropertyChanged;
 
             GmsDirectionResult routeData = null;
-            try
+            string errorMessage = null;
+            
+            routeData = await GmsDirection.Instance.CalculateRoute(route.Source, route.Destination, route.TravelMode.ToGmsTravelMode());
+
+            if (routeData != null && routeData.Routes != null)
             {
-                routeData = await GmsDirection.Instance.CalculateRoute(route.Source, route.Destination, route.TravelMode.ToGmsTravelMode());
-                
-                if (routeData == null || routeData.Routes == null) return;
-
-                var r = routeData.Routes.FirstOrDefault();
-                if (r == null || r.Polyline.Positions == null || !r.Polyline.Positions.Any()) return;
-
-                this.SetRouteData(route, r);
-
-                var routeOptions = new PolylineOptions();
-
-                if (route.Color != Color.Default)
+                if (routeData.Status == GmsDirectionResultStatus.Ok)
                 {
-                    routeOptions.InvokeColor(route.Color.ToAndroid().ToArgb());
+                    var r = routeData.Routes.FirstOrDefault();
+                    if (r != null && r.Polyline.Positions != null && r.Polyline.Positions.Any())
+                    {
+                        if(this.FormsMap == null || this.Map == null) return;
+
+                        this.SetRouteData(route, r);
+
+                        var routeOptions = new PolylineOptions();
+
+                        if (route.Color != Color.Default)
+                        {
+                            routeOptions.InvokeColor(route.Color.ToAndroid().ToArgb());
+                        }
+                        if (route.LineWidth > 0)
+                        {
+                            routeOptions.InvokeWidth(route.LineWidth);
+                        }
+                        routeOptions.Add(r.Polyline.Positions.Select(i => i.ToLatLng()).ToArray());
+
+                        this._routes.Add(route, this._googleMap.AddPolyline(routeOptions));
+
+                        if (this.FormsMap.RouteCalculationFinishedCommand != null && this.FormsMap.RouteCalculationFinishedCommand.CanExecute(route))
+                        {
+                            this.FormsMap.RouteCalculationFinishedCommand.Execute(route);
+                        }
+                    }
+                    else
+                    {
+                        errorMessage = "Unexpected result";
+                    }
                 }
-                if (route.LineWidth > 0)
+                else
                 {
-                    routeOptions.InvokeWidth(route.LineWidth);
-                }
-                routeOptions.Add(r.Polyline.Positions.Select(i => i.ToLatLng()).ToArray());
-
-                this._routes.Add(route, this._googleMap.AddPolyline(routeOptions));
-
-                if (this.FormsMap.RouteCalculationFinishedCommand != null && this.FormsMap.RouteCalculationFinishedCommand.CanExecute(route))
-                {
-                    this.FormsMap.RouteCalculationFinishedCommand.Execute(route);
+                    errorMessage = routeData.Status.ToString();
                 }
             }
-            finally
+            else
             {
-                if ((routeData == null || routeData.Status != GmsDirectionResultStatus.Ok) && this.FormsMap.RouteCalculationFailedCommand != null)
+                errorMessage = "Could not connect to api";                        
+            }
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                var routeCalculationError = new TKRouteCalculationError(route, errorMessage);
+
+                if (this.FormsMap.RouteCalculationFailedCommand.CanExecute(routeCalculationError))
                 {
-                    if (this.FormsMap.RouteCalculationFailedCommand.CanExecute(route))
-                    {
-                        this.FormsMap.RouteCalculationFailedCommand.Execute(route);
-                    }
+                    this.FormsMap.RouteCalculationFailedCommand.Execute(routeCalculationError);
                 }
             }
         }
@@ -979,8 +1045,8 @@ namespace TK.CustomMap.Droid
                     Distance.FromKilometers(
                         new Position(latLngBounds.Southwest.Latitude, latLngBounds.Southwest.Longitude)
                         .DistanceTo(
-                            new Position(latLngBounds.Northeast.Latitude, latLngBounds.Northeast.Longitude)))));
-
+                            new Position(latLngBounds.Northeast.Latitude, latLngBounds.Northeast.Longitude)) / 2)));
+            routeFunctions.SetIsCalculated(true);
         }
         /// <summary>
         /// Updates the image of a pin
@@ -1072,6 +1138,46 @@ namespace TK.CustomMap.Droid
                         .InvokeZIndex(-1));
             }
         }
+        /// <summary>
+        /// Updates the visible map region
+        /// </summary>
+        private void UpdateMapRegion()
+        {
+            if (this.FormsMap == null) return;
+
+            if(this.FormsMap.VisibleRegion != this.FormsMap.MapRegion)
+            {
+                this.MoveToMapRegion(this.FormsMap.MapRegion, this.FormsMap.IsRegionChangeAnimated);
+            }
+        }
+        /// <summary>
+        /// Sets traffic enabled on the google map
+        /// </summary>
+        private void UpdateShowTraffic()
+        {
+            if (this.FormsMap == null || this._googleMap == null) return;
+
+            this._googleMap.TrafficEnabled = this.FormsMap.ShowTraffic;
+        }
+        /// <summary>
+        /// Creates a <see cref="LatLngBounds"/> from a collection of <see cref="MapSpan"/>
+        /// </summary>
+        /// <param name="spans">The spans to get calculate the bounds from</param>
+        /// <returns>The bounds</returns>
+        private LatLngBounds BoundsFromMapSpans(params MapSpan[] spans)
+        {
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+            foreach (var region in spans)
+            {
+                builder
+                    .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 0).ToLatLng())
+                    .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 90).ToLatLng())
+                    .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 180).ToLatLng())
+                    .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 270).ToLatLng());
+            }
+            return builder.Build();
+        }
         /// <inheritdoc/>
         public async Task<byte[]> GetSnapshot()
         {
@@ -1085,13 +1191,57 @@ namespace TK.CustomMap.Droid
             return this._snapShot;
         }
         ///<inheritdoc/>
-        public void OnSnapshotReady(Android.Graphics.Bitmap snapshot)
+        public void OnSnapshotReady(Bitmap snapshot)
         {
             using(var strm = new MemoryStream())
             {
-                snapshot.Compress(Android.Graphics.Bitmap.CompressFormat.Png, 100, strm);
+                snapshot.Compress(Bitmap.CompressFormat.Png, 100, strm);
                 this._snapShot = strm.ToArray();   
             }
+        }
+        ///<inheritdoc/>
+        public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false)
+        {
+            if (this._googleMap == null) throw new InvalidOperationException("Map not ready");
+            if (positions == null) throw new InvalidOperationException("positions can't be null");
+
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+            positions.ToList().ForEach(i => builder.Include(i.ToLatLng()));
+
+            if(animate)
+                this._googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(builder.Build(), 30));
+            else
+                this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(builder.Build(), 30));
+        }
+        ///<inheritdoc/>
+        public void MoveToMapRegion(MapSpan region, bool animate)
+        {
+            if (this._googleMap == null) return;
+
+            if (animate)
+                this._googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(region), 0));
+            else
+                this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(region), 0));
+        }
+        ///<inheritdoc/>
+        public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate)
+        {
+            if (this._googleMap == null) return;
+
+            if (animate)
+                this._googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(regions.ToArray()), 0));
+            else
+                this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(regions.ToArray()), 0));
+        }
+        /// <summary>
+        /// Gets the <see cref="TKCustomMapPin"/> by the native <see cref="Marker"/>
+        /// </summary>
+        /// <param name="marker">The marker to search the pin for</param>
+        /// <returns>The forms pin</returns>
+        protected TKCustomMapPin GetPinByMarker(Marker marker)
+        {
+            return this._markers.SingleOrDefault(i => i.Value.Id == marker.Id).Key;
         }
     }
 }

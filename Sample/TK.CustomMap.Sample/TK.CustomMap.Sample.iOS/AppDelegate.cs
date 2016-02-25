@@ -23,8 +23,8 @@ namespace TK.CustomMap.Sample.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             Forms.Init();
-            TKCustomMapRenderer.InitMapRenderer();
-            NativePlacesApi.Init();
+            var dummy = new TKCustomMapRenderer();
+            var dummy2 = new NativePlacesApi();
             FormsMaps.Init();
             LoadApplication(new App());
             return base.FinishedLaunching(app, options);

@@ -1,5 +1,6 @@
-﻿using System.Threading.Tasks;
-using Xamarin.Forms;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.Interfaces
 {
@@ -13,5 +14,22 @@ namespace TK.CustomMap.Interfaces
         /// </summary>
         /// <returns>Image of the current map</returns>
         Task<byte[]> GetSnapshot();
+        /// <summary>
+        /// Moves the visible region of the map to cover all positions
+        /// </summary>
+        /// <param name="positions">The positions to fit the visible region</param>
+        void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false);
+        /// <summary>
+        /// Moves the visible region to the specified <see cref="MapSpan"/>
+        /// </summary>
+        /// <param name="region">Region to move the map to</param>
+        /// <param name="animate">If the region change should be animated or not</param>
+        void MoveToMapRegion(MapSpan region, bool animate);
+        /// <summary>
+        /// Moves the visible region to the specified collection <see cref="MapSpan"/>
+        /// </summary>
+        /// <param name="regions">Regions to move the map to</param>
+        /// <param name="animate">If the region change should be animated or not</param>
+        void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate);
     }
 }

@@ -38,6 +38,15 @@ namespace TK.CustomMap
             return (Math.PI / 180) * val;
         }
         /// <summary>
+        /// Convert to Degrees.
+        /// </summary>
+        /// <param name="val">Value in radians</param>
+        /// <returns>Value in degrees</returns>
+        public static double ToDegrees(this double val)
+        {
+            return val / (Math.PI / 180);
+        }
+        /// <summary>
         /// Calculate the distance between two positions https://en.wikipedia.org/wiki/Haversine_formula)
         /// </summary>
         /// <param name="coordinateA">From coordinate</param>

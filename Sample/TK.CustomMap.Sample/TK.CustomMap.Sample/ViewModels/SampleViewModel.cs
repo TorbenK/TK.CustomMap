@@ -13,6 +13,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 using TK.CustomMap.Sample.Pages;
 using System.Threading.Tasks;
+using TK.CustomMap.Interfaces;
 
 namespace TK.CustomMap.Sample
 {
@@ -48,6 +49,7 @@ namespace TK.CustomMap.Sample
                 }
             }
         }
+        public IRendererFunctions MapFunctions { get; set; }
         public Command RunSimulationCommand
         {
             get
@@ -461,7 +463,16 @@ namespace TK.CustomMap.Sample
             {
                 return new Command(() =>
                 {
-                    this.MapCenter = this.SelectedPin.Position;
+                    // Chose one
+
+                    // 1. First possibility
+                    //this.MapCenter = this.SelectedPin.Position;
+                    // 2. Possibility
+                    this.MapRegion = MapSpan.FromCenterAndRadius(this.SelectedPin.Position, this.MapRegion.Radius);
+                    // 3. Possibility
+                    //this.MapFunctions.MoveToMapRegion(
+                    //    MapSpan.FromCenterAndRadius(this.SelectedPin.Position, Distance.FromMeters(this.MapRegion.Radius.Meters)),
+                    //    true);
                 });
             }
         }

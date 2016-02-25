@@ -16,6 +16,7 @@ namespace TK.CustomMap.Overlays
         public const string StepsProperty = "Steps";
         public const string DistanceProperty = "Distance";
         public const string TravelTimeProperty = "TravelTime";
+        public const string IsCalculatedProperty = "IsCalculated";
 
         private Position _source;
         private Position _destination;
@@ -26,6 +27,7 @@ namespace TK.CustomMap.Overlays
         private TKRouteStep[] _steps;
         private double _distance;
         private double _travelTime;
+        private bool _isCalculated;
         /// <summary>
         /// Gets/Sets the source of the route
         /// </summary>
@@ -98,6 +100,11 @@ namespace TK.CustomMap.Overlays
             get { return this._travelTime; }
             private set { this.SetField(ref this._travelTime, value); }
         }
+        public bool IsCalculated
+        {
+            get { return this._isCalculated; }
+            private set { this.SetField(ref this._isCalculated, value); }
+        }
         /// <summary>
         /// Creates a new instance of <see cref="TKRoute"/>
         /// </summary>
@@ -126,6 +133,11 @@ namespace TK.CustomMap.Overlays
         void IRouteFunctions.SetDistance(double distance)
         {
             this.Distance = distance;
+        }
+        ///<inheritdoc/>
+        void IRouteFunctions.SetIsCalculated(bool calculated)
+        {
+            this.IsCalculated = calculated;
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using CoreLocation;
+﻿using System.Threading.Tasks;
+using CoreLocation;
 using MapKit;
-using System.Threading.Tasks;
 using TK.CustomMap.Overlays;
 using UIKit;
 using Xamarin.Forms;
