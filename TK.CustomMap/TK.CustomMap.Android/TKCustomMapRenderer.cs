@@ -678,13 +678,14 @@ namespace TK.CustomMap.Droid
                 i.Value.Remove();
             }
             this._routes.Clear();
-            if (this.FormsMap.Routes != null)
-            {
-                foreach (var i in this.FormsMap.Routes)
-                {
-                    this.AddRoute(i);
-                }
+
+			if (this.FormsMap == null || this.FormsMap.Routes == null) return;
+
+            foreach (var i in this.FormsMap.Routes)
+			{
+                this.AddRoute(i);
             }
+
             if (firstUpdate)
             {
                 var observAble = this.FormsMap.Routes as INotifyCollectionChanged;
@@ -1005,7 +1006,7 @@ namespace TK.CustomMap.Droid
             {
                 var routeCalculationError = new TKRouteCalculationError(route, errorMessage);
 
-                if (this.FormsMap.RouteCalculationFailedCommand.CanExecute(routeCalculationError))
+				if (this.FormsMap != null && this.FormsMap.RouteCalculationFailedCommand.CanExecute(routeCalculationError))
                 {
                     this.FormsMap.RouteCalculationFailedCommand.Execute(routeCalculationError);
                 }
