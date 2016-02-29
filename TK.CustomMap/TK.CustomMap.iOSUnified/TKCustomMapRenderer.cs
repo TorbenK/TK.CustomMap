@@ -576,10 +576,11 @@ namespace TK.CustomMap.iOSUnified
                 {
                     r.Value.Overlay.PropertyChanged -= OnRoutePropertyChanged;
                 }
-                this.Map.RemoveOverlays(this._routes.Select(i => i.Key).ToArray());
+				if (this.Map != null)
+                	this.Map.RemoveOverlays(this._routes.Select(i => i.Key).ToArray());
                 this._routes.Clear();
             }
-            if (this.FormsMap.Routes == null) return;
+			if (this.FormsMap == null || this.FormsMap.Routes == null) return;
 
             foreach (var route in this.FormsMap.Routes)
             {
@@ -893,11 +894,11 @@ namespace TK.CustomMap.iOSUnified
             MKDirections directions = new MKDirections(req);
             directions.CalculateDirections((r, e) => 
             {
+				if (this.FormsMap == null || this.Map == null) return;
+
                 if (e == null)
                 {
                     var nativeRoute = r.Routes.First();
-
-                    if (this.FormsMap == null || this.Map == null) return;
 
                     this.SetRouteData(route, nativeRoute);
 
