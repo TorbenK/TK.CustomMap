@@ -510,7 +510,7 @@ namespace TK.CustomMap.iOSUnified
         {
             this.Map.RemoveAnnotations(this.Map.Annotations);
 
-            if (this.FormsMap.CustomPins == null) return;
+			if (this.FormsMap == null || this.FormsMap.CustomPins == null) return;
 
             foreach (var i in FormsMap.CustomPins)
             {
