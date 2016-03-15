@@ -18,6 +18,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 using Xamarin.Forms.Maps.iOS;
 using Xamarin.Forms.Platform.iOS;
+using System.Collections;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 
@@ -46,6 +47,7 @@ namespace TK.CustomMap.iOSUnified
         private MKTileOverlayRenderer _tileOverlayRenderer;
         private UIGestureRecognizer _longPressGestureRecognizer;
         private UIGestureRecognizer _tapGestureRecognizer;
+        private UIGestureRecognizer _doubleTapGestureRecognizer;
 
         private MKMapView Map
         {
@@ -79,13 +81,12 @@ namespace TK.CustomMap.iOSUnified
         protected override void OnElementChanged(ElementChangedEventArgs<View> e)
         {
             base.OnElementChanged(e);
-            
-            if (e.OldElement != null || this.FormsMap == null || this.Map == null) return;
 
             if(e.OldElement != null && this.Map != null)
             {
                 e.OldElement.PropertyChanged -= OnMapPropertyChanged;
 
+                this.Map.MapLoaded -= MapLoaded;
                 this.Map.GetViewForAnnotation = null;
                 this.Map.OverlayRenderer = null;
                 this.Map.DidSelectAnnotationView -= OnDidSelectAnnotationView;
@@ -93,11 +94,14 @@ namespace TK.CustomMap.iOSUnified
                 this.Map.DidUpdateUserLocation -= OnDidUpdateUserLocation;
                 this.Map.ChangedDragState -= OnChangedDragState;
                 this.Map.CalloutAccessoryControlTapped -= OnMapCalloutAccessoryControlTapped;
+                this.UnregisterCollections((TKCustomMap)e.OldElement);
 
                 this.Map.RemoveGestureRecognizer(this._longPressGestureRecognizer);
                 this.Map.RemoveGestureRecognizer(this._tapGestureRecognizer);
+                this.Map.RemoveGestureRecognizer(this._doubleTapGestureRecognizer);
                 this._longPressGestureRecognizer.Dispose();
                 this._tapGestureRecognizer.Dispose();
+                this._doubleTapGestureRecognizer.Dispose();
             }
 
             if (e.NewElement != null)
@@ -114,21 +118,34 @@ namespace TK.CustomMap.iOSUnified
 
                 this.Map.AddGestureRecognizer((this._longPressGestureRecognizer = new UILongPressGestureRecognizer(this.OnMapLongPress)));
 
+                this._doubleTapGestureRecognizer = new UITapGestureRecognizer() { NumberOfTapsRequired = 2 };
+
                 this._tapGestureRecognizer = new UITapGestureRecognizer(this.OnMapClicked);
+                this._tapGestureRecognizer.RequireGestureRecognizerToFail(this._doubleTapGestureRecognizer);
                 this._tapGestureRecognizer.ShouldReceiveTouch = (recognizer, touch) => !(touch.View is MKAnnotationView);
 
                 this.Map.AddGestureRecognizer(this._tapGestureRecognizer);
+                this.Map.AddGestureRecognizer(this._doubleTapGestureRecognizer);
 
-                this.UpdateTileOptions();
-                this.SetMapCenter();
-                this.UpdatePins();
-                this.UpdateRoutes();
-                this.UpdateLines();
-                this.UpdateCircles();
-                this.UpdatePolygons();
-                this.UpdateShowTraffic();
-                this.FormsMap.PropertyChanged += OnMapPropertyChanged;
+                this.Map.MapLoaded += MapLoaded;
             }
+        }
+        /// <summary>
+        /// Initially set all data when map is loaded
+        /// </summary>
+        /// <param name="sender">Event sender</param>
+        /// <param name="e">Event arguments</param>
+        private void MapLoaded(object sender, EventArgs e)
+        {
+            this.UpdateTileOptions();
+            this.SetMapCenter();
+            this.UpdatePins();
+            this.UpdateRoutes();
+            this.UpdateLines();
+            this.UpdateCircles();
+            this.UpdatePolygons();
+            this.UpdateShowTraffic();
+            this.FormsMap.PropertyChanged += OnMapPropertyChanged;
         }
         /// <summary>
         /// Get the overlay renderer
@@ -1356,6 +1373,40 @@ namespace TK.CustomMap.iOSUnified
                     region.Center.Longitude + region.Span.LongitudeDelta / 2));
 
             return new MKMapRect(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Abs(a.X - b.X), Math.Abs(a.Y - b.Y));
+        }
+        /// <summary>
+        /// Unregisters all collections
+        /// </summary>
+        private void UnregisterCollections(TKCustomMap map)
+        {
+            this.UnregisterCollection(map.CustomPins, this.OnCollectionChanged, this.OnPinPropertyChanged);
+            this.UnregisterCollection(map.Routes, this.OnRouteCollectionChanged, this.OnRoutePropertyChanged);
+            this.UnregisterCollection(map.Polylines, this.OnLineCollectionChanged, this.OnLinePropertyChanged);
+            this.UnregisterCollection(map.Circles, this.OnCirclesCollectionChanged, this.OnCirclePropertyChanged);
+            this.UnregisterCollection(map.Polygons, this.OnPolygonsCollectionChanged, this.OnPolygonPropertyChanged);
+        }
+        /// <summary>
+        /// Unregisters one collection and all of its items
+        /// </summary>
+        /// <param name="collection">The collection to unregister</param>
+        /// <param name="observableHandler">The <see cref="NotifyCollectionChangedEventHandler"/> of the collection</param>
+        /// <param name="propertyHandler">The <see cref="PropertyChangedEventHandler"/> of the collection items</param>
+        private void UnregisterCollection(
+            IEnumerable collection, 
+            NotifyCollectionChangedEventHandler observableHandler, 
+            PropertyChangedEventHandler propertyHandler)
+        {
+            if (collection == null) return;
+
+            var observable = collection as INotifyCollectionChanged;
+            if(observable != null)
+            {
+                observable.CollectionChanged -= observableHandler;
+            }
+            foreach(INotifyPropertyChanged obj in collection)
+            {
+                obj.PropertyChanged -= propertyHandler;
+            }
         }
         ///<inheritdoc/>
         public async Task<byte[]> GetSnapshot()
