@@ -8,6 +8,7 @@ using CoreGraphics;
 using CoreLocation;
 using Foundation;
 using MapKit;
+using ObjCRuntime;
 using TK.CustomMap;
 using TK.CustomMap.iOSUnified;
 using TK.CustomMap.Interfaces;
@@ -1144,6 +1145,14 @@ namespace TK.CustomMap.iOSUnified
                 if (pinAnnotationView != null)
                 {
                     pinAnnotationView.AnimatesDrop = true;
+
+                    var pinTintColorAvailable = pinAnnotationView.RespondsToSelector(new Selector("pinTintColor"));
+
+                    if (!pinTintColorAvailable)
+                    {
+                        return;
+                    }
+
                     if (pin.DefaultPinColor != Color.Default)
                     {
                         pinAnnotationView.PinTintColor = pin.DefaultPinColor.ToUIColor();
@@ -1239,6 +1248,12 @@ namespace TK.CustomMap.iOSUnified
         private void UpdateShowTraffic()
         {
             if (this.FormsMap == null || this.Map == null) return;
+
+            var showsTrafficAvailable = this.Map.RespondsToSelector(new Selector("showsTraffic"));
+            if (!showsTrafficAvailable)
+            {
+                return;
+            }
 
             this.Map.ShowsTraffic = this.FormsMap.ShowTraffic;
         }
