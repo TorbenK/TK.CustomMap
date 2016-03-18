@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TK.CustomMap.Interfaces;
 using TK.CustomMap.Models;
@@ -13,6 +14,47 @@ namespace TK.CustomMap
     /// </summary>
     public class TKCustomMap : Map, IMapFunctions
     {
+        /// <summary>
+        /// Event raised when a pin gets selected
+        /// </summary>
+        public event EventHandler<TKGenericEventArgs<TKCustomMapPin>> PinSelected;
+        /// <summary>
+        /// Event raised when a drag of a pin ended
+        /// </summary>
+        public event EventHandler<TKGenericEventArgs<TKCustomMapPin>> PinDragEnd;
+        /// <summary>
+        /// Event raised when an area of the map gets clicked
+        /// </summary>
+        public event EventHandler<TKGenericEventArgs<Position>> MapClicked;
+        /// <summary>
+        /// Event raised when an area of the map gets long-pressed
+        /// </summary>
+        public event EventHandler<TKGenericEventArgs<Position>> MapLongPress;
+        /// <summary>
+        /// Event raised when the location of the user changes
+        /// </summary>
+        public event EventHandler<TKGenericEventArgs<Position>> UserLocationChanged;
+        /// <summary>
+        /// Event raised when a route gets tapped
+        /// </summary>
+        public event EventHandler<TKGenericEventArgs<TKRoute>> RouteClicked;
+        /// <summary>
+        /// Event raised when a route calculation finished successfully
+        /// </summary>
+        public event EventHandler<TKGenericEventArgs<TKRoute>> RouteCalculationFinished;
+        /// <summary>
+        /// Event raised when a route calculation failed
+        /// </summary>
+        public event EventHandler<TKGenericEventArgs<TKRouteCalculationError>> RouteCalculationFailed;
+        /// <summary>
+        /// Event raised when all pins are added to the map initially
+        /// </summary>
+        public event EventHandler PinsReady;
+        /// <summary>
+        /// Event raised when a callout got tapped
+        /// </summary>
+        public event EventHandler CalloutClicked;
+
         /// <summary>
         /// Property Key for the read-only bindable Property <see cref="MapFunctions"/>
         /// </summary>
@@ -384,6 +426,15 @@ namespace TK.CustomMap
             return await this.MapFunctions.GetSnapshot();
         }
         /// <summary>
+        /// Moves the visible region to the specified <see cref="MapSpan"/>
+        /// </summary>
+        /// <param name="region">Region to move the map to</param>
+        /// <param name="animate">If the region change should be animated or not</param>
+        public void MoveToMapRegion(MapSpan region, bool animate = false)
+        {
+            this.MapFunctions.MoveToMapRegion(region, animate);
+        }
+        /// <summary>
         /// Fits the map region to make all given positions visible
         /// </summary>
         /// <param name="positions">Positions to fit inside the MapRegion</param>
@@ -402,11 +453,191 @@ namespace TK.CustomMap
             this.MapFunctions.FitToMapRegions(regions, animate);
         }
         /// <summary>
+        /// Raises <see cref="PinSelected"/>
+        /// </summary>
+        /// <param name="pin">The selected pin</param>
+        protected void OnPinSelected(TKCustomMapPin pin)
+        {
+            var ev = this.PinSelected;
+            if (ev != null) 
+                ev(this, new TKGenericEventArgs<TKCustomMapPin>(pin));
+
+            this.RaiseCommand(this.PinSelectedCommand, pin);
+        }
+        /// <summary>
+        /// Raises <see cref="PinDragEnd"/>
+        /// </summary>
+        /// <param name="pin">The dragged pin</param>
+        protected void OnPinDragEnd(TKCustomMapPin pin)
+        {
+            var ev = this.PinDragEnd;
+            if (ev != null)
+                ev(this, new TKGenericEventArgs<TKCustomMapPin>(pin));
+
+            this.RaiseCommand(this.PinDragEndCommand, pin);
+        }
+        /// <summary>
+        /// Raises <see cref="MapClicked"/>
+        /// </summary>
+        /// <param name="position">The position on the map</param>
+        protected void OnMapClicked(Position position)
+        {
+            var ev = this.MapClicked;
+            if (ev != null)
+                ev(this, new TKGenericEventArgs<Position>(position));
+
+            this.RaiseCommand(this.MapClickedCommand, position);
+        }
+        /// <summary>
+        /// Raises <see cref="MapLongPress"/>
+        /// </summary>
+        /// <param name="position">The position on the map</param>
+        protected void OnMapLongPress(Position position)
+        {
+            var ev = this.MapLongPress;
+            if (ev != null)
+                ev(this, new TKGenericEventArgs<Position>(position));
+
+            this.RaiseCommand(this.MapLongPressCommand, position);
+        }
+        /// <summary>
+        /// Raises <see cref="RouteClicked"/>
+        /// </summary>
+        /// <param name="route">The tapped route</param>
+        protected void OnRouteClicked(TKRoute route)
+        {
+            var ev = this.RouteClicked;
+            if (ev != null)
+                ev(this, new TKGenericEventArgs<TKRoute>(route));
+
+            this.RaiseCommand(this.RouteClickedCommand, route);
+        }
+        /// <summary>
+        /// Raises <see cref="RouteCalculationFinished"/>
+        /// </summary>
+        /// <param name="route">The route</param>
+        protected void OnRouteCalculationFinished(TKRoute route)
+        {
+            var ev = this.RouteCalculationFinished;
+            if (ev != null)
+                ev(this, new TKGenericEventArgs<TKRoute>(route));
+
+            this.RaiseCommand(this.RouteCalculationFinishedCommand, route);
+        }
+        /// <summary>
+        /// Raises <see cref="RouteCalculationFailed"/>
+        /// </summary>
+        /// <param name="error">The error</param>
+        protected void OnRouteCalculationFailed(TKRouteCalculationError error)
+        {
+            var ev = this.RouteCalculationFailed;
+            if (ev != null)
+                ev(this, new TKGenericEventArgs<TKRouteCalculationError>(error));
+
+            this.RaiseCommand(this.RouteCalculationFailedCommand, error);
+        }
+        /// <summary>
+        /// Raises <see cref="UserLocationChanged"/>
+        /// </summary>
+        /// <param name="position">The position of the user</param>
+        protected void OnUserLocationChanged(Position position)
+        {
+            var ev = this.UserLocationChanged;
+            if (ev != null)
+                ev(this, new TKGenericEventArgs<Position>(position));
+
+            this.RaiseCommand(this.UserLocationChangedCommand, position);
+        }
+        /// <summary>
+        /// Raises <see cref="PinsReady"/>
+        /// </summary>
+        protected void OnPinsReady()
+        {
+            var ev = this.PinsReady;
+            if (ev != null)
+                ev(this, new EventArgs());
+
+            this.RaiseCommand(this.PinsReadyCommand, null);
+        }
+        /// <summary>
+        /// Raises <see cref="CalloutClicked"/>
+        /// </summary>
+        protected void OnCalloutClicked()
+        {
+            var ev = this.CalloutClicked;
+            if (ev != null)
+                ev(this, new EventArgs());
+
+            this.RaiseCommand(this.CalloutClickedCommand, null);
+        }
+        /// <summary>
+        /// Raises a specific command
+        /// </summary>
+        /// <param name="command">The command to raise</param>
+        /// <param name="parameter">Addition command parameter</param>
+        private void RaiseCommand(Command command, object parameter)
+        {
+            if(command != null && command.CanExecute(parameter))
+            {
+                command.Execute(parameter);
+            }
+        }
+        /// <summary>
         /// <inheritdoc/>
         /// </summary>
         void IMapFunctions.SetRenderer(IRendererFunctions renderer)
         {
             this.MapFunctions = renderer;
+        }
+        /// <inheritdoc/>
+        void IMapFunctions.RaisePinSelected(TKCustomMapPin pin)
+        {
+            this.OnPinSelected(pin);
+        }
+        /// <inheritdoc/>
+        void IMapFunctions.RaisePinDragEnd(TKCustomMapPin pin)
+        {
+            this.OnPinDragEnd(pin);
+        }
+        /// <inheritdoc/>
+        void IMapFunctions.RaiseMapClicked(Position position)
+        {
+            this.OnMapClicked(position);
+        }
+        /// <inheritdoc/>
+        void IMapFunctions.RaiseMapLongPress(Position position)
+        {
+            this.OnMapLongPress(position);
+        }
+        /// <inheritdoc/>
+        void IMapFunctions.RaiseUserLocationChanged(Position position)
+        {
+            this.OnUserLocationChanged(position);
+        }
+        /// <inheritdoc/>
+        void IMapFunctions.RaiseRouteClicked(TKRoute route)
+        {
+            this.OnRouteClicked(route);
+        }
+        /// <inheritdoc/>
+        void IMapFunctions.RaiseRouteCalculationFinished(TKRoute route)
+        {
+            this.OnRouteCalculationFinished(route);
+        }
+        /// <inheritdoc/>
+        void IMapFunctions.RaiseRouteCalculationFailed(TKRouteCalculationError route)
+        {
+            this.OnRouteCalculationFailed(route);
+        }
+        /// <inheritdoc/>
+        void IMapFunctions.RaisePinsReady()
+        {
+            this.OnPinsReady();
+        }
+        /// <inheritdoc/>
+        void IMapFunctions.RaiseCalloutClicked()
+        {
+            this.OnCalloutClicked();
         }
     }
 }

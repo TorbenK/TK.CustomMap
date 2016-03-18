@@ -20,6 +20,7 @@ using Xamarin.Forms.Maps;
 using Xamarin.Forms.Maps.Android;
 using Xamarin.Forms.Platform.Android;
 using Color = Xamarin.Forms.Color;
+using System.Collections;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 namespace TK.CustomMap.Droid
@@ -48,6 +49,10 @@ namespace TK.CustomMap.Droid
         {
             get { return this.Element as TKCustomMap; }
         }
+        private IMapFunctions MapFunctions
+        {
+            get { return this.Element as IMapFunctions; }
+        }
 
         /// <inheritdoc />
         protected override void OnElementChanged(ElementChangedEventArgs<View> e)
@@ -70,11 +75,12 @@ namespace TK.CustomMap.Droid
                 this._googleMap.MarkerDragStart -= OnMarkerDragStart;
                 this._googleMap.InfoWindowClick -= OnInfoWindowClick;
                 this._googleMap.MyLocationChange -= OnUserLocationChange;
+                this.UnregisterCollections((TKCustomMap)e.OldElement);
             }
             
             if (e.NewElement != null)
             {
-                ((IMapFunctions)this.FormsMap).SetRenderer(this);
+                this.MapFunctions.SetRenderer(this);
 
                 mapView.GetMapAsync(this);
                 this.FormsMap.PropertyChanged += FormsMapPropertyChanged;
@@ -178,11 +184,7 @@ namespace TK.CustomMap.Droid
             if (e.Location == null || this.FormsMap == null || this.FormsMap.UserLocationChangedCommand == null) return;
    
             var newPosition = new Position(e.Location.Latitude, e.Location.Longitude);
-
-            if(this.FormsMap.UserLocationChangedCommand.CanExecute(newPosition))
-            {
-                this.FormsMap.UserLocationChangedCommand.Execute(newPosition);
-            }
+            this.MapFunctions.RaiseUserLocationChanged(newPosition);
         }
         /// <summary>
         /// When the info window gets clicked
@@ -191,10 +193,7 @@ namespace TK.CustomMap.Droid
         /// <param name="e">Event Arguments</param>
         private void OnInfoWindowClick(object sender, GoogleMap.InfoWindowClickEventArgs e)
         {
-            if (this.FormsMap.CalloutClickedCommand != null && this.FormsMap.CalloutClickedCommand.CanExecute(null))
-            {
-                this.FormsMap.CalloutClickedCommand.Execute(null);
-            }
+            this.MapFunctions.RaiseCalloutClicked();
         }
         /// <summary>
         /// Dragging process
@@ -261,10 +260,7 @@ namespace TK.CustomMap.Droid
             var pin = this._markers.SingleOrDefault(i => i.Value.Id.Equals(e.Marker.Id));
             if (pin.Key == null) return;
 
-            if (this.FormsMap.PinDragEndCommand != null && this.FormsMap.PinDragEndCommand.CanExecute(pin.Key))
-            {
-                this.FormsMap.PinDragEndCommand.Execute(pin.Key);
-            }
+            this.MapFunctions.RaisePinDragEnd(pin.Key);
         }
         /// <summary>
         /// When a long click was performed on the map
@@ -276,11 +272,7 @@ namespace TK.CustomMap.Droid
             if (this.FormsMap == null || this.FormsMap.MapLongPressCommand == null) return;
 
             var position = e.Point.ToPosition();
-
-            if (this.FormsMap.MapLongPressCommand.CanExecute(position))
-            {
-                this.FormsMap.MapLongPressCommand.Execute(position);
-            }
+            this.MapFunctions.RaiseMapLongPress(position);
         }
         /// <summary>
         /// When the map got tapped
@@ -306,19 +298,12 @@ namespace TK.CustomMap.Droid
                         (int)this._googleMap.CameraPosition.Zoom, 
                         this.FormsMap.MapCenter.Latitude))
                     {
-                        if (this.FormsMap.RouteClickedCommand.CanExecute(route))
-                        {
-                            this.FormsMap.RouteClickedCommand.Execute(route);
-                            return;
-                        }
+                        this.MapFunctions.RaiseRouteClicked(route);
+                        return;
                     }
                 }
             }
-            
-            if (this.FormsMap.MapClickedCommand.CanExecute(position))
-            {
-                this.FormsMap.MapClickedCommand.Execute(position);
-            }
+            this.MapFunctions.RaiseMapClicked(position);
         }
         /// <summary>
         /// Updates the markers when a pin gets added or removed in the collection
@@ -384,6 +369,12 @@ namespace TK.CustomMap.Droid
                     break;
                 case TKCustomMapPin.IsVisiblePropertyName:
                     marker.Visible = pin.IsVisible;
+                    break;
+                case TKCustomMapPin.AnchorPropertyName:
+                    if (pin.Image != null)
+                    {
+                        marker.SetAnchor((float)pin.Anchor.X, (float)pin.Anchor.Y);
+                    }
                     break;
             }
         }
@@ -473,10 +464,7 @@ namespace TK.CustomMap.Droid
                         observAble.CollectionChanged += OnCustomPinsCollectionChanged;
                     }
                 }
-                if (this.FormsMap.PinsReadyCommand != null && this.FormsMap.PinsReadyCommand.CanExecute(this.FormsMap))
-                {
-                    this.FormsMap.PinsReadyCommand.Execute(this.FormsMap);
-                }
+                this.MapFunctions.RaisePinsReady();
             }
         }
         /// <summary>
@@ -498,6 +486,10 @@ namespace TK.CustomMap.Droid
             await this.UpdateImage(pin, markerWithIcon);
             markerWithIcon.Draggable(pin.IsDraggable);
             markerWithIcon.Visible(pin.IsVisible);
+            if (pin.Image != null)
+            {
+                markerWithIcon.Anchor((float)pin.Anchor.X, (float)pin.Anchor.Y);
+            }
 
             this._markers.Add(pin, this._googleMap.AddMarker(markerWithIcon));
         }
@@ -546,10 +538,7 @@ namespace TK.CustomMap.Droid
                 {
                     selectedPin.ShowInfoWindow();
                 }
-                if (this.FormsMap.PinSelectedCommand != null && this.FormsMap.PinSelectedCommand.CanExecute(null))
-                {
-                    this.FormsMap.PinSelectedCommand.Execute(null);
-                }
+                this.MapFunctions.RaisePinSelected(null);
             }
         }
         /// <summary>
@@ -864,7 +853,6 @@ namespace TK.CustomMap.Droid
             }
             else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                
                 this.UpdateCircles(false);
             }
         }
@@ -983,10 +971,7 @@ namespace TK.CustomMap.Droid
 
                         this._routes.Add(route, this._googleMap.AddPolyline(routeOptions));
 
-                        if (this.FormsMap.RouteCalculationFinishedCommand != null && this.FormsMap.RouteCalculationFinishedCommand.CanExecute(route))
-                        {
-                            this.FormsMap.RouteCalculationFinishedCommand.Execute(route);
-                        }
+                        this.MapFunctions.RaiseRouteCalculationFinished(route);
                     }
                     else
                     {
@@ -1006,10 +991,7 @@ namespace TK.CustomMap.Droid
             {
                 var routeCalculationError = new TKRouteCalculationError(route, errorMessage);
 
-				if (this.FormsMap != null && this.FormsMap.RouteCalculationFailedCommand.CanExecute(routeCalculationError))
-                {
-                    this.FormsMap.RouteCalculationFailedCommand.Execute(routeCalculationError);
-                }
+                this.MapFunctions.RaiseRouteCalculationFailed(routeCalculationError);
             }
         }
         /// <summary>
@@ -1178,6 +1160,40 @@ namespace TK.CustomMap.Droid
                     .Include(GmsSphericalUtil.ComputeOffset(region.Center, region.Radius.Meters, 270).ToLatLng());
             }
             return builder.Build();
+        }
+        /// <summary>
+        /// Unregisters all collections
+        /// </summary>
+        private void UnregisterCollections(TKCustomMap map)
+        {
+            this.UnregisterCollection(map.CustomPins, this.OnCustomPinsCollectionChanged, this.OnPinPropertyChanged);
+            this.UnregisterCollection(map.Routes, this.OnRouteCollectionChanged, this.OnRoutePropertyChanged);
+            this.UnregisterCollection(map.Polylines, this.OnLineCollectionChanged, this.OnLinePropertyChanged);
+            this.UnregisterCollection(map.Circles, this.CirclesCollectionChanged, this.CirclePropertyChanged);
+            this.UnregisterCollection(map.Polygons, this.OnPolygonsCollectionChanged, this.OnPolygonPropertyChanged);
+        }
+        /// <summary>
+        /// Unregisters one collection and all of its items
+        /// </summary>
+        /// <param name="collection">The collection to unregister</param>
+        /// <param name="observableHandler">The <see cref="NotifyCollectionChangedEventHandler"/> of the collection</param>
+        /// <param name="propertyHandler">The <see cref="PropertyChangedEventHandler"/> of the collection items</param>
+        private void UnregisterCollection(
+            IEnumerable collection,
+            NotifyCollectionChangedEventHandler observableHandler,
+            PropertyChangedEventHandler propertyHandler)
+        {
+            if (collection == null) return;
+
+            var observable = collection as INotifyCollectionChanged;
+            if (observable != null)
+            {
+                observable.CollectionChanged -= observableHandler;
+            }
+            foreach (INotifyPropertyChanged obj in collection)
+            {
+                obj.PropertyChanged -= propertyHandler;
+            }
         }
         /// <inheritdoc/>
         public async Task<byte[]> GetSnapshot()
