@@ -1005,7 +1005,7 @@ namespace TK.CustomMap.Droid
             {
                 var routeCalculationError = new TKRouteCalculationError(route, errorMessage);
 
-                if (this.FormsMap.RouteCalculationFailedCommand.CanExecute(routeCalculationError))
+                if (this.FormsMap.RouteCalculationFailedCommand != null && this.FormsMap.RouteCalculationFailedCommand.CanExecute(routeCalculationError))
                 {
                     this.FormsMap.RouteCalculationFailedCommand.Execute(routeCalculationError);
                 }
