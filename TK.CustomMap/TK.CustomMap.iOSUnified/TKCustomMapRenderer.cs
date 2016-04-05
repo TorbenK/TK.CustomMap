@@ -1281,7 +1281,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         private void UpdateMapRegion()
         {
-            if (this.FormsMap == null) return;
+            if (this.FormsMap == null || this.FormsMap.MapRegion==null) return;
 
             if(this.FormsMap.MapRegion != this.FormsMap.VisibleRegion)
             {
