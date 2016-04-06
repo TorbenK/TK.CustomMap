@@ -1223,7 +1223,7 @@ namespace TK.CustomMap.iOSUnified
                 if (customAnnotion.CustomPin.Equals(this.FormsMap.SelectedPin)) return;
 
                 var annotationView = this.Map.ViewForAnnotation(customAnnotion);
-                annotationView.Selected = false;
+                if(annotationView != null) annotationView.Selected = false;
 
                 this._selectedAnnotation = null;
             }
