@@ -335,9 +335,13 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="e">Event Arguments</param>
         private void OnMapCalloutAccessoryControlTapped(object sender, MKMapViewAccessoryTappedEventArgs e)
         {
+            TKCustomMapPin mp = null;
+            TKCustomMapAnnotation elt = ((e == null || e.View == null || e.View.Annotation == null) ? null : e.View.Annotation) as TKCustomMapAnnotation;
+            if (elt != null) mp = elt.CustomPin;
+            
             if (this.FormsMap.CalloutClickedCommand.CanExecute(null))
             {
-                this.FormsMap.CalloutClickedCommand.Execute(null);
+                this.FormsMap.CalloutClickedCommand.Execute(mp);
             }
         } 
         /// <summary>
