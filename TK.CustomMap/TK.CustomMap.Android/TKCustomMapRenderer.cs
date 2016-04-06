@@ -193,7 +193,10 @@ namespace TK.CustomMap.Droid
         {
             if (this.FormsMap.CalloutClickedCommand != null && this.FormsMap.CalloutClickedCommand.CanExecute(null))
             {
-                this.FormsMap.CalloutClickedCommand.Execute(null);
+                TKCustomMapPin mp = null;
+                if(e.Marker!=null)
+                    mp = (from kv in this._markers where e.Marker.Equals(kv.Value) select kv.Key).FirstOrDefault();
+                this.FormsMap.CalloutClickedCommand.Execute(mp);
             }
         }
         /// <summary>
