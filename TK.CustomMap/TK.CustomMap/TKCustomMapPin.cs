@@ -16,6 +16,7 @@ namespace TK.CustomMap
         private ImageSource _image;
         private bool _isDraggable;
         private Color _defaultPinColor;
+        private object _tag;
 
         public const string TitlePropertyName = "Title";
         public const string SubititlePropertyName = "Subtitle";
@@ -25,6 +26,7 @@ namespace TK.CustomMap
         public const string IsDraggablePropertyName = "IsDraggable";
         public const string ShowCalloutPropertyName = "ShowCallout";
         public const string DefaultPinColorPropertyName = "DefaultPinColor";
+        public const string TagPropertyName = "Tag";
 
         /// <summary>
         /// Gets/Sets visibility of a pin
@@ -89,6 +91,14 @@ namespace TK.CustomMap
         {
             get { return this._defaultPinColor; }
             set { this.SetField(ref this._defaultPinColor, value); }
+        }
+        /// <summary>
+        /// Gets/Sets a tag for the pin.
+        /// </summary>
+        public object Tag
+        {
+            get { return this._tag; }
+            set { this.SetField(ref this._tag, value); }
         }
         /// <summary>
         /// Creates a new instance of <see cref="TKCustomMapPin" />
