@@ -60,6 +60,6 @@ namespace TK.CustomMap.Interfaces
         /// <summary>
         /// Raises the callout clicked event and command
         /// </summary>
-        void RaiseCalloutClicked();
+        void RaiseCalloutClicked(TKCustomMapPin pin);
     }
 }

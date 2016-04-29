@@ -53,14 +53,17 @@ namespace TK.CustomMap
         /// <summary>
         /// Event raised when a callout got tapped
         /// </summary>
-        public event EventHandler CalloutClicked;
+        public event EventHandler<TKGenericEventArgs<TKCustomMapPin>> CalloutClicked;
 
         /// <summary>
         /// Property Key for the read-only bindable Property <see cref="MapFunctions"/>
         /// </summary>
-        private static readonly BindablePropertyKey MapFunctionsPropertyKey = BindableProperty.CreateReadOnly<TKCustomMap, IRendererFunctions>(
-            p => p.MapFunctions,
-            null);
+        private static readonly BindablePropertyKey MapFunctionsPropertyKey = BindableProperty.CreateReadOnly(
+            nameof(MapFunctions),
+            typeof(IRendererFunctions),
+            typeof(TKCustomMap),
+            null,
+            defaultBindingMode: BindingMode.OneWayToSource);
         /// <summary>
         /// Bindable Property of <see cref="MapFunctions"/>
         /// </summary>
@@ -68,153 +71,158 @@ namespace TK.CustomMap
         /// <summary>
         /// Bindable Property of <see cref="CustomPins" />
         /// </summary>
-        public static readonly BindableProperty CustomPinsProperty = 
-            BindableProperty.Create<TKCustomMap, IEnumerable<TKCustomMapPin>>(
-                p => p.CustomPins,
-                null);
+        public static readonly BindableProperty CustomPinsProperty = BindableProperty.Create(
+            nameof(CustomPins),
+            typeof(IEnumerable<TKCustomMapPin>),
+            typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="SelectedPin" />
         /// </summary>
-        public static readonly BindableProperty SelectedPinProperty = 
-            BindableProperty.Create<TKCustomMap, TKCustomMapPin>(
-                p => p.SelectedPin,
-                null,
-                BindingMode.TwoWay);
+        public static readonly BindableProperty SelectedPinProperty = BindableProperty.Create(
+            nameof(SelectedPin),
+            typeof(TKCustomMapPin),
+            typeof(TKCustomMap),
+            defaultBindingMode: BindingMode.TwoWay);
         /// <summary>
         /// Bindable Property of <see cref="PinSelectedCommand" />
         /// </summary>
-        public static readonly BindableProperty PinSelectedCommandProperty =
-            BindableProperty.Create<TKCustomMap, Command>(
-                p => p.PinSelectedCommand,
-                null);
+        public static readonly BindableProperty PinSelectedCommandProperty = BindableProperty.Create(
+            nameof(PinSelectedCommand),
+            typeof(Command<TKCustomMapPin>),
+            typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="MapClickedCommand"/>
         /// </summary>
-        public static readonly BindableProperty MapClickedCommandProperty =
-            BindableProperty.Create<TKCustomMap, Command<Position>>(
-                p => p.MapClickedCommand,
-                null);
+        public static readonly BindableProperty MapClickedCommandProperty = BindableProperty.Create(
+            nameof(MapClickedCommand),
+            typeof(Command<Position>),
+            typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="MapLongPressCommand"/>
         /// </summary>
-        public static readonly BindableProperty MapLongPressCommandProperty =
-            BindableProperty.Create<TKCustomMap, Command<Position>>(
-                p => p.MapLongPressCommand,
-                null);
+        public static readonly BindableProperty MapLongPressCommandProperty = BindableProperty.Create(
+            nameof(MapLongPressCommand),
+            typeof(Command<Position>),
+            typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="PinDragEndCommand"/>
         /// </summary>
-        public static readonly BindableProperty PinDragEndCommandProperty =
-            BindableProperty.Create<TKCustomMap, Command<TKCustomMapPin>>(
-                p => p.PinDragEndCommand,
-                null);
+        public static readonly BindableProperty PinDragEndCommandProperty = BindableProperty.Create(
+            nameof(PinDragEndCommand),
+            typeof(Command<TKCustomMapPin>),
+            typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="PinsReadyCommand"/>
         /// </summary>
-        public static readonly BindableProperty PinsReadyCommandProperty =
-            BindableProperty.Create<TKCustomMap, Command>(
-                p => p.PinsReadyCommand,
-                null);
+        public static readonly BindableProperty PinsReadyCommandProperty = BindableProperty.Create(
+            nameof(PinsReadyCommand),
+            typeof(Command),
+            typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="MapCenter"/>
         /// </summary>
-        public static readonly BindableProperty MapCenterProperty =
-            BindableProperty.Create<TKCustomMap, Position>(
-                p => p.MapCenter,
-                default(Position),
-                BindingMode.TwoWay);
+        public static readonly BindableProperty MapCenterProperty = BindableProperty.Create(
+            nameof(MapCenter),
+            typeof(Position),
+            typeof(TKCustomMap),
+            default(Position),
+            defaultBindingMode: BindingMode.TwoWay);
         /// <summary>
         /// Bindable Property of <see cref="IsRegionChangeAnimated"/>
         /// </summary>
-        public static readonly BindableProperty IsRegionChangeAnimatedProperty =
-            BindableProperty.Create<TKCustomMap, bool>(
-                p => p.IsRegionChangeAnimated,
-                false);
+        public static readonly BindableProperty IsRegionChangeAnimatedProperty = BindableProperty.Create(
+            nameof(IsRegionChangeAnimated),
+            typeof(bool),
+            typeof(TKCustomMap),
+            default(bool));
         /// <summary>
         /// Bindable Property of <see cref="ShowTraffic"/>
         /// </summary>
-        public static readonly BindableProperty ShowTrafficProperty =
-            BindableProperty.Create<TKCustomMap, bool>(
-                p => p.ShowTraffic,
-                false);
+        public static readonly BindableProperty ShowTrafficProperty = BindableProperty.Create(
+            nameof(ShowTraffic),
+            typeof(bool),
+            typeof(TKCustomMap),
+            default(bool));
         /// <summary>
         /// Bindable Property of <see cref="Routes"/>
         /// </summary>
-        public static readonly BindableProperty PolylinesProperty =
-            BindableProperty.Create<TKCustomMap, IEnumerable<TKPolyline>>(
-                p => p.Polylines,
-                null);
+        public static readonly BindableProperty PolylinesProperty = BindableProperty.Create(
+            nameof(Polylines),
+            typeof(IEnumerable<TKPolyline>),
+            typeof(TKCustomMap),
+            null);
         /// <summary>
         /// Bindable Property of <see cref="Circles"/>
         /// </summary>
-        public static readonly BindableProperty CirclesProperty =
-            BindableProperty.Create<TKCustomMap, IEnumerable<TKCircle>>(
-                p => p.Circles,
-                null);
+        public static readonly BindableProperty CirclesProperty = BindableProperty.Create(
+            nameof(Circles),
+            typeof(IEnumerable<TKCircle>),
+            typeof(TKCustomMap),
+            null);
         /// <summary>
         /// Bindable Property of <see cref="CalloutClickedCommand"/>
         /// </summary>
-        public static readonly BindableProperty CalloutClickedCommandProperty =
-            BindableProperty.Create<TKCustomMap, Command>(
-                p => p.CalloutClickedCommand,
-                null);
+        public static readonly BindableProperty CalloutClickedCommandProperty = BindableProperty.Create(
+            nameof(CalloutClickedCommand),
+            typeof(Command<TKCustomMapPin>),
+            typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="Polygons"/>
         /// </summary>
-        public static readonly BindableProperty PolygonsProperty =
-            BindableProperty.Create<TKCustomMap, IEnumerable<TKPolygon>>(
-                p => p.Polygons,
-                null);
+        public static readonly BindableProperty PolygonsProperty = BindableProperty.Create(
+            nameof(Polygons),
+            typeof(IEnumerable<TKPolygon>),
+            typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="MapRegion"/>
         /// </summary>
-        public static readonly BindableProperty MapRegionProperty =
-            BindableProperty.Create<TKCustomMap, MapSpan>(
-                p => p.MapRegion,
-                default(MapSpan),
-                BindingMode.TwoWay);
+        public static readonly BindableProperty MapRegionProperty = BindableProperty.Create(
+            nameof(MapRegion),
+            typeof(MapSpan),
+            typeof(TKCustomMap),
+            defaultBindingMode: BindingMode.TwoWay);
         /// <summary>
         /// Bindable Property of <see cref="Routes"/>
         /// </summary>
-        public static readonly BindableProperty RoutesProperty =
-            BindableProperty.Create<TKCustomMap, IEnumerable<TKRoute>>(
-                p => p.Routes,
-                null);
+        public static readonly BindableProperty RoutesProperty = BindableProperty.Create(
+            nameof(Routes),
+            typeof(IEnumerable<TKRoute>),
+            typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="RouteClickedCommand"/>
         /// </summary>
-        public static readonly BindableProperty RouteClickedCommandProperty =
-            BindableProperty.Create<TKCustomMap, Command<TKRoute>>(
-                p => p.RouteClickedCommand,
-                null);
+        public static readonly BindableProperty RouteClickedCommandProperty = BindableProperty.Create(
+            nameof(RouteClickedCommand),
+            typeof(Command<TKRoute>),
+            typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="RouteCalculationFinishedCommand"/>
         /// </summary>
-        public static readonly BindableProperty RouteCalculationFinishedCommandProperty =
-            BindableProperty.Create<TKCustomMap, Command<TKRoute>>(
-                p => p.RouteCalculationFinishedCommand,
-                null);
+        public static readonly BindableProperty RouteCalculationFinishedCommandProperty = BindableProperty.Create(
+            nameof(RouteCalculationFinishedCommand),
+            typeof(Command<TKRoute>),
+            typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="RouteCalculationFailedCommand"/>
         /// </summary>
-        public static readonly BindableProperty RouteCalculationFailedCommandProperty =
-            BindableProperty.Create<TKCustomMap, Command<TKRouteCalculationError>>(
-                p => p.RouteCalculationFailedCommand,
-                null);
+        public static readonly BindableProperty RouteCalculationFailedCommandProperty = BindableProperty.Create(
+            nameof(RouteCalculationFailedCommand),
+            typeof(Command<TKRouteCalculationError>),
+            typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="TilesUrlOptions"/>
         /// </summary>
-        public static readonly BindableProperty TilesUrlOptionsProperty =
-            BindableProperty.Create<TKCustomMap, TKTileUrlOptions>(
-                p => p.TilesUrlOptions,
-                null);
+        public static readonly BindableProperty TilesUrlOptionsProperty = BindableProperty.Create(
+            nameof(TilesUrlOptions),
+            typeof(TKTileUrlOptions),
+            typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="UserLocationChangedCommand"/>
         /// </summary>
-        public static readonly BindableProperty UserLocationChangedCommandProperty =
-            BindableProperty.Create<TKCustomMap, Command<Position>>(
-                p => p.UserLocationChangedCommand,
-                null);
+        public static readonly BindableProperty UserLocationChangedCommandProperty = BindableProperty.Create(
+            nameof(UserLocationChangedCommand),
+            typeof(Command<Position>),
+            typeof(TKCustomMap));
         /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
@@ -258,9 +266,9 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets the command when a pin got selected
         /// </summary>
-        public Command PinSelectedCommand
+        public Command<TKCustomMapPin> PinSelectedCommand
         {
-            get { return (Command)this.GetValue(PinSelectedCommandProperty); }
+            get { return (Command<TKCustomMapPin>)this.GetValue(PinSelectedCommandProperty); }
             set { this.SetValue(PinSelectedCommandProperty, value); }
         }
         /// <summary>
@@ -458,9 +466,7 @@ namespace TK.CustomMap
         /// <param name="pin">The selected pin</param>
         protected void OnPinSelected(TKCustomMapPin pin)
         {
-            var ev = this.PinSelected;
-            if (ev != null) 
-                ev(this, new TKGenericEventArgs<TKCustomMapPin>(pin));
+            this.PinSelected?.Invoke(this, new TKGenericEventArgs<TKCustomMapPin>(pin));
 
             this.RaiseCommand(this.PinSelectedCommand, pin);
         }
@@ -470,9 +476,7 @@ namespace TK.CustomMap
         /// <param name="pin">The dragged pin</param>
         protected void OnPinDragEnd(TKCustomMapPin pin)
         {
-            var ev = this.PinDragEnd;
-            if (ev != null)
-                ev(this, new TKGenericEventArgs<TKCustomMapPin>(pin));
+            this.PinDragEnd?.Invoke(this, new TKGenericEventArgs<TKCustomMapPin>(pin));
 
             this.RaiseCommand(this.PinDragEndCommand, pin);
         }
@@ -482,9 +486,7 @@ namespace TK.CustomMap
         /// <param name="position">The position on the map</param>
         protected void OnMapClicked(Position position)
         {
-            var ev = this.MapClicked;
-            if (ev != null)
-                ev(this, new TKGenericEventArgs<Position>(position));
+            this.MapClicked?.Invoke(this, new TKGenericEventArgs<Position>(position));
 
             this.RaiseCommand(this.MapClickedCommand, position);
         }
@@ -494,9 +496,7 @@ namespace TK.CustomMap
         /// <param name="position">The position on the map</param>
         protected void OnMapLongPress(Position position)
         {
-            var ev = this.MapLongPress;
-            if (ev != null)
-                ev(this, new TKGenericEventArgs<Position>(position));
+            this.MapLongPress?.Invoke(this, new TKGenericEventArgs<Position>(position));
 
             this.RaiseCommand(this.MapLongPressCommand, position);
         }
@@ -506,9 +506,7 @@ namespace TK.CustomMap
         /// <param name="route">The tapped route</param>
         protected void OnRouteClicked(TKRoute route)
         {
-            var ev = this.RouteClicked;
-            if (ev != null)
-                ev(this, new TKGenericEventArgs<TKRoute>(route));
+            this.RouteClicked?.Invoke(this, new TKGenericEventArgs<TKRoute>(route));
 
             this.RaiseCommand(this.RouteClickedCommand, route);
         }
@@ -518,9 +516,7 @@ namespace TK.CustomMap
         /// <param name="route">The route</param>
         protected void OnRouteCalculationFinished(TKRoute route)
         {
-            var ev = this.RouteCalculationFinished;
-            if (ev != null)
-                ev(this, new TKGenericEventArgs<TKRoute>(route));
+            this.RouteCalculationFinished?.Invoke(this, new TKGenericEventArgs<TKRoute>(route));
 
             this.RaiseCommand(this.RouteCalculationFinishedCommand, route);
         }
@@ -530,9 +526,7 @@ namespace TK.CustomMap
         /// <param name="error">The error</param>
         protected void OnRouteCalculationFailed(TKRouteCalculationError error)
         {
-            var ev = this.RouteCalculationFailed;
-            if (ev != null)
-                ev(this, new TKGenericEventArgs<TKRouteCalculationError>(error));
+            this.RouteCalculationFailed?.Invoke(this, new TKGenericEventArgs<TKRouteCalculationError>(error));
 
             this.RaiseCommand(this.RouteCalculationFailedCommand, error);
         }
@@ -542,9 +536,7 @@ namespace TK.CustomMap
         /// <param name="position">The position of the user</param>
         protected void OnUserLocationChanged(Position position)
         {
-            var ev = this.UserLocationChanged;
-            if (ev != null)
-                ev(this, new TKGenericEventArgs<Position>(position));
+            this.UserLocationChanged?.Invoke(this, new TKGenericEventArgs<Position>(position));
 
             this.RaiseCommand(this.UserLocationChangedCommand, position);
         }
@@ -553,22 +545,18 @@ namespace TK.CustomMap
         /// </summary>
         protected void OnPinsReady()
         {
-            var ev = this.PinsReady;
-            if (ev != null)
-                ev(this, new EventArgs());
+            this.PinsReady?.Invoke(this, new EventArgs());
 
             this.RaiseCommand(this.PinsReadyCommand, null);
         }
         /// <summary>
         /// Raises <see cref="CalloutClicked"/>
         /// </summary>
-        protected void OnCalloutClicked()
+        protected void OnCalloutClicked(TKCustomMapPin pin)
         {
-            var ev = this.CalloutClicked;
-            if (ev != null)
-                ev(this, new EventArgs());
+            this.CalloutClicked?.Invoke(this, new TKGenericEventArgs<TKCustomMapPin>(pin));
 
-            this.RaiseCommand(this.CalloutClickedCommand, null);
+            this.RaiseCommand(this.CalloutClickedCommand, pin);
         }
         /// <summary>
         /// Raises a specific command
@@ -635,9 +623,9 @@ namespace TK.CustomMap
             this.OnPinsReady();
         }
         /// <inheritdoc/>
-        void IMapFunctions.RaiseCalloutClicked()
+        void IMapFunctions.RaiseCalloutClicked(TKCustomMapPin pin)
         {
-            this.OnCalloutClicked();
+            this.OnCalloutClicked(pin);
         }
     }
 }

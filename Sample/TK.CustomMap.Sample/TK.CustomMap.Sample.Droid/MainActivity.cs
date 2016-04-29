@@ -8,6 +8,7 @@ using Android.Widget;
 using Android.OS;
 using Xamarin.Forms.Platform.Android;
 using TK.CustomMap.Droid;
+using System.Net;
 
 namespace TK.CustomMap.Sample.Droid
 {
@@ -18,8 +19,9 @@ namespace TK.CustomMap.Sample.Droid
         {
             base.OnCreate(bundle);
 
-            global::Xamarin.Forms.Forms.Init(this, bundle);
+            //ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, errors) => true;
 
+            global::Xamarin.Forms.Forms.Init(this, bundle);
 
             ToolbarResource = Resource.Layout.toolbar;
             TabLayoutResource = Resource.Layout.tabs;

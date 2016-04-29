@@ -32,6 +32,8 @@ namespace TK.CustomMap.Droid
     {
         private bool _init = true;
 
+        private readonly List<TKRoute> _tempRouteList = new List<TKRoute>();
+
         private readonly Dictionary<TKRoute, Polyline> _routes = new Dictionary<TKRoute, Polyline>();
         private readonly Dictionary<TKPolyline, Polyline> _polylines = new Dictionary<TKPolyline, Polyline>();
         private readonly Dictionary<TKCircle, Circle> _circles = new Dictionary<TKCircle, Circle>();
@@ -193,7 +195,7 @@ namespace TK.CustomMap.Droid
         /// <param name="e">Event Arguments</param>
         private void OnInfoWindowClick(object sender, GoogleMap.InfoWindowClickEventArgs e)
         {
-            this.MapFunctions.RaiseCalloutClicked();
+            this.MapFunctions.RaiseCalloutClicked(this.GetPinByMarker(e.Marker));
         }
         /// <summary>
         /// Dragging process
@@ -658,6 +660,8 @@ namespace TK.CustomMap.Droid
         /// <param name="firstUpdate">If first update of collection or not</param>
         private void UpdateRoutes(bool firstUpdate = true)
         {
+            this._tempRouteList.Clear();
+
             if (this._googleMap == null) return;
 
             foreach (var i in this._routes)
@@ -939,12 +943,16 @@ namespace TK.CustomMap.Droid
         {
             if (route == null) return;
 
+            this._tempRouteList.Add(route);
+
             route.PropertyChanged += OnRoutePropertyChanged;
 
             GmsDirectionResult routeData = null;
             string errorMessage = null;
             
             routeData = await GmsDirection.Instance.CalculateRoute(route.Source, route.Destination, route.TravelMode.ToGmsTravelMode());
+
+            if (this.FormsMap == null || this.Map == null || !this._tempRouteList.Contains(route)) return;
 
             if (routeData != null && routeData.Routes != null)
             {
@@ -953,8 +961,6 @@ namespace TK.CustomMap.Droid
                     var r = routeData.Routes.FirstOrDefault();
                     if (r != null && r.Polyline.Positions != null && r.Polyline.Positions.Any())
                     {
-                        if(this.FormsMap == null || this.Map == null) return;
-
                         this.SetRouteData(route, r);
 
                         var routeOptions = new PolylineOptions();
@@ -1022,6 +1028,7 @@ namespace TK.CustomMap.Droid
             routeFunctions.SetSteps(steps);
             routeFunctions.SetDistance(routeResult.Legs.First().Distance.Value);
             routeFunctions.SetTravelTime(routeResult.Legs.First().Duration.Value);
+            
             routeFunctions.SetBounds(
                 MapSpan.FromCenterAndRadius(
                     latLngBounds.Center.ToPosition(),

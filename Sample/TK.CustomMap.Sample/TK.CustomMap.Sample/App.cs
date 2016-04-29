@@ -9,7 +9,7 @@ namespace TK.CustomMap.Sample
         public App()
         {
             GmsPlace.Init("YOUR API KEY");
-            GmsDirection.Init("YOUR API KEY");
+            GmsDirection.Init("AIzaSyCJN3Cd-Sp1a5V5OnkvTR-Gqhx7A3S-b6M");
             // The root page of your application
             var mainPage = new NavigationPage(new SamplePage());
             if (Device.OS == TargetPlatform.iOS)

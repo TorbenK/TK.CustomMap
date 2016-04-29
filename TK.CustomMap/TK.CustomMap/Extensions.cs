@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap
@@ -15,7 +16,7 @@ namespace TK.CustomMap
         /// <returns><see cref="Position"/> as <see cref="string"/></returns>
         public static string AsString(this Position self)
         {
-            return string.Format("{0},{1}", self.Latitude, self.Longitude);
+            return string.Format(CultureInfo.InvariantCulture, "{0},{1}", self.Latitude, self.Longitude);
         }
         /// <summary>
         /// Calculates the distance to the given point in a straight line. 
