@@ -18,19 +18,17 @@
     <dependencies>
       <group>
         <dependency id="Xamarin.Forms.Maps" version="2.2.0.31" />
-        <dependency id="Newtonsoft.Json" version="8.0.2" />
+        <dependency id="Newtonsoft.Json" version="8.0.3" />
         <dependency id="Microsoft.Net.Http" version="2.2.29" />
         <dependency id="modernhttpclient" version="2.4.2" />
       </group>
       <group targetFramework="MonoAndroid10">
         <dependency id="Xamarin.Forms.Maps" version="2.2.0.31" />
         <dependency id="Xamarin.GooglePlayServices.Location" version="29.0.0.1" />
-        <dependency id="Microsoft.Net.Http" version="2.2.29" />
         <dependency id="modernhttpclient" version="2.4.2" />
       </group>
       <group targetFramework="Xamarin.iOS10">
         <dependency id="Xamarin.Forms.Maps" version="2.2.0.31" />
-        <dependency id="Microsoft.Net.Http" version="2.2.29" />
         <dependency id="modernhttpclient" version="2.4.2" />
       </group>
     </dependencies>
