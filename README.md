@@ -89,4 +89,7 @@ public override bool FinishedLaunching(UIApplication app, NSDictionary options)
 * [yumshinetech](https://github.com/yumshinetech)
 * [MithrilMan](https://github.com/MithrilMan)
 * [CliffCawley](https://github.com/CliffCawley)
+* [JeanCollas](https://github.com/JeanCollas)
+* [Falco20019](https://github.com/Falco20019)
+* [RanaInside](https://github.com/RanaInside)
 

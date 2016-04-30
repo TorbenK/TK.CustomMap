@@ -14,10 +14,11 @@ using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.Droid
 {
+    /// <inheritdoc />
     public class NativePlacesApi : INativePlacesApi
     {
 
-        private IGoogleApiClient _apiClient;
+        private GoogleApiClient _apiClient;
         private AutocompletePredictionBuffer _buffer;
 
         ///<inheritdoc/>
@@ -69,7 +70,7 @@ namespace TK.CustomMap.Droid
         {
             if(this._apiClient == null)
             {
-                this._apiClient = new GoogleApiClientBuilder(Forms.Context)
+                this._apiClient = new GoogleApiClient.Builder(Forms.Context)
                     .AddApi(PlacesClass.GEO_DATA_API)
                     .Build();
             }
