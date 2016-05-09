@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 14.0.25123.0
-MinimumVisualStudioVersion = 10.0.40219.1
+MinimumVisualStudioVersion = 14.0.25123.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap", "TK.CustomMap\TK.CustomMap\TK.CustomMap.csproj", "{14C534B6-1984-41A9-A384-D3A5508588E3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.iOSUnified", "TK.CustomMap\TK.CustomMap.iOSUnified\TK.CustomMap.iOSUnified.csproj", "{D525F236-6A2D-4010-B1CC-4A4B8581C90B}"
