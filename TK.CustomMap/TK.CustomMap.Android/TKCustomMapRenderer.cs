@@ -488,6 +488,7 @@ namespace TK.CustomMap.Droid
             await this.UpdateImage(pin, markerWithIcon);
             markerWithIcon.Draggable(pin.IsDraggable);
             markerWithIcon.Visible(pin.IsVisible);
+            markerWithIcon.SetRotation((float)pin.Rotation);
             if (pin.Image != null)
             {
                 markerWithIcon.Anchor((float)pin.Anchor.X, (float)pin.Anchor.Y);
