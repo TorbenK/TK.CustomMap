@@ -1239,7 +1239,7 @@ namespace TK.CustomMap.iOSUnified
                     {
                         this.Map.SelectAnnotation(selectedAnnotation, true);
                     }
-                    this.MapFunctions.RaisePinSelected(null);
+                    this.MapFunctions.RaisePinSelected(this.FormsMap.SelectedPin);
                 }
             }
         }

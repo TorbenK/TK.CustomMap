@@ -540,7 +540,7 @@ namespace TK.CustomMap.Droid
                 {
                     selectedPin.ShowInfoWindow();
                 }
-                this.MapFunctions.RaisePinSelected(null);
+                this.MapFunctions.RaisePinSelected(this.FormsMap.SelectedPin);
             }
         }
         /// <summary>
