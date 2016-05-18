@@ -17,6 +17,7 @@ namespace TK.CustomMap
         private bool _isDraggable;
         private Color _defaultPinColor;
         private Point _anchor;
+        private double _rotation;
 
         public const string TitlePropertyName = "Title";
         public const string SubititlePropertyName = "Subtitle";
@@ -27,6 +28,7 @@ namespace TK.CustomMap
         public const string ShowCalloutPropertyName = "ShowCallout";
         public const string DefaultPinColorPropertyName = "DefaultPinColor";
         public const string AnchorPropertyName = "Anchor";
+        public const string RotationPropertyName = "Rotation";
 
         /// <summary>
         /// Gets/Sets visibility of a pin
@@ -99,6 +101,14 @@ namespace TK.CustomMap
         {
             get { return this._anchor; }
             set { this.SetField(ref this._anchor, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the rotation angle of the pin in degrees
+        /// </summary>
+        public double Rotation
+        {
+            get { return this._rotation; }
+            set { this.SetField(ref this._rotation, value); }
         }
         /// <summary>
         /// Creates a new instance of <see cref="TKCustomMapPin" />

@@ -484,6 +484,7 @@ namespace TK.CustomMap.iOSUnified
             {
                 annotationView.Annotation = customAnnotation;
             }
+            customAnnotation.Point(annotationView);
             annotationView.CanShowCallout = customAnnotation.CustomPin.ShowCallout;
             annotationView.Draggable = customAnnotation.CustomPin.IsDraggable;
             annotationView.Selected = this._selectedAnnotation != null && customAnnotation.Equals(this._selectedAnnotation);
