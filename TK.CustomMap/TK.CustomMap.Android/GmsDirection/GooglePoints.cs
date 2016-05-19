@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using Xamarin.Forms.Maps;
 
-namespace TK.CustomMap.Api.Google
+namespace TK.CustomMap.Droid.Api
 {
     /// <summary>
     /// See https://developers.google.com/maps/documentation/utilities/polylinealgorithm

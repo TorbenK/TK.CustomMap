@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace TK.CustomMap.Api.Google
+namespace TK.CustomMap.Droid.Api
 {
     /// <summary>
     /// A route within the direction result

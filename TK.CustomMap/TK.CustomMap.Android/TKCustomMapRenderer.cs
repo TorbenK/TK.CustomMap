@@ -9,7 +9,7 @@ using Android.Gms.Maps;
 using Android.Gms.Maps.Model;
 using Android.Graphics;
 using TK.CustomMap;
-using TK.CustomMap.Api.Google;
+using TK.CustomMap.Droid.Api;
 using TK.CustomMap.Droid;
 using TK.CustomMap.Interfaces;
 using TK.CustomMap.Models;
@@ -951,7 +951,7 @@ namespace TK.CustomMap.Droid
             GmsDirectionResult routeData = null;
             string errorMessage = null;
             
-            routeData = await GmsDirection.Instance.CalculateRoute(route.Source, route.Destination, route.TravelMode.ToGmsTravelMode());
+            routeData = await GmsDirection.CalculateRoute(route.Source, route.Destination, route.TravelMode.ToGmsTravelMode());
 
             if (this.FormsMap == null || this.Map == null || !this._tempRouteList.Contains(route)) return;
 

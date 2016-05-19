@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Android.Content;
 using Android.Gms.Maps.Model;
 using Android.Graphics;
-using TK.CustomMap.Api.Google;
+using TK.CustomMap.Droid.Api;
 using TK.CustomMap.Overlays;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;

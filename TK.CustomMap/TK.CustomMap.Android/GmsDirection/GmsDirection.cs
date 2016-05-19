@@ -1,42 +1,20 @@
-﻿using System;
-using System.Net.Http;
+﻿using Newtonsoft.Json;
+using System.IO;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using ModernHttpClient;
-using Newtonsoft.Json;
 using Xamarin.Forms.Maps;
 
-namespace TK.CustomMap.Api.Google
+namespace TK.CustomMap.Droid.Api
 {
     /// <summary>
     /// Calls the Google Maps Directions API to get a route
     /// </summary>
     public class GmsDirection
     {
-
         private static string _apiKey;
-        private static GmsDirection _instance;
 
-        private readonly HttpClient _httpClient;
         private const string BaseUrl = "https://maps.googleapis.com/maps/api/directions/";
-        /// <summary>
-        /// The <see cref="GmsDirection"/> instance
-        /// </summary>
-        public static GmsDirection Instance
-        {
-            get
-            {
-                return _instance ?? (_instance = new GmsDirection());
-            }
-        }
-        /// <summary>
-        /// Creates a new instance of <see cref="GmsDirection"/>
-        /// </summary>
-        private GmsDirection()
-        {
-            this._httpClient = new HttpClient(new NativeMessageHandler());
-            this._httpClient.BaseAddress = new Uri(BaseUrl);
-        }
         /// <summary>
         /// Set the API key 
         /// </summary>
@@ -53,15 +31,32 @@ namespace TK.CustomMap.Api.Google
         /// <param name="mode">The travelling mode</param>
         /// <param name="language">The language</param>
         /// <returns>A <see cref="GmsDirectionResult"/></returns>
-        public async Task<GmsDirectionResult> CalculateRoute(Position origin, Position destination, GmsDirectionTravelMode mode, string language = null)
+        public static async Task<GmsDirectionResult> CalculateRoute(Position origin, Position destination, GmsDirectionTravelMode mode, string language = null)
         {
-            var response = await _httpClient.GetAsync(this.BuildQueryString(origin, destination, mode, language));
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(BuildQueryString(origin, destination, mode, language));
+            webRequest.ContentType = "application/json";
+            webRequest.Method = "GET";
 
-            if (response.IsSuccessStatusCode)
+            try
             {
-                return JsonConvert.DeserializeObject<GmsDirectionResult>(await response.Content.ReadAsStringAsync());
+                using (var response = await webRequest.GetResponseAsync())
+                {
+                    using (var strm = response.GetResponseStream())
+                    {
+                        return await Task.Run(() =>
+                        {
+                            using (var reader = new StreamReader(strm))
+                            {
+                                return JsonConvert.DeserializeObject<GmsDirectionResult>(reader.ReadToEnd());
+                            }
+                        });
+                    }
+                }
             }
-            return null;
+            catch
+            {
+                return null;
+            }
         }
         /// <summary>
         /// Builds the query string for the Google Maps Directions API call
@@ -71,11 +66,12 @@ namespace TK.CustomMap.Api.Google
         /// <param name="mode">The travelling mode</param>
         /// <param name="language">The language</param>
         /// <returns>The query string</returns>
-        private string BuildQueryString(Position origin, Position destination, GmsDirectionTravelMode mode, string language)
+        private static string BuildQueryString(Position origin, Position destination, GmsDirectionTravelMode mode, string language)
         {
             StringBuilder strBuilder = new StringBuilder(
                 string.Format(
-                    "json?origin={0}&destination={1}&mode={2}", 
+                    "{0}json?origin={1}&destination={2}&mode={3}", 
+                    BaseUrl,
                     origin.AsString(),
                     destination.AsString(),
                     mode.ToString().ToLower()));

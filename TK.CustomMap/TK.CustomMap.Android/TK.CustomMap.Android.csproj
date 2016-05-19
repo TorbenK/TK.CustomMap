@@ -45,6 +45,10 @@
     </Reference>
     <Reference Include="Mono.Android" />
     <Reference Include="mscorlib" />
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.8.0.3\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -121,10 +125,25 @@
       <HintPath>..\..\packages\Xamarin.GooglePlayServices.Maps.29.0.0.1\lib\MonoAndroid41\Xamarin.GooglePlayServices.Maps.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Xamarin.iOS">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\Xamarin.iOS\v1.0\Xamarin.iOS.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DependencyServices\NativePlacesApi.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="GmsDirection\GmsDirection.cs" />
+    <Compile Include="GmsDirection\GmsDirectionResult.cs" />
+    <Compile Include="GmsDirection\GmsDirectionResultBounds.cs" />
+    <Compile Include="GmsDirection\GmsDirectionResultLeg.cs" />
+    <Compile Include="GmsDirection\GmsDirectionResultLegStep.cs" />
+    <Compile Include="GmsDirection\GmsDirectionResultStatus.cs" />
+    <Compile Include="GmsDirection\GmsDirectionTravelMode.cs" />
+    <Compile Include="GmsDirection\GmsLocation.cs" />
+    <Compile Include="GmsDirection\GmsPolyline.cs" />
+    <Compile Include="GmsDirection\GmsRouteResult.cs" />
+    <Compile Include="GmsDirection\GmsTextValue.cs" />
+    <Compile Include="GmsDirection\GooglePoints.cs" />
     <Compile Include="TKCustomMapRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TKCustomTileProvider.cs" />

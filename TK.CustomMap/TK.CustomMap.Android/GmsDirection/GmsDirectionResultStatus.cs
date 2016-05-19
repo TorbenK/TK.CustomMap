@@ -1,4 +1,4 @@
-﻿namespace TK.CustomMap.Api.Google
+﻿namespace TK.CustomMap.Droid.Api
 {
     /// <summary>
     /// Result status of the Google Maps Directions API call
