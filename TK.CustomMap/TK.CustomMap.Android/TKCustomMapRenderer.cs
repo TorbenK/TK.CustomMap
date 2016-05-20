@@ -551,11 +551,11 @@ namespace TK.CustomMap.Droid
         {
             if (this._googleMap == null) return;
 
-            if (!this.FormsMap.MapCenter.Equals(this._googleMap.CameraPosition.Target.ToPosition()))
+            if (!this.FormsMap?.MapCenter?.Equals(this._googleMap.CameraPosition?.Target?.ToPosition()))
             {
-                var cameraUpdate = CameraUpdateFactory.NewLatLng(this.FormsMap.MapCenter.ToLatLng());
+                var cameraUpdate = CameraUpdateFactory.NewLatLng(this.FormsMap?.MapCenter?.ToLatLng());
 
-                if (this.FormsMap.IsRegionChangeAnimated && !this._init)
+                if (this.FormsMap?.IsRegionChangeAnimated && !this._init)
                 {
                     this._googleMap.AnimateCamera(cameraUpdate);
                 }
