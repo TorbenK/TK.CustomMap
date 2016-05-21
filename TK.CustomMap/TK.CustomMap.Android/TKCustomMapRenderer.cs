@@ -475,6 +475,8 @@ namespace TK.CustomMap.Droid
         /// <param name="pin">The Forms Pin</param>
         private async void AddPin(TKCustomMapPin pin)
         {
+	    if (this._markers.Keys.Contains(pin)) return; 
+
             pin.PropertyChanged += OnPinPropertyChanged;
 
             var markerWithIcon = new MarkerOptions();
