@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Xamarin.Forms.Maps;
 
-namespace TK.CustomMap.Droid.Api
+namespace TK.CustomMap.Api.Google
 {
     /// <summary>
     /// Google Polyline class

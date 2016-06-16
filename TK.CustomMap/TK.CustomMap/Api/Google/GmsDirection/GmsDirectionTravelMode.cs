@@ -1,4 +1,4 @@
-﻿namespace TK.CustomMap.Droid.Api
+﻿namespace TK.CustomMap.Api.Google
 {
     /// <summary>
     /// Enumeration for the travelling mode

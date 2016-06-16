@@ -2,11 +2,11 @@ using System.Threading.Tasks;
 using Android.Content;
 using Android.Gms.Maps.Model;
 using Android.Graphics;
-using TK.CustomMap.Droid.Api;
 using TK.CustomMap.Overlays;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 using Xamarin.Forms.Platform.Android;
+using TK.CustomMap.Api.Google;
 
 namespace TK.CustomMap.Droid
 {
@@ -73,6 +73,15 @@ namespace TK.CustomMap.Droid
                 return await new StreamImagesourceHandler().LoadImageAsync(source, context);
             }
             return null;
+        }
+        /// <summary>
+        /// Convert a <see cref="Xamarin.Forms.Point"/> to <see cref="Android.Graphics.Point"/>
+        /// </summary>
+        /// <param name="point">Self</param>
+        /// <returns>A Android point</returns>
+        public static Android.Graphics.Point ToAndroidPoint(this Xamarin.Forms.Point point)
+        {
+            return new Android.Graphics.Point((int)point.X, (int)point.Y);
         }
     }
 }

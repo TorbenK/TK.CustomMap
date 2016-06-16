@@ -452,13 +452,22 @@ namespace TK.CustomMap
             this.MapFunctions.FitMapRegionToPositions(positions, animate);
         }
         /// <summary>
-        /// 
+        /// Fit all regions on the map
         /// </summary>
-        /// <param name="regions"></param>
-        /// <param name="animate"></param>
+        /// <param name="regions">The regions to fit to the map</param>
+        /// <param name="animate">Animation on/off</param>
         public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate = false)
         {
             this.MapFunctions.FitToMapRegions(regions, animate);
+        }
+        /// <summary>
+        /// Converts an array of <see cref="Point"/> into geocoordinates
+        /// </summary>
+        /// <param name="screenLocations">The screen locations(pixel)</param>
+        /// <returns>A collection of <see cref="Position"/></returns>
+        public IEnumerable<Position> ScreenLocationsToGeocoordinates(params Point[] screenLocations)
+        {
+            return this.MapFunctions.ScreenLocationsToGeocoordinates(screenLocations);
         }
         /// <summary>
         /// Raises <see cref="PinSelected"/>

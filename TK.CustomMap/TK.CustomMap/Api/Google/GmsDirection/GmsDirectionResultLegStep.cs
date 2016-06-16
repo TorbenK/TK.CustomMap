@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace TK.CustomMap.Droid.Api
+namespace TK.CustomMap.Api.Google
 {
     /// <summary>
     /// A step inside a leg

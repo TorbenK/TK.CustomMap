@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace TK.CustomMap.Droid.Api
+namespace TK.CustomMap.Api.Google
 {
     /// <summary>
     /// Bounds of the Direction API call result

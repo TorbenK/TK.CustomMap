@@ -488,20 +488,33 @@ namespace TK.CustomMap.iOSUnified
             annotationView.CanShowCallout = customAnnotation.CustomPin.ShowCallout;
             annotationView.Draggable = customAnnotation.CustomPin.IsDraggable;
             annotationView.Selected = this._selectedAnnotation != null && customAnnotation.Equals(this._selectedAnnotation);
-            
+            annotationView.Transform = CGAffineTransform.MakeRotation((float)customAnnotation.CustomPin.Rotation.ToRadian());
+
             this.SetAnnotationViewVisibility(annotationView, customAnnotation.CustomPin);
             this.UpdateImage(annotationView, customAnnotation.CustomPin);
-
-            if (FormsMap.CalloutClickedCommand != null)
+            this.UpdateAccessoryView(customAnnotation.CustomPin, annotationView);
+            
+            return annotationView;
+        }
+        /// <summary>
+        /// Update the callout accessory view
+        /// </summary>
+        /// <param name="pin">Custom pin</param>
+        /// <param name="view">Annotation view</param>
+        private void UpdateAccessoryView(TKCustomMapPin pin, MKAnnotationView view)
+        {
+            if (pin.IsCalloutClickable)
             {
                 var button = new UIButton(UIButtonType.InfoLight);
                 button.Frame = new CGRect(0, 0, 23, 23);
                 button.HorizontalAlignment = UIControlContentHorizontalAlignment.Center;
                 button.VerticalAlignment = UIControlContentVerticalAlignment.Center;
-                annotationView.RightCalloutAccessoryView = button;
+                view.RightCalloutAccessoryView = button;
             }
-            
-            return annotationView;
+            else
+            {
+                view.RightCalloutAccessoryView = null;
+            }
         }
         /// <summary>
         /// Creates the annotations
@@ -1088,6 +1101,12 @@ namespace TK.CustomMap.iOSUnified
                         annotationView.Layer.AnchorPoint = new CGPoint(formsPin.Anchor.X, formsPin.Anchor.Y);
                     }
                     break;
+                case TKCustomMapPin.RotationPropertyName:
+                    annotationView.Transform = CGAffineTransform.MakeRotation((float)formsPin.Rotation);
+                    break;
+                case TKCustomMapPin.IsCalloutClickablePropertyName:
+                    this.UpdateAccessoryView(formsPin, annotationView);
+                    break;
             }
         }
         /// <summary>
@@ -1406,11 +1425,14 @@ namespace TK.CustomMap.iOSUnified
             UIImage img = null;
             await Task.Factory.StartNew(() =>
             {
-                UIGraphics.BeginImageContextWithOptions(this.Frame.Size, false, 0.0f);
-                this.Layer.RenderInContext(UIGraphics.GetCurrentContext());
+                BeginInvokeOnMainThread(() => 
+                {
+                    UIGraphics.BeginImageContextWithOptions(this.Frame.Size, false, 0.0f);
+                    this.Layer.RenderInContext(UIGraphics.GetCurrentContext());
 
-                img = UIGraphics.GetImageFromCurrentImageContext();
-                UIGraphics.EndImageContext();
+                    img = UIGraphics.GetImageFromCurrentImageContext();
+                    UIGraphics.EndImageContext();
+                });
             });
             return img.AsPNG().ToArray();
         }
@@ -1458,6 +1480,14 @@ namespace TK.CustomMap.iOSUnified
                             region.Radius.Meters * 2)));
             }
             this.Map.SetVisibleMapRect(rect, new UIEdgeInsets(15, 15, 15, 15), animate);
+        }
+        /// <inheritdoc />
+        public IEnumerable<Position> ScreenLocationsToGeocoordinates(params Point[] screenLocations)
+        {
+            if (this.Map == null)
+                throw new InvalidOperationException("Map not initialized");
+
+            return screenLocations.Select(i => this.Map.ConvertPoint(i.ToCGPoint(), this.Map).ToPosition());
         }
         /// <summary>
         /// Returns the <see cref="TKCustomMapPin"/> by the native <see cref="IMKAnnotation"/>

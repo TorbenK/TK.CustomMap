@@ -18,6 +18,7 @@ namespace TK.CustomMap
         private Color _defaultPinColor;
         private Point _anchor;
         private double _rotation;
+        private bool _isCalloutClickable;
 
         public const string TitlePropertyName = "Title";
         public const string SubititlePropertyName = "Subtitle";
@@ -29,6 +30,7 @@ namespace TK.CustomMap
         public const string DefaultPinColorPropertyName = "DefaultPinColor";
         public const string AnchorPropertyName = "Anchor";
         public const string RotationPropertyName = "Rotation";
+        public const string IsCalloutClickablePropertyName = "CalloutClickable";
 
         /// <summary>
         /// Gets/Sets visibility of a pin
@@ -109,6 +111,14 @@ namespace TK.CustomMap
         {
             get { return this._rotation; }
             set { this.SetField(ref this._rotation, value); }
+        }
+        /// <summary>
+        /// Gets/Sets whether the callout is clickable or not. This adds/removes the accessory control on iOS
+        /// </summary>
+        public bool IsCalloutClickable
+        {
+            get { return this._isCalloutClickable; }
+            set { this.SetField(ref this._isCalloutClickable, value); }
         }
         /// <summary>
         /// Creates a new instance of <see cref="TKCustomMapPin" />

@@ -1,4 +1,4 @@
-﻿namespace TK.CustomMap.Droid.Api
+﻿namespace TK.CustomMap.Api.Google
 {
     /// <summary>
     /// A Google Result class holding a value and a corresponding formatted text

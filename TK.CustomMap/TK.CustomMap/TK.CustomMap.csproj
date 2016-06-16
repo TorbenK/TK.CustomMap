@@ -37,6 +37,18 @@
     <DocumentationFile>bin\Release\TK.CustomMap.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Api\Google\GmsDirection\GmsDirection.cs" />
+    <Compile Include="Api\Google\GmsDirection\GmsDirectionResult.cs" />
+    <Compile Include="Api\Google\GmsDirection\GmsDirectionResultBounds.cs" />
+    <Compile Include="Api\Google\GmsDirection\GmsDirectionResultLeg.cs" />
+    <Compile Include="Api\Google\GmsDirection\GmsDirectionResultLegStep.cs" />
+    <Compile Include="Api\Google\GmsDirection\GmsDirectionResultStatus.cs" />
+    <Compile Include="Api\Google\GmsDirection\GmsDirectionTravelMode.cs" />
+    <Compile Include="Api\Google\GmsDirection\GmsLocation.cs" />
+    <Compile Include="Api\Google\GmsDirection\GmsPolyline.cs" />
+    <Compile Include="Api\Google\GmsDirection\GmsRouteResult.cs" />
+    <Compile Include="Api\Google\GmsDirection\GmsTextValue.cs" />
+    <Compile Include="Api\Google\GmsDirection\GooglePoints.cs" />
     <Compile Include="Api\Google\Places\GmsDetailsResult.cs" />
     <Compile Include="Api\Google\Places\GmsDetailsResultItem.cs" />
     <Compile Include="Api\Google\Places\GmsDetailsResultStatus.cs" />

@@ -9,7 +9,7 @@ using Android.Gms.Maps;
 using Android.Gms.Maps.Model;
 using Android.Graphics;
 using TK.CustomMap;
-using TK.CustomMap.Droid.Api;
+using TK.CustomMap.Api.Google;
 using TK.CustomMap.Droid;
 using TK.CustomMap.Interfaces;
 using TK.CustomMap.Models;
@@ -195,7 +195,12 @@ namespace TK.CustomMap.Droid
         /// <param name="e">Event Arguments</param>
         private void OnInfoWindowClick(object sender, GoogleMap.InfoWindowClickEventArgs e)
         {
-            this.MapFunctions.RaiseCalloutClicked(this.GetPinByMarker(e.Marker));
+            var pin = this.GetPinByMarker(e.Marker);
+
+            if (pin == null) return;
+
+            if(pin.IsCalloutClickable)
+                this.MapFunctions.RaiseCalloutClicked(pin);
         }
         /// <summary>
         /// Dragging process
@@ -377,6 +382,9 @@ namespace TK.CustomMap.Droid
                     {
                         marker.SetAnchor((float)pin.Anchor.X, (float)pin.Anchor.Y);
                     }
+                    break;
+                case TKCustomMapPin.RotationPropertyName:
+                    marker.Rotation = (float)pin.Rotation;
                     break;
             }
         }
@@ -951,7 +959,7 @@ namespace TK.CustomMap.Droid
             GmsDirectionResult routeData = null;
             string errorMessage = null;
             
-            routeData = await GmsDirection.CalculateRoute(route.Source, route.Destination, route.TravelMode.ToGmsTravelMode());
+            routeData = await GmsDirection.Instance.CalculateRoute(route.Source, route.Destination, route.TravelMode.ToGmsTravelMode());
 
             if (this.FormsMap == null || this.Map == null || !this._tempRouteList.Contains(route)) return;
 
@@ -1258,6 +1266,14 @@ namespace TK.CustomMap.Droid
                 this._googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(regions.ToArray()), 0));
             else
                 this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(regions.ToArray()), 0));
+        }
+        ///<inheritdoc/>
+        public IEnumerable<Position> ScreenLocationsToGeocoordinates(params Xamarin.Forms.Point[] screenLocations)
+        {
+            if (this._googleMap == null)
+                throw new InvalidOperationException("Map not initialized");
+
+            return screenLocations.Select(i => this._googleMap.Projection.FromScreenLocation(i.ToAndroidPoint()).ToPosition());
         }
         /// <summary>
         /// Gets the <see cref="TKCustomMapPin"/> by the native <see cref="Marker"/>

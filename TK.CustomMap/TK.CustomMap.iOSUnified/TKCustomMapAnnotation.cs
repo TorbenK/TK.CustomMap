@@ -53,7 +53,9 @@ namespace TK.CustomMap.iOSUnified
         [Export("_original_setCoordinate:")]
         public void SetCoordinateOriginal(CLLocationCoordinate2D value)
         {
+            this.WillChangeValue("coordinate");
             this.SetCoordinate(value);
+            this.DidChangeValue("coordinate");
         }
         /// <summary>
         /// Creates a new instance of <see cref="TKCustomMapAnnotation"/>
