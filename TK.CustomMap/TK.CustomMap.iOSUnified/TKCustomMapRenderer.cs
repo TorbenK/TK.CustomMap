@@ -1252,7 +1252,10 @@ namespace TK.CustomMap.iOSUnified
 
             if (!this.FormsMap.MapCenter.Equals(this.Map.CenterCoordinate.ToPosition()))
             {
-                this.Map.SetCenterCoordinate(this.FormsMap.MapCenter.ToLocationCoordinate(), this.FormsMap.IsRegionChangeAnimated);   
+                BeginInvokeOnMainThread(() =>
+                {
+                    this.Map.SetCenterCoordinate(this.FormsMap.MapCenter.ToLocationCoordinate(), this.FormsMap.IsRegionChangeAnimated);
+                });
             }
         }
         /// <summary>
