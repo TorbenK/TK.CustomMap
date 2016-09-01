@@ -351,8 +351,8 @@ namespace TK.CustomMap.Droid
             var pin = sender as TKCustomMapPin;
             if (pin == null) return;
 
-            var marker = this._markers[pin];
-            if (marker == null) return;
+            Marker marker = null;
+            if (!this._markers.ContainsKey(pin) || (marker= this._markers[pin]) == null) return;
 
             switch (e.PropertyName)
             {
