@@ -1252,20 +1252,33 @@ namespace TK.CustomMap.Droid
         {
             if (this._googleMap == null) return;
 
+            var bounds = this.BoundsFromMapSpans(region);
+            if (bounds == null) return;
+            var cam = CameraUpdateFactory.NewLatLngBounds(bounds, 0);
+
             if (animate)
-                this._googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(region), 0));
+                this._googleMap.AnimateCamera(cam);
             else
-                this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(region), 0));
+                this._googleMap.MoveCamera(cam);
+
+            if (animate)
+                this._googleMap.AnimateCamera(bounds);
+            else
+                this._googleMap.MoveCamera(bounds);
         }
         ///<inheritdoc/>
         public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate)
         {
             if (this._googleMap == null) return;
 
+            var bounds = this.BoundsFromMapSpans(regions.ToArray());
+            if (bounds == null) return;
+            var cam = CameraUpdateFactory.NewLatLngBounds(bounds, 0);
+
             if (animate)
-                this._googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(regions.ToArray()), 0));
+                this._googleMap.AnimateCamera(cam);
             else
-                this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(regions.ToArray()), 0));
+                this._googleMap.MoveCamera(cam);
         }
         ///<inheritdoc/>
         public IEnumerable<Position> ScreenLocationsToGeocoordinates(params Xamarin.Forms.Point[] screenLocations)
