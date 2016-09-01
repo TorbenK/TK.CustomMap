@@ -1250,7 +1250,7 @@ namespace TK.CustomMap.Droid
         ///<inheritdoc/>
         public void MoveToMapRegion(MapSpan region, bool animate)
         {
-            if (this._googleMap == null) return;
+            if (this._googleMap == null || regions == null) return;
 
             var bounds = this.BoundsFromMapSpans(region);
             if (bounds == null) return;
@@ -1269,7 +1269,7 @@ namespace TK.CustomMap.Droid
         ///<inheritdoc/>
         public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate)
         {
-            if (this._googleMap == null) return;
+            if (this._googleMap == null || regions == null || regions.Count()==null) return;
 
             var bounds = this.BoundsFromMapSpans(regions.ToArray());
             if (bounds == null) return;
