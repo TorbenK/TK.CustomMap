@@ -59,7 +59,8 @@ namespace TK.CustomMap.Droid
                 result.AddRange(this._buffer.Select(i => 
                     new TKNativeAndroidPlaceResult
                     {
-                        Description = i.Description,
+                        Description = i.GetPrimaryText(null),
+                        Subtitle = i.GetSecondaryText(null),
                         PlaceId = i.PlaceId,
                     }));
             }
