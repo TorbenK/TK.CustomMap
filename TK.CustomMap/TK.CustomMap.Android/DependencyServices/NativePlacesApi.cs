@@ -88,9 +88,13 @@ namespace TK.CustomMap.Droid
                 this._apiClient.Disconnect();
 
             this._apiClient.Dispose();
+            this._apiClient = null;
 
             if (this._buffer != null)
+            {
                 this._buffer.Dispose();
+                this._buffer = null;
+            }
         }
         /// <inheritdoc/>
         public async Task<TKPlaceDetails> GetDetails(string id)
