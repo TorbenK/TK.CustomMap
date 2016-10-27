@@ -467,7 +467,7 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return new Command(() =>
+                return new Command<TKCustomMapPin>((TKCustomMapPin pin) =>
                 {
                     // Chose one
 
@@ -536,7 +536,7 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return new Command(async () => 
+                return new Command<TKCustomMapPin>(async (TKCustomMapPin pin) => 
                 {
                     var action = await Application.Current.MainPage.DisplayActionSheet(
                         "Callout clicked",
@@ -545,7 +545,7 @@ namespace TK.CustomMap.Sample
 
                     if (action == "Remove Pin")
                     {
-                        this._pins.Remove(this.SelectedPin);
+                        this._pins.Remove(pin);
                     }
                 });
             }
