@@ -561,7 +561,7 @@ namespace TK.CustomMap.Droid
         {
             if (this._googleMap == null) return;
 
-            if (!this.FormsMap.MapCenter.Equals(this._googleMap.CameraPosition.Target.ToPosition()))
+            if (this.FormsMap!=null && !this.FormsMap.MapCenter.Equals(this._googleMap.CameraPosition.Target.ToPosition()))
             {
                 var cameraUpdate = CameraUpdateFactory.NewLatLng(this.FormsMap.MapCenter.ToLatLng());
 
