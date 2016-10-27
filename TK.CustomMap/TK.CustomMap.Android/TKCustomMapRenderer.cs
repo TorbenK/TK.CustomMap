@@ -351,8 +351,8 @@ namespace TK.CustomMap.Droid
             var pin = sender as TKCustomMapPin;
             if (pin == null) return;
 
-            var marker = this._markers[pin];
-            if (marker == null) return;
+            Marker marker = null;
+            if (!this._markers.ContainsKey(pin) || (marker= this._markers[pin]) == null) return;
 
             switch (e.PropertyName)
             {
@@ -483,6 +483,8 @@ namespace TK.CustomMap.Droid
         /// <param name="pin">The Forms Pin</param>
         private async void AddPin(TKCustomMapPin pin)
         {
+	    if (this._markers.Keys.Contains(pin)) return; 
+
             pin.PropertyChanged += OnPinPropertyChanged;
 
             var markerWithIcon = new MarkerOptions();
@@ -559,7 +561,7 @@ namespace TK.CustomMap.Droid
         {
             if (this._googleMap == null) return;
 
-            if (!this.FormsMap.MapCenter.Equals(this._googleMap.CameraPosition.Target.ToPosition()))
+            if (this.FormsMap!=null && !this.FormsMap.MapCenter.Equals(this._googleMap.CameraPosition.Target.ToPosition()))
             {
                 var cameraUpdate = CameraUpdateFactory.NewLatLng(this.FormsMap.MapCenter.ToLatLng());
 
