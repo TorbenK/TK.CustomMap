@@ -103,9 +103,12 @@ namespace TK.CustomMap.Droid
 
             var nativeDetails = nativeResult.First();
 
-            return new TKPlaceDetails 
+            return new TKPlaceDetails
             {
-                Coordinate = nativeDetails.LatLng.ToPosition()
+                Coordinate = nativeDetails.LatLng.ToPosition(),
+                FormattedAddress = nativeDetails.AddressFormatted.ToString(),
+                InternationalPhoneNumber = nativeDetails.PhoneNumberFormatted.ToString(),
+                Website = nativeDetails.WebsiteUri.ToString()
             };
         }
     }

@@ -271,6 +271,10 @@ namespace TK.CustomMap.iOSUnified
             {
                 this.UpdateLines();
             }
+            else if (e.PropertyName == TKCustomMap.CirclesProperty.PropertyName)
+            {
+                this.UpdateCircles();
+            }
             else if (e.PropertyName == TKCustomMap.CalloutClickedCommandProperty.PropertyName)
             {
                 this.UpdatePins(false);

@@ -54,10 +54,14 @@ namespace TK.CustomMap.iOSUnified
                 result.AddRange(nativeResult.MapItems.Select(i =>
                     new TKNativeiOSPlaceResult
                     {
-                        Description =  string.Format("{0}, {1} {2}", i.Placemark.Title, i.Placemark.AdministrativeArea, i.Placemark.SubAdministrativeArea),
-                        Details = new TKPlaceDetails 
+                        Description = string.Format("{0}, {1} {2}", i.Placemark.Title, i.Placemark.AdministrativeArea, i.Placemark.SubAdministrativeArea),
+                        Details = new TKPlaceDetails
                         {
-                            Coordinate = i.Placemark.Coordinate.ToPosition()
+                            Coordinate = i.Placemark.Coordinate.ToPosition(),
+                            FormattedAddress = i.Placemark.Title,
+                            InternationalPhoneNumber = i.PhoneNumber.ToString(),
+                            Website = i.Url.ToString()
+                           
                         }
                     }));
                 return result;
