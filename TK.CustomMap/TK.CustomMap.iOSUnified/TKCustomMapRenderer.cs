@@ -484,7 +484,6 @@ namespace TK.CustomMap.iOSUnified
             {
                 annotationView.Annotation = customAnnotation;
             }
-            customAnnotation.Point(annotationView);
             annotationView.CanShowCallout = customAnnotation.CustomPin.ShowCallout;
             annotationView.Draggable = customAnnotation.CustomPin.IsDraggable;
             annotationView.Selected = this._selectedAnnotation != null && customAnnotation.Equals(this._selectedAnnotation);
@@ -1259,7 +1258,7 @@ namespace TK.CustomMap.iOSUnified
                     {
                         this.Map.SelectAnnotation(selectedAnnotation, true);
                     }
-                    this.MapFunctions.RaisePinSelected(null);
+                    this.MapFunctions.RaisePinSelected(this.FormsMap.SelectedPin);
                 }
             }
         }

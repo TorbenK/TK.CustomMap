@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using TK.CustomMap.Interfaces;
 using TK.CustomMap.Models;
 using TK.CustomMap.Overlays;
@@ -88,21 +89,21 @@ namespace TK.CustomMap
         /// </summary>
         public static readonly BindableProperty PinSelectedCommandProperty = BindableProperty.Create(
             nameof(PinSelectedCommand),
-            typeof(Command<TKCustomMapPin>),
+            typeof(ICommand),
             typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="MapClickedCommand"/>
         /// </summary>
         public static readonly BindableProperty MapClickedCommandProperty = BindableProperty.Create(
             nameof(MapClickedCommand),
-            typeof(Command<Position>),
+            typeof(ICommand),
             typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="MapLongPressCommand"/>
         /// </summary>
         public static readonly BindableProperty MapLongPressCommandProperty = BindableProperty.Create(
             nameof(MapLongPressCommand),
-            typeof(Command<Position>),
+            typeof(ICommand),
             typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="PinDragEndCommand"/>
@@ -116,7 +117,7 @@ namespace TK.CustomMap
         /// </summary>
         public static readonly BindableProperty PinsReadyCommandProperty = BindableProperty.Create(
             nameof(PinsReadyCommand),
-            typeof(Command),
+            typeof(ICommand),
             typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="MapCenter"/>
@@ -164,7 +165,7 @@ namespace TK.CustomMap
         /// </summary>
         public static readonly BindableProperty CalloutClickedCommandProperty = BindableProperty.Create(
             nameof(CalloutClickedCommand),
-            typeof(Command<TKCustomMapPin>),
+            typeof(ICommand),
             typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="Polygons"/>
@@ -193,21 +194,21 @@ namespace TK.CustomMap
         /// </summary>
         public static readonly BindableProperty RouteClickedCommandProperty = BindableProperty.Create(
             nameof(RouteClickedCommand),
-            typeof(Command<TKRoute>),
+            typeof(ICommand),
             typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="RouteCalculationFinishedCommand"/>
         /// </summary>
         public static readonly BindableProperty RouteCalculationFinishedCommandProperty = BindableProperty.Create(
             nameof(RouteCalculationFinishedCommand),
-            typeof(Command<TKRoute>),
+            typeof(ICommand),
             typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="RouteCalculationFailedCommand"/>
         /// </summary>
         public static readonly BindableProperty RouteCalculationFailedCommandProperty = BindableProperty.Create(
             nameof(RouteCalculationFailedCommand),
-            typeof(Command<TKRouteCalculationError>),
+            typeof(ICommand),
             typeof(TKCustomMap));
         /// <summary>
         /// Bindable Property of <see cref="TilesUrlOptions"/>
@@ -221,7 +222,7 @@ namespace TK.CustomMap
         /// </summary>
         public static readonly BindableProperty UserLocationChangedCommandProperty = BindableProperty.Create(
             nameof(UserLocationChangedCommand),
-            typeof(Command<Position>),
+            typeof(ICommand),
             typeof(TKCustomMap));
         /// <summary>
         /// Gets/Sets the custom pins of the Map
@@ -242,41 +243,41 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets the command when the map was clicked/tapped
         /// </summary>
-        public Command<Position> MapClickedCommand
+        public ICommand MapClickedCommand
         {
-            get { return (Command<Position>)this.GetValue(MapClickedCommandProperty); }
+            get { return (ICommand)this.GetValue(MapClickedCommandProperty); }
             set { this.SetValue(MapClickedCommandProperty, value); }
         }
         /// <summary>
         /// Gets/Sets the command when a long press was performed on the map
         /// </summary>
-        public Command<Position> MapLongPressCommand
+        public ICommand MapLongPressCommand
         {
-            get { return (Command<Position>)this.GetValue(MapLongPressCommandProperty); }
+            get { return (ICommand)this.GetValue(MapLongPressCommandProperty); }
             set { this.SetValue(MapLongPressCommandProperty, value); }
         }
         /// <summary>
         /// Gets/Sets the command when a pin drag ended. The pin already has the updated position set
         /// </summary>
-        public Command<TKCustomMapPin> PinDragEndCommand
+        public ICommand PinDragEndCommand
         {
-            get { return (Command<TKCustomMapPin>)this.GetValue(PinDragEndCommandProperty); }
+            get { return (ICommand)this.GetValue(PinDragEndCommandProperty); }
             set { this.SetValue(PinDragEndCommandProperty, value); }
         }
         /// <summary>
         /// Gets/Sets the command when a pin got selected
         /// </summary>
-        public Command<TKCustomMapPin> PinSelectedCommand
+        public ICommand PinSelectedCommand
         {
-            get { return (Command<TKCustomMapPin>)this.GetValue(PinSelectedCommandProperty); }
+            get { return (ICommand)this.GetValue(PinSelectedCommandProperty); }
             set { this.SetValue(PinSelectedCommandProperty, value); }
         }
         /// <summary>
         /// Gets/Sets the command when the pins are ready
         /// </summary>
-        public Command PinsReadyCommand
+        public ICommand PinsReadyCommand
         {
-            get { return (Command)this.GetValue(PinsReadyCommandProperty); }
+            get { return (ICommand)this.GetValue(PinsReadyCommandProperty); }
             set { this.SetValue(PinsReadyCommandProperty, value); }
         }
         /// <summary>
@@ -315,9 +316,9 @@ namespace TK.CustomMap
         /// Gets/Sets the command when a callout gets clicked. When this is set, there will be an accessory button visible inside the callout on iOS.
         /// Android will simply raise the command by clicking anywhere inside the callout, since Android simply renders a bitmap
         /// </summary>
-        public Command CalloutClickedCommand
+        public ICommand CalloutClickedCommand
         {
-            get { return (Command)this.GetValue(CalloutClickedCommandProperty); }
+            get { return (ICommand)this.GetValue(CalloutClickedCommandProperty); }
             set { this.SetValue(CalloutClickedCommandProperty, value); }
         }
         /// <summary>
@@ -347,7 +348,7 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets the command when a route gets tapped
         /// </summary>
-        public Command<TKRoute> RouteClickedCommand
+        public ICommand RouteClickedCommand
         {
             get { return (Command<TKRoute>)this.GetValue(RouteClickedCommandProperty); }
             set { this.SetValue(RouteClickedCommandProperty, value); }
@@ -355,17 +356,17 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets the command when a route calculation finished successfully
         /// </summary>
-        public Command<TKRoute> RouteCalculationFinishedCommand
+        public ICommand RouteCalculationFinishedCommand
         {
-            get { return (Command<TKRoute>)this.GetValue(RouteCalculationFinishedCommandProperty); }
+            get { return (ICommand)this.GetValue(RouteCalculationFinishedCommandProperty); }
             set { this.SetValue(RouteCalculationFinishedCommandProperty, value); }
         }
         /// <summary>
         /// Gets/Sets the command when a route calculation failed
         /// </summary>
-        public Command<TKRouteCalculationError> RouteCalculationFailedCommand
+        public ICommand RouteCalculationFailedCommand
         {
-            get { return (Command<TKRouteCalculationError>)this.GetValue(RouteCalculationFailedCommandProperty); }
+            get { return (ICommand)this.GetValue(RouteCalculationFailedCommandProperty); }
             set { this.SetValue(RouteCalculationFailedCommandProperty, value); }
         }
         /// <summary>
@@ -379,9 +380,9 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets the command when the user location changed
         /// </summary>
-        public Command<Position> UserLocationChangedCommand
+        public ICommand UserLocationChangedCommand
         {
-            get { return (Command<Position>)this.GetValue(UserLocationChangedCommandProperty); }
+            get { return (ICommand)this.GetValue(UserLocationChangedCommandProperty); }
             set { this.SetValue(UserLocationChangedCommandProperty, value); }
         }
         /// <summary>
@@ -572,7 +573,7 @@ namespace TK.CustomMap
         /// </summary>
         /// <param name="command">The command to raise</param>
         /// <param name="parameter">Addition command parameter</param>
-        private void RaiseCommand(Command command, object parameter)
+        private void RaiseCommand(ICommand command, object parameter)
         {
             if(command != null && command.CanExecute(parameter))
             {

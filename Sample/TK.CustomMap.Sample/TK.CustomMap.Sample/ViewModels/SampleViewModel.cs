@@ -83,6 +83,12 @@ namespace TK.CustomMap.Sample
                     await Task.Delay(1000);
                     this._pins.Add(pin);
                     await Task.Delay(1000);
+                    pin.Position = new Position(40.718281, -74.085179);
+                    await Task.Delay(1000);
+                    pin.Position = new Position(40.717476, -74.080915);
+                    await Task.Delay(1000);
+                    pin.Position = new Position(40.718577, -74.083754);
+                    await Task.Delay(1000);
                     this._pins.Clear();
 
                     #endregion

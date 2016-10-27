@@ -42,18 +42,19 @@ namespace TK.CustomMap.Sample
 
             autoComplete.SetBinding(PlacesAutoComplete.BoundsProperty, "MapRegion");
 
+            this.Content = mapView;
 
-            this._baseLayout.Children.Add(
-                mapView,
-                Constraint.RelativeToView(autoComplete, (r, v) => v.X),
-                Constraint.RelativeToView(autoComplete, (r, v) => autoComplete.HeightOfSearchBar),
-                heightConstraint: Constraint.RelativeToParent((r) => r.Height - autoComplete.HeightOfSearchBar),
-                widthConstraint: Constraint.RelativeToView(autoComplete, (r, v) => v.Width));
+            //this._baseLayout.Children.Add(
+            //    mapView,
+            //    Constraint.RelativeToView(autoComplete, (r, v) => v.X),
+            //    Constraint.RelativeToView(autoComplete, (r, v) => autoComplete.HeightOfSearchBar),
+            //    heightConstraint: Constraint.RelativeToParent((r) => r.Height - autoComplete.HeightOfSearchBar),
+            //    widthConstraint: Constraint.RelativeToView(autoComplete, (r, v) => v.Width));
 
-            this._baseLayout.Children.Add(
-                autoComplete,
-                Constraint.Constant(0),
-                Constraint.Constant(0));
+            //this._baseLayout.Children.Add(
+            //    autoComplete,
+            //    Constraint.Constant(0),
+            //    Constraint.Constant(0));
         }
     }
 }

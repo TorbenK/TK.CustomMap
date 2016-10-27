@@ -1,4 +1,5 @@
-﻿using CoreGraphics;
+﻿using System;
+using CoreGraphics;
 using CoreLocation;
 using Foundation;
 using MapKit;
@@ -11,6 +12,7 @@ namespace TK.CustomMap.iOSUnified
     [Preserve(AllMembers = true)]
     internal class TKCustomMapAnnotation : MKAnnotation
     {
+        private CLLocationCoordinate2D _coordinate;
         private readonly TKCustomMapPin _formsPin;
 
         ///<inheritdoc/>
@@ -32,7 +34,7 @@ namespace TK.CustomMap.iOSUnified
         ///<inheritdoc/>
         public override CLLocationCoordinate2D Coordinate
         {
-            get { return this._formsPin.Position.ToLocationCoordinate(); }
+            get { return _coordinate; }
         }
         /// <summary>
         /// Gets the forms pin
@@ -44,7 +46,9 @@ namespace TK.CustomMap.iOSUnified
         ///<inheritdoc/>
         public override void SetCoordinate(CLLocationCoordinate2D value)
         {
-            this._formsPin.Position = value.ToPosition();
+            this.WillChangeValue("coordinate");
+            _coordinate = value;
+            this.DidChangeValue("coordinate");
         }
         /// <summary>
         /// Xamarin.iOS does (still) not export <value>_original_setCoordinate</value>
@@ -53,9 +57,8 @@ namespace TK.CustomMap.iOSUnified
         [Export("_original_setCoordinate:")]
         public void SetCoordinateOriginal(CLLocationCoordinate2D value)
         {
-            this.WillChangeValue("coordinate");
+            this._formsPin.Position = value.ToPosition();
             this.SetCoordinate(value);
-            this.DidChangeValue("coordinate");
         }
         /// <summary>
         /// Creates a new instance of <see cref="TKCustomMapAnnotation"/>
@@ -64,12 +67,7 @@ namespace TK.CustomMap.iOSUnified
         public TKCustomMapAnnotation(TKCustomMapPin pin)
         {
             this._formsPin = pin;
-        }
-
-        public void Point(MKAnnotationView view)
-        {
-            float radians = (float) this._formsPin.Rotation.ToRadian();
-            view.Transform = CGAffineTransform.MakeRotation(radians);
+            this._coordinate = pin.Position.ToLocationCoordinate();
         }
     }
 }

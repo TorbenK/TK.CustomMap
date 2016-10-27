@@ -4,7 +4,7 @@
              xmlns:tkmap="clr-namespace:TK.CustomMap;assembly=TK.CustomMap"
              x:Class="TK.CustomMap.Sample.SamplePage">
   
-  <RelativeLayout x:Name="_baseLayout" VerticalOptions="FillAndExpand" />
+  <!--<RelativeLayout x:Name="_baseLayout" VerticalOptions="FillAndExpand" />-->
     
   <ContentPage.ToolbarItems>
     <ToolbarItem Text="Add Route" Command="{Binding AddRouteCommand}">
