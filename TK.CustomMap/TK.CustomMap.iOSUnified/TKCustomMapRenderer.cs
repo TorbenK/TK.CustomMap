@@ -31,7 +31,6 @@ namespace TK.CustomMap.iOSUnified
     [Preserve(AllMembers = true)]
     public class TKCustomMapRenderer : MapRenderer, IRendererFunctions
     {
-        private bool _isLoaded;
 
         private const double MercatorRadius = 85445659.44705395;
 
@@ -82,8 +81,6 @@ namespace TK.CustomMap.iOSUnified
             {
                 e.OldElement.PropertyChanged -= OnMapPropertyChanged;
 
-                this._isLoaded = false;
-
                 this.Map.MapLoaded -= MapLoaded;
                 this.Map.GetViewForAnnotation = null;
                 this.Map.OverlayRenderer = null;
@@ -125,29 +122,16 @@ namespace TK.CustomMap.iOSUnified
                 this.Map.AddGestureRecognizer(this._tapGestureRecognizer);
                 this.Map.AddGestureRecognizer(this._doubleTapGestureRecognizer);
 
-                this.Map.MapLoaded += MapLoaded;
+                this.UpdateTileOptions();
+                this.SetMapCenter();
+                this.UpdatePins();
+                this.UpdateRoutes();
+                this.UpdateLines();
+                this.UpdateCircles();
+                this.UpdatePolygons();
+                this.UpdateShowTraffic();
+                this.FormsMap.PropertyChanged += OnMapPropertyChanged;
             }
-        }
-        /// <summary>
-        /// Initially set all data when map is loaded
-        /// </summary>
-        /// <param name="sender">Event sender</param>
-        /// <param name="e">Event arguments</param>
-        private void MapLoaded(object sender, EventArgs e)
-        {
-            if (this._isLoaded) return;
-
-            this.UpdateTileOptions();
-            this.SetMapCenter();
-            this.UpdatePins();
-            this.UpdateRoutes();
-            this.UpdateLines();
-            this.UpdateCircles();
-            this.UpdatePolygons();
-            this.UpdateShowTraffic();
-            this.FormsMap.PropertyChanged += OnMapPropertyChanged;
-
-            this._isLoaded = true;
         }
         /// <summary>
         /// Get the overlay renderer

@@ -215,6 +215,7 @@ namespace TK.CustomMap.Sample
                     this.TilesUrlOptions = new TKTileUrlOptions(
                         "http://a.tile.openstreetmap.org/{2}/{0}/{1}.png", 256, 256, 0, 18);
                     #endregion
+
                 });
             }
         }
