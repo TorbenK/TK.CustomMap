@@ -68,6 +68,30 @@ namespace TK.CustomMap.iOSUnified
         {
             this._formsPin = pin;
             this._coordinate = pin.Position.ToLocationCoordinate();
+            this._formsPin.PropertyChanged += formsPin_PropertyChanged;
+        }
+
+        void formsPin_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == TKCustomMapPin.SubititlePropertyName)
+            {
+                this.WillChangeValue("subtitle");
+                this.DidChangeValue("subtitle");
+            }
+            if (e.PropertyName == TKCustomMapPin.TitlePropertyName)
+            {
+                this.WillChangeValue("title");
+                this.DidChangeValue("title");
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+                this._formsPin.PropertyChanged -= formsPin_PropertyChanged;
+
+
         }
     }
 }
