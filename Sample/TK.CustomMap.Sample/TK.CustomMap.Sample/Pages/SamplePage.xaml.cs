@@ -21,6 +21,7 @@ namespace TK.CustomMap.Sample
 
             var newYork = new Position(40.7142700, -74.0059700);
             var mapView = new TKCustomMap(MapSpan.FromCenterAndRadius(newYork, Distance.FromKilometers(2)));
+            mapView.IsShowingUser = true;
             mapView.SetBinding(TKCustomMap.CustomPinsProperty, "Pins");
             mapView.SetBinding(TKCustomMap.MapClickedCommandProperty, "MapClickedCommand");
             mapView.SetBinding(TKCustomMap.MapLongPressCommandProperty, "MapLongPressCommand");
@@ -39,6 +40,11 @@ namespace TK.CustomMap.Sample
             mapView.SetBinding(TKCustomMap.TilesUrlOptionsProperty, "TilesUrlOptions");
             mapView.SetBinding(TKCustomMap.MapFunctionsProperty, "MapFunctions");
             mapView.IsRegionChangeAnimated = true;
+
+            mapView.UserLocationChangedCommand = new Command<Position>(i => 
+            {
+                mapView.MoveToMapRegion(MapSpan.FromCenterAndRadius(new Position(i.Latitude, i.Longitude), mapView.MapRegion.Radius));
+            });
 
             autoComplete.SetBinding(PlacesAutoComplete.BoundsProperty, "MapRegion");
 

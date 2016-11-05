@@ -81,7 +81,6 @@ namespace TK.CustomMap.iOSUnified
             {
                 e.OldElement.PropertyChanged -= OnMapPropertyChanged;
 
-                this.Map.MapLoaded -= MapLoaded;
                 this.Map.GetViewForAnnotation = null;
                 this.Map.OverlayRenderer = null;
                 this.Map.DidSelectAnnotationView -= OnDidSelectAnnotationView;

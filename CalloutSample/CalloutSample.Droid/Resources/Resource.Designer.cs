@@ -26,6 +26,7 @@ namespace CalloutSample.Droid
 		
 		public static void UpdateIdValues()
 		{
+			global::ModernHttpClient.Resource.String.library_name = global::CalloutSample.Droid.Resource.String.library_name;
 			global::Xamarin.Forms.Platform.Android.Resource.Attribute.actionBarSize = global::CalloutSample.Droid.Resource.Attribute.actionBarSize;
 		}
 		
@@ -3506,6 +3507,9 @@ namespace CalloutSample.Droid
 			
 			// aapt resource value: 0x7f080020
 			public const int common_signin_button_text_long = 2131230752;
+			
+			// aapt resource value: 0x7f080047
+			public const int library_name = 2131230791;
 			
 			// aapt resource value: 0x7f080021
 			public const int mr_button_content_description = 2131230753;
