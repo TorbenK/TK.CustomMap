@@ -1254,6 +1254,8 @@ namespace TK.CustomMap.Droid
         {
             if (this._googleMap == null) return;
 
+            if (region == null) return;
+
             var bounds = this.BoundsFromMapSpans(region);
             if (bounds == null) return;
             var cam = CameraUpdateFactory.NewLatLngBounds(bounds, 0);
