@@ -76,7 +76,7 @@ namespace TK.CustomMap.Droid
             }
             if(!this._apiClient.IsConnected && !this._apiClient.IsConnecting)
             {
-                this._apiClient.Connect();
+                this._apiClient.BlockingConnect();
             }
         }
         ///<inheritdoc/>
