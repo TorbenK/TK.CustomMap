@@ -65,6 +65,10 @@ namespace TK.CustomMap.iOSUnified
             get { return this.Element as IMapFunctions; }
         }
         /// <summary>
+        /// Gets/Sets if the default pin drop animation is enabled
+        /// </summary>
+        public static bool AnimateOnPinDrop { get; set; } = true;
+        /// <summary>
         /// Dummy function to avoid linker.
         /// </summary>
         [Preserve]
@@ -1162,7 +1166,7 @@ namespace TK.CustomMap.iOSUnified
                 var pinAnnotationView = annotationView as MKPinAnnotationView;
                 if (pinAnnotationView != null)
                 {
-                    pinAnnotationView.AnimatesDrop = true;
+                    pinAnnotationView.AnimatesDrop = AnimateOnPinDrop;
 
                     var pinTintColorAvailable = pinAnnotationView.RespondsToSelector(new Selector("pinTintColor"));
 
@@ -1469,6 +1473,28 @@ namespace TK.CustomMap.iOSUnified
                             region.Radius.Meters * 2)));
             }
             this.Map.SetVisibleMapRect(rect, new UIEdgeInsets(15, 15, 15, 15), animate);
+        }
+        /// <inheritdoc/>
+        public void ShowCallout(TKCustomMapPin pin)
+        {
+            if (this.Map == null) return;
+
+            var annotation = this.Map.Annotations
+                .OfType<TKCustomMapAnnotation>()
+                .SingleOrDefault(i => i.CustomPin.Equals(pin));
+
+            this.Map.SelectAnnotation(annotation, true);
+        }
+        /// <inheritdoc/>
+        public void HideCallout(TKCustomMapPin pin)
+        {
+            if (this.Map == null) return;
+
+            var annotation = this.Map.Annotations
+                .OfType<TKCustomMapAnnotation>()
+                .SingleOrDefault(i => i.CustomPin.Equals(pin));
+
+            this.Map.DeselectAnnotation(annotation, true);
         }
         /// <inheritdoc />
         public IEnumerable<Position> ScreenLocationsToGeocoordinates(params Point[] screenLocations)

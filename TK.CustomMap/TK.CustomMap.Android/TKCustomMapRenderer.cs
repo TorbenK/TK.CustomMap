@@ -57,7 +57,7 @@ namespace TK.CustomMap.Droid
         }
 
         /// <inheritdoc />
-        protected override void OnElementChanged(ElementChangedEventArgs<View> e)
+        protected override void OnElementChanged(ElementChangedEventArgs<Map> e)
         {
             base.OnElementChanged(e);
 

@@ -214,7 +214,7 @@ namespace TK.CustomMap.Sample
                     this._autoCompleteListView.IsVisible = false;
                 }
             }
-            catch
+            catch (Exception x)
             {
                 // TODO
             }

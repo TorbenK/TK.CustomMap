@@ -112,8 +112,8 @@ namespace TK.CustomMap.Droid
             {
                 Coordinate = nativeDetails.LatLng.ToPosition(),
                 FormattedAddress = nativeDetails.AddressFormatted.ToString(),
-                InternationalPhoneNumber = nativeDetails.PhoneNumberFormatted.ToString(),
-                Website = nativeDetails.WebsiteUri.ToString()
+                InternationalPhoneNumber = nativeDetails.PhoneNumberFormatted?.ToString(),
+                Website = nativeDetails.WebsiteUri?.ToString()
             };
         }
     }

@@ -41,10 +41,6 @@ namespace TK.CustomMap.Sample
             mapView.SetBinding(TKCustomMap.MapFunctionsProperty, "MapFunctions");
             mapView.IsRegionChangeAnimated = true;
 
-            mapView.UserLocationChangedCommand = new Command<Position>(i => 
-            {
-                mapView.MoveToMapRegion(MapSpan.FromCenterAndRadius(new Position(i.Latitude, i.Longitude), mapView.MapRegion.Radius));
-            });
 
             autoComplete.SetBinding(PlacesAutoComplete.BoundsProperty, "MapRegion");
 
