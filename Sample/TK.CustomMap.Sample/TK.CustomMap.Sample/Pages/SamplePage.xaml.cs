@@ -13,9 +13,8 @@ namespace TK.CustomMap.Sample
             this.BindingContext = new SampleViewModel();
         }
 
-        private void CreateView()
+        private async void CreateView()
         {
-
             var autoComplete = new PlacesAutoComplete { ApiToUse = PlacesAutoComplete.PlacesApi.Native };
             autoComplete.SetBinding(PlacesAutoComplete.PlaceSelectedCommandProperty, "PlaceSelectedCommand");
 
@@ -41,11 +40,9 @@ namespace TK.CustomMap.Sample
             mapView.SetBinding(TKCustomMap.MapFunctionsProperty, "MapFunctions");
             mapView.IsRegionChangeAnimated = true;
 
-
             autoComplete.SetBinding(PlacesAutoComplete.BoundsProperty, "MapRegion");
 
             this.Content = mapView;
-
             //this._baseLayout.Children.Add(
             //    mapView,
             //    Constraint.RelativeToView(autoComplete, (r, v) => v.X),

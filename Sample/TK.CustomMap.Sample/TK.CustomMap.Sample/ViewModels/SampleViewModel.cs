@@ -1,19 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics.Contracts;
-using System;
 using System.Linq;
+using System.Threading.Tasks;
 using TK.CustomMap.Api;
 using TK.CustomMap.Api.Google;
 using TK.CustomMap.Api.OSM;
+using TK.CustomMap.Interfaces;
 using TK.CustomMap.Overlays;
-using TK.CustomMap.Utilities;
+using TK.CustomMap.Sample.Pages;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
-using TK.CustomMap.Sample.Pages;
-using System.Threading.Tasks;
-using TK.CustomMap.Interfaces;
 
 namespace TK.CustomMap.Sample
 {
@@ -32,7 +29,7 @@ namespace TK.CustomMap.Sample
 
         public TKTileUrlOptions TilesUrlOptions
         {
-            get 
+            get
             {
                 return this._tileUrlOptions;
                 //return new TKTileUrlOptions(
@@ -42,31 +39,36 @@ namespace TK.CustomMap.Sample
             }
             set
             {
-                if(this._tileUrlOptions != value)
+                if (this._tileUrlOptions != value)
                 {
                     this._tileUrlOptions = value;
                     this.OnPropertyChanged("TilesUrlOptions");
                 }
             }
         }
+
         public IRendererFunctions MapFunctions { get; set; }
+
         public Command RunSimulationCommand
         {
             get
             {
-                return new Command(async _=>
+                return new Command(async _ =>
                 {
                     if (!(await Application.Current.MainPage.DisplayAlert("Start Test?", "Start simulation test?", "Yes", "No")))
                         return;
 
                     #region PinTest
 
-                    var pin = new TKCustomMapPin 
+                    var pin = new TKCustomMapPin
                     {
-                        Position = new Position(40.718577, -74.083754)
+                        Position = new Position(40.718577, -74.083754),
+                        Title = "Pin",
+                        ShowCallout = true,
+                        IsDraggable = true
                     };
 
-                    this._pins.Add(pin);
+                    _pins.Add(pin);
                     await Task.Delay(1000);
 
                     pin.DefaultPinColor = Color.Purple;
@@ -74,7 +76,7 @@ namespace TK.CustomMap.Sample
                     pin.DefaultPinColor = Color.Green;
                     await Task.Delay(1000);
 
-                    pin.Image = Device.OnPlatform("Icon-Small.png", "icon.png", string.Empty);
+                    pin.Image = Device.OnPlatform("Icon-Small.png", "icon.png", "icon.png");
                     await Task.Delay(1000);
                     pin.Image = null;
                     await Task.Delay(1000);
@@ -91,11 +93,11 @@ namespace TK.CustomMap.Sample
                     await Task.Delay(1000);
                     this._pins.Clear();
 
-                    #endregion
+                    #endregion PinTest
 
                     #region Circles Test
 
-                    var circle = new TKCircle 
+                    var circle = new TKCircle
                     {
                         Center = new Position(40.659743, -74.049422),
                         Color = Color.Red,
@@ -123,17 +125,17 @@ namespace TK.CustomMap.Sample
                     await Task.Delay(1000);
                     this._circles.Clear();
 
-                    #endregion
+                    #endregion Circles Test
 
                     #region Lines Test
 
                     this.Lines = new ObservableCollection<TKPolyline>();
 
-                    var line = new TKPolyline 
+                    var line = new TKPolyline
                     {
                         Color = Color.Pink,
                         LineWidth = 2f,
-                        LineCoordinates = new List<Position>(new Position[] 
+                        LineCoordinates = new List<Position>(new Position[]
                         {
                             new Position(40.647241, -74.081007),
                             new Position(40.702873, -74.016162)
@@ -148,7 +150,7 @@ namespace TK.CustomMap.Sample
                     line.Color = Color.Green;
                     await Task.Delay(1000);
 
-                    line.LineCoordinates =  new List<Position>(new Position[] 
+                    line.LineCoordinates = new List<Position>(new Position[]
                     {
                         new Position(40.647241, -74.081007),
                         new Position(40.702873, -74.016162),
@@ -161,18 +163,18 @@ namespace TK.CustomMap.Sample
                     await Task.Delay(1000);
                     this._lines.Clear();
 
-                    #endregion
+                    #endregion Lines Test
 
                     #region Polygon Test
 
                     this.Polygons = new ObservableCollection<TKPolygon>();
 
-                    var poly = new TKPolygon 
+                    var poly = new TKPolygon
                     {
                         StrokeColor = Color.Green,
                         StrokeWidth = 2f,
                         Color = Color.Red,
-                        Coordinates = new List<Position>(new Position[] 
+                        Coordinates = new List<Position>(new Position[]
                         {
                             new Position(40.716901, -74.055969),
                             new Position(40.699878, -73.986296),
@@ -200,10 +202,8 @@ namespace TK.CustomMap.Sample
                     this._polygons.Add(poly);
                     await Task.Delay(1000);
                     this._polygons.Clear();
-                    
-                    
 
-                    #endregion
+                    #endregion Polygon Test
 
                     #region Tiles Test
 
@@ -214,33 +214,34 @@ namespace TK.CustomMap.Sample
                     await Task.Delay(5000);
                     this.TilesUrlOptions = new TKTileUrlOptions(
                         "http://a.tile.openstreetmap.org/{2}/{0}/{1}.png", 256, 256, 0, 18);
-                    #endregion
 
+                    #endregion Tiles Test
                 });
             }
         }
+
         public Command ShowListCommand
         {
             get
             {
-                return new Command(async () => 
+                return new Command(async () =>
                 {
-                    if(this._pins == null || !this._pins.Any())
+                    if (this._pins == null || !this._pins.Any())
                     {
                         Application.Current.MainPage.DisplayAlert("Nothing there!", "No pins to show!", "OK");
                         return;
                     }
                     var listPage = new PinListPage(this.Pins);
-                    listPage.PinSelected += async (o, e) => 
+                    listPage.PinSelected += async (o, e) =>
                     {
                         this.SelectedPin = e.Pin;
                         await Application.Current.MainPage.Navigation.PopAsync();
                     };
                     await Application.Current.MainPage.Navigation.PushAsync(listPage);
-
                 });
             }
         }
+
         /// <summary>
         /// Map region bound to <see cref="TKCustomMap"/>
         /// </summary>
@@ -256,13 +257,14 @@ namespace TK.CustomMap.Sample
                 }
             }
         }
+
         /// <summary>
         /// Pins bound to the <see cref="TKCustomMap"/>
         /// </summary>
         public ObservableCollection<TKCustomMapPin> Pins
         {
             get { return this._pins; }
-            set 
+            set
             {
                 if (this._pins != value)
                 {
@@ -271,6 +273,7 @@ namespace TK.CustomMap.Sample
                 }
             }
         }
+
         /// <summary>
         /// Routes bound to the <see cref="TKCustomMap"/>
         /// </summary>
@@ -286,6 +289,7 @@ namespace TK.CustomMap.Sample
                 }
             }
         }
+
         /// <summary>
         /// Circles bound to the <see cref="TKCustomMap"/>
         /// </summary>
@@ -301,6 +305,7 @@ namespace TK.CustomMap.Sample
                 }
             }
         }
+
         /// <summary>
         /// Lines bound to the <see cref="TKCustomMap"/>
         /// </summary>
@@ -316,6 +321,7 @@ namespace TK.CustomMap.Sample
                 }
             }
         }
+
         /// <summary>
         /// Polygons bound to the <see cref="TKCustomMap"/>
         /// </summary>
@@ -331,13 +337,14 @@ namespace TK.CustomMap.Sample
                 }
             }
         }
+
         /// <summary>
         /// Map center bound to the <see cref="TKCustomMap"/>
         /// </summary>
         public Position MapCenter
         {
             get { return this._mapCenter; }
-            set 
+            set
             {
                 if (this._mapCenter != value)
                 {
@@ -346,6 +353,7 @@ namespace TK.CustomMap.Sample
                 }
             }
         }
+
         /// <summary>
         /// Selected pin bound to the <see cref="TKCustomMap"/>
         /// </summary>
@@ -361,6 +369,7 @@ namespace TK.CustomMap.Sample
                 }
             }
         }
+
         /// <summary>
         /// Map Long Press bound to the <see cref="TKCustomMap"/>
         /// </summary>
@@ -368,7 +377,7 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return new Command<Position>(async position => 
+                return new Command<Position>(async position =>
                 {
                     var action = await Application.Current.MainPage.DisplayActionSheet(
                         "Long Press",
@@ -388,9 +397,9 @@ namespace TK.CustomMap.Sample
                         };
                         this._pins.Add(pin);
                     }
-                    else if(action == "Add Circle")
+                    else if (action == "Add Circle")
                     {
-                        var circle = new TKCircle 
+                        var circle = new TKCircle
                         {
                             Center = position,
                             Radius = 10000,
@@ -398,10 +407,10 @@ namespace TK.CustomMap.Sample
                         };
                         this._circles.Add(circle);
                     }
-                    
                 });
             }
         }
+
         /// <summary>
         /// Map Clicked bound to the <see cref="TKCustomMap"/>
         /// </summary>
@@ -421,6 +430,7 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+
         /// <summary>
         /// Command when a place got selected
         /// </summary>
@@ -461,6 +471,7 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+
         /// <summary>
         /// Pin Selected bound to the <see cref="TKCustomMap"/>
         /// </summary>
@@ -483,14 +494,15 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+
         /// <summary>
         /// Drag End bound to the <see cref="TKCustomMap"/>
         /// </summary>
         public Command<TKCustomMapPin> DragEndCommand
         {
-            get 
+            get
             {
-                return new Command<TKCustomMapPin>(pin => 
+                return new Command<TKCustomMapPin>(pin =>
                 {
                     var routePin = pin as RoutePin;
 
@@ -508,6 +520,7 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+
         /// <summary>
         /// Route clicked bound to the <see cref="TKCustomMap"/>
         /// </summary>
@@ -515,7 +528,7 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return new Command<TKRoute>(async r => 
+                return new Command<TKRoute>(async r =>
                 {
                     var action = await Application.Current.MainPage.DisplayActionSheet(
                         "Route tapped",
@@ -530,6 +543,7 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+
         /// <summary>
         /// Callout clicked bound to the <see cref="TKCustomMap"/>
         /// </summary>
@@ -537,7 +551,7 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return new Command<TKCustomMapPin>(async (TKCustomMapPin pin) => 
+                return new Command<TKCustomMapPin>(async (TKCustomMapPin pin) =>
                 {
                     var action = await Application.Current.MainPage.DisplayActionSheet(
                         "Callout clicked",
@@ -551,11 +565,12 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+
         public Command ClearMapCommand
         {
             get
             {
-                return new Command(() => 
+                return new Command(() =>
                 {
                     this._pins.Clear();
                     this._circles.Clear();
@@ -564,6 +579,7 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+
         /// <summary>
         /// Navigate to a new page to get route source/destination
         /// </summary>
@@ -571,7 +587,7 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return new Command(() => 
+                return new Command(() =>
                 {
                     if (this.Routes == null) this.Routes = new ObservableCollection<TKRoute>();
 
@@ -580,6 +596,7 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+
         /// <summary>
         /// Command when a route calculation finished
         /// </summary>
@@ -587,7 +604,7 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return new Command<TKRoute>(r => 
+                return new Command<TKRoute>(r =>
                 {
                     // move to the bounds of the route
                     this.MapRegion = r.Bounds;

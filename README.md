@@ -73,6 +73,11 @@ public override bool FinishedLaunching(UIApplication app, NSDictionary options)
 }
 ```
 
+## UWP
+
+Make sure you call `FormsMaps.Init("Your_key_here");` in your `MainPage.xaml.cs` before `LoadApplication(new Sample.App());`.
+Also you need the Location capability in your app manifest.
+
 # Video
 
 ## Android
