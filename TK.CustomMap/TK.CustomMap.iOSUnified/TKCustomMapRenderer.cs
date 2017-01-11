@@ -1516,5 +1516,18 @@ namespace TK.CustomMap.iOSUnified
 
             return customAnnotation.CustomPin;
         }
+        /// <summary>
+        /// Remove all annotations before disposing
+        /// </summary>
+        /// <param name="disposing">disposing</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (Map != null)
+            {
+                Map.RemoveAnnotations(Map.Annotations);
+            }
+
+            base.Dispose(disposing);
+        }
     }
 }
