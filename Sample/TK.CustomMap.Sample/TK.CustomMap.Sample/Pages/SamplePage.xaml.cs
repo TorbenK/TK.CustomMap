@@ -21,6 +21,7 @@ namespace TK.CustomMap.Sample
 
             var newYork = new Position(40.7142700, -74.0059700);
             var mapView = new TKCustomMap(MapSpan.FromCenterAndRadius(newYork, Distance.FromKilometers(2)));
+            mapView.IsShowingUser = true;
             mapView.SetBinding(TKCustomMap.CustomPinsProperty, "Pins");
             mapView.SetBinding(TKCustomMap.MapClickedCommandProperty, "MapClickedCommand");
             mapView.SetBinding(TKCustomMap.MapLongPressCommandProperty, "MapLongPressCommand");
@@ -40,20 +41,22 @@ namespace TK.CustomMap.Sample
             mapView.SetBinding(TKCustomMap.MapFunctionsProperty, "MapFunctions");
             mapView.IsRegionChangeAnimated = true;
 
+
             autoComplete.SetBinding(PlacesAutoComplete.BoundsProperty, "MapRegion");
 
+            this.Content = mapView;
 
-            this._baseLayout.Children.Add(
-                mapView,
-                Constraint.RelativeToView(autoComplete, (r, v) => v.X),
-                Constraint.RelativeToView(autoComplete, (r, v) => autoComplete.HeightOfSearchBar),
-                heightConstraint: Constraint.RelativeToParent((r) => r.Height - autoComplete.HeightOfSearchBar),
-                widthConstraint: Constraint.RelativeToView(autoComplete, (r, v) => v.Width));
+            //this._baseLayout.Children.Add(
+            //    mapView,
+            //    Constraint.RelativeToView(autoComplete, (r, v) => v.X),
+            //    Constraint.RelativeToView(autoComplete, (r, v) => autoComplete.HeightOfSearchBar),
+            //    heightConstraint: Constraint.RelativeToParent((r) => r.Height - autoComplete.HeightOfSearchBar),
+            //    widthConstraint: Constraint.RelativeToView(autoComplete, (r, v) => v.Width));
 
-            this._baseLayout.Children.Add(
-                autoComplete,
-                Constraint.Constant(0),
-                Constraint.Constant(0));
+            //this._baseLayout.Children.Add(
+            //    autoComplete,
+            //    Constraint.Constant(0),
+            //    Constraint.Constant(0));
         }
     }
 }

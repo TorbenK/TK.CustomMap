@@ -57,7 +57,7 @@ namespace TK.CustomMap.Droid
         }
 
         /// <inheritdoc />
-        protected override void OnElementChanged(ElementChangedEventArgs<View> e)
+        protected override void OnElementChanged(ElementChangedEventArgs<Map> e)
         {
             base.OnElementChanged(e);
 
@@ -195,7 +195,12 @@ namespace TK.CustomMap.Droid
         /// <param name="e">Event Arguments</param>
         private void OnInfoWindowClick(object sender, GoogleMap.InfoWindowClickEventArgs e)
         {
-            this.MapFunctions.RaiseCalloutClicked(this.GetPinByMarker(e.Marker));
+            var pin = this.GetPinByMarker(e.Marker);
+
+            if (pin == null) return;
+
+            if(pin.IsCalloutClickable)
+                this.MapFunctions.RaiseCalloutClicked(pin);
         }
         /// <summary>
         /// Dragging process
@@ -346,8 +351,8 @@ namespace TK.CustomMap.Droid
             var pin = sender as TKCustomMapPin;
             if (pin == null) return;
 
-            var marker = this._markers[pin];
-            if (marker == null) return;
+            Marker marker = null;
+            if (!this._markers.ContainsKey(pin) || (marker= this._markers[pin]) == null) return;
 
             switch (e.PropertyName)
             {
@@ -377,6 +382,9 @@ namespace TK.CustomMap.Droid
                     {
                         marker.SetAnchor((float)pin.Anchor.X, (float)pin.Anchor.Y);
                     }
+                    break;
+                case TKCustomMapPin.RotationPropertyName:
+                    marker.Rotation = (float)pin.Rotation;
                     break;
             }
         }
@@ -475,6 +483,8 @@ namespace TK.CustomMap.Droid
         /// <param name="pin">The Forms Pin</param>
         private async void AddPin(TKCustomMapPin pin)
         {
+	    if (this._markers.Keys.Contains(pin)) return; 
+
             pin.PropertyChanged += OnPinPropertyChanged;
 
             var markerWithIcon = new MarkerOptions();
@@ -488,6 +498,7 @@ namespace TK.CustomMap.Droid
             await this.UpdateImage(pin, markerWithIcon);
             markerWithIcon.Draggable(pin.IsDraggable);
             markerWithIcon.Visible(pin.IsVisible);
+            markerWithIcon.SetRotation((float)pin.Rotation);
             if (pin.Image != null)
             {
                 markerWithIcon.Anchor((float)pin.Anchor.X, (float)pin.Anchor.Y);
@@ -540,7 +551,7 @@ namespace TK.CustomMap.Droid
                 {
                     selectedPin.ShowInfoWindow();
                 }
-                this.MapFunctions.RaisePinSelected(null);
+                this.MapFunctions.RaisePinSelected(this.FormsMap.SelectedPin);
             }
         }
         /// <summary>
@@ -550,7 +561,7 @@ namespace TK.CustomMap.Droid
         {
             if (this._googleMap == null) return;
 
-            if (!this.FormsMap.MapCenter.Equals(this._googleMap.CameraPosition.Target.ToPosition()))
+            if (this.FormsMap!=null && !this.FormsMap.MapCenter.Equals(this._googleMap.CameraPosition.Target.ToPosition()))
             {
                 var cameraUpdate = CameraUpdateFactory.NewLatLng(this.FormsMap.MapCenter.ToLatLng());
 
@@ -1243,20 +1254,38 @@ namespace TK.CustomMap.Droid
         {
             if (this._googleMap == null) return;
 
+            if (region == null) return;
+
+            var bounds = this.BoundsFromMapSpans(region);
+            if (bounds == null) return;
+            var cam = CameraUpdateFactory.NewLatLngBounds(bounds, 0);
+
             if (animate)
-                this._googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(region), 0));
+                this._googleMap.AnimateCamera(cam);
             else
-                this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(region), 0));
+                this._googleMap.MoveCamera(cam);
         }
         ///<inheritdoc/>
         public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate)
         {
-            if (this._googleMap == null) return;
+            if (this._googleMap == null || regions == null || !regions.Any()) return;
+
+            var bounds = this.BoundsFromMapSpans(regions.ToArray());
+            if (bounds == null) return;
+            var cam = CameraUpdateFactory.NewLatLngBounds(bounds, 0);
 
             if (animate)
-                this._googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(regions.ToArray()), 0));
+                this._googleMap.AnimateCamera(cam);
             else
-                this._googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(this.BoundsFromMapSpans(regions.ToArray()), 0));
+                this._googleMap.MoveCamera(cam);
+        }
+        ///<inheritdoc/>
+        public IEnumerable<Position> ScreenLocationsToGeocoordinates(params Xamarin.Forms.Point[] screenLocations)
+        {
+            if (this._googleMap == null)
+                throw new InvalidOperationException("Map not initialized");
+
+            return screenLocations.Select(i => this._googleMap.Projection.FromScreenLocation(i.ToAndroidPoint()).ToPosition());
         }
         /// <summary>
         /// Gets the <see cref="TKCustomMapPin"/> by the native <see cref="Marker"/>

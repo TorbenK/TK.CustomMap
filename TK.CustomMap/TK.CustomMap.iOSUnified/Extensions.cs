@@ -6,6 +6,7 @@ using UIKit;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 using Xamarin.Forms.Platform.iOS;
+using CoreGraphics;
 
 namespace TK.CustomMap.iOSUnified
 {
@@ -71,6 +72,15 @@ namespace TK.CustomMap.iOSUnified
                 return await new StreamImagesourceHandler().LoadImageAsync(source);
             }
             return null;
+        }
+        /// <summary>
+        /// Convert <see cref="CGPoint"/> to <see cref="Point"/>
+        /// </summary>
+        /// <param name="point">Self</param>
+        /// <returns>iOS Point</returns>
+        public static CGPoint ToCGPoint(this Point point)
+        {
+            return new CGPoint(point.X, point.Y);
         }
     }
 }

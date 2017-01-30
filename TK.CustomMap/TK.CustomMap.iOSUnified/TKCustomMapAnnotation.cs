@@ -1,4 +1,6 @@
-﻿using CoreLocation;
+﻿using System;
+using CoreGraphics;
+using CoreLocation;
 using Foundation;
 using MapKit;
 
@@ -10,6 +12,7 @@ namespace TK.CustomMap.iOSUnified
     [Preserve(AllMembers = true)]
     internal class TKCustomMapAnnotation : MKAnnotation
     {
+        CLLocationCoordinate2D _coordinate;
         private readonly TKCustomMapPin _formsPin;
 
         ///<inheritdoc/>
@@ -31,7 +34,7 @@ namespace TK.CustomMap.iOSUnified
         ///<inheritdoc/>
         public override CLLocationCoordinate2D Coordinate
         {
-            get { return this._formsPin.Position.ToLocationCoordinate(); }
+            get { return _coordinate; }
         }
         /// <summary>
         /// Gets the forms pin
@@ -43,7 +46,9 @@ namespace TK.CustomMap.iOSUnified
         ///<inheritdoc/>
         public override void SetCoordinate(CLLocationCoordinate2D value)
         {
-            this._formsPin.Position = value.ToPosition();
+            this.WillChangeValue("coordinate");
+            _coordinate = value;
+            this.DidChangeValue("coordinate");
         }
         /// <summary>
         /// Xamarin.iOS does (still) not export <value>_original_setCoordinate</value>
@@ -52,7 +57,8 @@ namespace TK.CustomMap.iOSUnified
         [Export("_original_setCoordinate:")]
         public void SetCoordinateOriginal(CLLocationCoordinate2D value)
         {
-            this.SetCoordinate(value);
+            _formsPin.Position = value.ToPosition();
+            _coordinate = value;
         }
         /// <summary>
         /// Creates a new instance of <see cref="TKCustomMapAnnotation"/>
@@ -61,6 +67,31 @@ namespace TK.CustomMap.iOSUnified
         public TKCustomMapAnnotation(TKCustomMapPin pin)
         {
             this._formsPin = pin;
+            _coordinate = pin.Position.ToLocationCoordinate();
+            this._formsPin.PropertyChanged += formsPin_PropertyChanged;
+        }
+
+        void formsPin_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == TKCustomMapPin.SubititlePropertyName)
+            {
+                this.WillChangeValue("subtitle");
+                this.DidChangeValue("subtitle");
+            }
+            if (e.PropertyName == TKCustomMapPin.TitlePropertyName)
+            {
+                this.WillChangeValue("title");
+                this.DidChangeValue("title");
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+                this._formsPin.PropertyChanged -= formsPin_PropertyChanged;
+
+
         }
     }
 }

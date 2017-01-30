@@ -63,10 +63,24 @@ namespace TK.CustomMap.Sample
 
                     var pin = new TKCustomMapPin 
                     {
-                        Position = new Position(40.718577, -74.083754)
+                        Position = new Position(40.718577, -74.083754),
+                        Title = "Simulation Test",
+                        ShowCallout = true
                     };
 
                     this._pins.Add(pin);
+                    await Task.Delay(1000);
+
+                    SelectedPin = pin;
+                    await Task.Delay(1000);
+
+                    SelectedPin = null;
+                    await Task.Delay(1000);
+
+                    SelectedPin = pin;
+                    await Task.Delay(1000);
+
+                    SelectedPin = null;
                     await Task.Delay(1000);
 
                     pin.DefaultPinColor = Color.Purple;
@@ -82,6 +96,12 @@ namespace TK.CustomMap.Sample
                     this._pins.Remove(pin);
                     await Task.Delay(1000);
                     this._pins.Add(pin);
+                    await Task.Delay(1000);
+                    pin.Position = new Position(40.718281, -74.085179);
+                    await Task.Delay(1000);
+                    pin.Position = new Position(40.717476, -74.080915);
+                    await Task.Delay(1000);
+                    pin.Position = new Position(40.718577, -74.083754);
                     await Task.Delay(1000);
                     this._pins.Clear();
 
@@ -209,6 +229,7 @@ namespace TK.CustomMap.Sample
                     this.TilesUrlOptions = new TKTileUrlOptions(
                         "http://a.tile.openstreetmap.org/{2}/{0}/{1}.png", 256, 256, 0, 18);
                     #endregion
+
                 });
             }
         }
@@ -461,7 +482,7 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return new Command(() =>
+                return new Command<TKCustomMapPin>((TKCustomMapPin pin) =>
                 {
                     // Chose one
 
@@ -530,7 +551,7 @@ namespace TK.CustomMap.Sample
         {
             get
             {
-                return new Command(async () => 
+                return new Command<TKCustomMapPin>(async (TKCustomMapPin pin) => 
                 {
                     var action = await Application.Current.MainPage.DisplayActionSheet(
                         "Callout clicked",
@@ -539,7 +560,7 @@ namespace TK.CustomMap.Sample
 
                     if (action == "Remove Pin")
                     {
-                        this._pins.Remove(this.SelectedPin);
+                        this._pins.Remove(pin);
                     }
                 });
             }

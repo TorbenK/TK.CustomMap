@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.Interfaces
@@ -31,5 +32,11 @@ namespace TK.CustomMap.Interfaces
         /// <param name="regions">Regions to move the map to</param>
         /// <param name="animate">If the region change should be animated or not</param>
         void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate);
+        /// <summary>
+        /// Converts an array of <see cref="Point"/> into geocoordinates
+        /// </summary>
+        /// <param name="screenLocations">The screen locations(pixel)</param>
+        /// <returns>A collection of <see cref="Position"/></returns>
+        IEnumerable<Position> ScreenLocationsToGeocoordinates(params Point[] screenLocations);
     }
 }

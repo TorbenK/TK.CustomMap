@@ -59,7 +59,8 @@ namespace TK.CustomMap.Droid
                 result.AddRange(this._buffer.Select(i => 
                     new TKNativeAndroidPlaceResult
                     {
-                        Description = i.Description,
+                        Description = i.GetPrimaryText(null),
+                        Subtitle = i.GetSecondaryText(null),
                         PlaceId = i.PlaceId,
                     }));
             }
@@ -88,9 +89,13 @@ namespace TK.CustomMap.Droid
                 this._apiClient.Disconnect();
 
             this._apiClient.Dispose();
+            this._apiClient = null;
 
             if (this._buffer != null)
+            {
                 this._buffer.Dispose();
+                this._buffer = null;
+            }
         }
         /// <inheritdoc/>
         public async Task<TKPlaceDetails> GetDetails(string id)
@@ -103,9 +108,12 @@ namespace TK.CustomMap.Droid
 
             var nativeDetails = nativeResult.First();
 
-            return new TKPlaceDetails 
+            return new TKPlaceDetails
             {
-                Coordinate = nativeDetails.LatLng.ToPosition()
+                Coordinate = nativeDetails.LatLng.ToPosition(),
+                FormattedAddress = nativeDetails.AddressFormatted.ToString(),
+                InternationalPhoneNumber = nativeDetails.PhoneNumberFormatted?.ToString(),
+                Website = nativeDetails.WebsiteUri?.ToString()
             };
         }
     }

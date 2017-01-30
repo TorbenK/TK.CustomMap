@@ -9,6 +9,7 @@ namespace TK.CustomMap
     public class TKCustomMapPin : TKBase
     {
         private bool _isVisible;
+        private string _id;
         private string _title;
         private string _subtitle;
         private bool _showCallout;
@@ -17,7 +18,10 @@ namespace TK.CustomMap
         private bool _isDraggable;
         private Color _defaultPinColor;
         private Point _anchor;
+        private double _rotation;
+        private bool _isCalloutClickable;
 
+        public const string IDPropertyName = "ID";
         public const string TitlePropertyName = "Title";
         public const string SubititlePropertyName = "Subtitle";
         public const string PositionPropertyName = "Position";
@@ -27,6 +31,8 @@ namespace TK.CustomMap
         public const string ShowCalloutPropertyName = "ShowCallout";
         public const string DefaultPinColorPropertyName = "DefaultPinColor";
         public const string AnchorPropertyName = "Anchor";
+        public const string RotationPropertyName = "Rotation";
+        public const string IsCalloutClickablePropertyName = "IsCalloutClickable";
 
         /// <summary>
         /// Gets/Sets visibility of a pin
@@ -35,6 +41,14 @@ namespace TK.CustomMap
         {
             get { return this._isVisible; }
             set { this.SetField(ref this._isVisible, value); }
+        }
+        /// <summary>
+        /// Gets/Sets ID of the pin, used for client app reference (optional)
+        /// </summary>
+        public string ID
+        {
+            get { return this._id; }
+            set { this.SetField(ref this._id, value); }
         }
         /// <summary>
         /// Gets/Sets title of the pin displayed in the callout
@@ -99,6 +113,22 @@ namespace TK.CustomMap
         {
             get { return this._anchor; }
             set { this.SetField(ref this._anchor, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the rotation angle of the pin in degrees
+        /// </summary>
+        public double Rotation
+        {
+            get { return this._rotation; }
+            set { this.SetField(ref this._rotation, value); }
+        }
+        /// <summary>
+        /// Gets/Sets whether the callout is clickable or not. This adds/removes the accessory control on iOS
+        /// </summary>
+        public bool IsCalloutClickable
+        {
+            get { return this._isCalloutClickable; }
+            set { this.SetField(ref this._isCalloutClickable, value); }
         }
         /// <summary>
         /// Creates a new instance of <see cref="TKCustomMapPin" />

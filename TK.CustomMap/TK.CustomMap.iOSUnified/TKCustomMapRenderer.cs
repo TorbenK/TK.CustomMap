@@ -31,7 +31,6 @@ namespace TK.CustomMap.iOSUnified
     [Preserve(AllMembers = true)]
     public class TKCustomMapRenderer : MapRenderer, IRendererFunctions
     {
-        private bool _isLoaded;
 
         private const double MercatorRadius = 85445659.44705395;
 
@@ -66,6 +65,10 @@ namespace TK.CustomMap.iOSUnified
             get { return this.Element as IMapFunctions; }
         }
         /// <summary>
+        /// Gets/Sets if the default pin drop animation is enabled
+        /// </summary>
+        public static bool AnimateOnPinDrop { get; set; } = true;
+        /// <summary>
         /// Dummy function to avoid linker.
         /// </summary>
         [Preserve]
@@ -82,9 +85,6 @@ namespace TK.CustomMap.iOSUnified
             {
                 e.OldElement.PropertyChanged -= OnMapPropertyChanged;
 
-                this._isLoaded = false;
-
-                this.Map.MapLoaded -= MapLoaded;
                 this.Map.GetViewForAnnotation = null;
                 this.Map.OverlayRenderer = null;
                 this.Map.DidSelectAnnotationView -= OnDidSelectAnnotationView;
@@ -125,29 +125,16 @@ namespace TK.CustomMap.iOSUnified
                 this.Map.AddGestureRecognizer(this._tapGestureRecognizer);
                 this.Map.AddGestureRecognizer(this._doubleTapGestureRecognizer);
 
-                this.Map.MapLoaded += MapLoaded;
+                this.UpdateTileOptions();
+                this.SetMapCenter();
+                this.UpdatePins();
+                this.UpdateRoutes();
+                this.UpdateLines();
+                this.UpdateCircles();
+                this.UpdatePolygons();
+                this.UpdateShowTraffic();
+                this.FormsMap.PropertyChanged += OnMapPropertyChanged;
             }
-        }
-        /// <summary>
-        /// Initially set all data when map is loaded
-        /// </summary>
-        /// <param name="sender">Event sender</param>
-        /// <param name="e">Event arguments</param>
-        private void MapLoaded(object sender, EventArgs e)
-        {
-            if (this._isLoaded) return;
-
-            this.UpdateTileOptions();
-            this.SetMapCenter();
-            this.UpdatePins();
-            this.UpdateRoutes();
-            this.UpdateLines();
-            this.UpdateCircles();
-            this.UpdatePolygons();
-            this.UpdateShowTraffic();
-            this.FormsMap.PropertyChanged += OnMapPropertyChanged;
-
-            this._isLoaded = true;
         }
         /// <summary>
         /// Get the overlay renderer
@@ -270,6 +257,10 @@ namespace TK.CustomMap.iOSUnified
             else if (e.PropertyName == TKCustomMap.PolylinesProperty.PropertyName)
             {
                 this.UpdateLines();
+            }
+            else if (e.PropertyName == TKCustomMap.CirclesProperty.PropertyName)
+            {
+                this.UpdateCircles();
             }
             else if (e.PropertyName == TKCustomMap.CalloutClickedCommandProperty.PropertyName)
             {
@@ -487,20 +478,33 @@ namespace TK.CustomMap.iOSUnified
             annotationView.CanShowCallout = customAnnotation.CustomPin.ShowCallout;
             annotationView.Draggable = customAnnotation.CustomPin.IsDraggable;
             annotationView.Selected = this._selectedAnnotation != null && customAnnotation.Equals(this._selectedAnnotation);
-            
+            annotationView.Transform = CGAffineTransform.MakeRotation((float)customAnnotation.CustomPin.Rotation.ToRadian());
+
             this.SetAnnotationViewVisibility(annotationView, customAnnotation.CustomPin);
             this.UpdateImage(annotationView, customAnnotation.CustomPin);
-
-            if (FormsMap.CalloutClickedCommand != null)
+            this.UpdateAccessoryView(customAnnotation.CustomPin, annotationView);
+            
+            return annotationView;
+        }
+        /// <summary>
+        /// Update the callout accessory view
+        /// </summary>
+        /// <param name="pin">Custom pin</param>
+        /// <param name="view">Annotation view</param>
+        private void UpdateAccessoryView(TKCustomMapPin pin, MKAnnotationView view)
+        {
+            if (pin.IsCalloutClickable)
             {
                 var button = new UIButton(UIButtonType.InfoLight);
                 button.Frame = new CGRect(0, 0, 23, 23);
                 button.HorizontalAlignment = UIControlContentHorizontalAlignment.Center;
                 button.VerticalAlignment = UIControlContentVerticalAlignment.Center;
-                annotationView.RightCalloutAccessoryView = button;
+                view.RightCalloutAccessoryView = button;
             }
-            
-            return annotationView;
+            else
+            {
+                view.RightCalloutAccessoryView = null;
+            }
         }
         /// <summary>
         /// Creates the annotations
@@ -1087,6 +1091,12 @@ namespace TK.CustomMap.iOSUnified
                         annotationView.Layer.AnchorPoint = new CGPoint(formsPin.Anchor.X, formsPin.Anchor.Y);
                     }
                     break;
+                case TKCustomMapPin.RotationPropertyName:
+                    annotationView.Transform = CGAffineTransform.MakeRotation((float)formsPin.Rotation);
+                    break;
+                case TKCustomMapPin.IsCalloutClickablePropertyName:
+                    this.UpdateAccessoryView(formsPin, annotationView);
+                    break;
             }
         }
         /// <summary>
@@ -1156,7 +1166,7 @@ namespace TK.CustomMap.iOSUnified
                 var pinAnnotationView = annotationView as MKPinAnnotationView;
                 if (pinAnnotationView != null)
                 {
-                    pinAnnotationView.AnimatesDrop = true;
+                    pinAnnotationView.AnimatesDrop = AnimateOnPinDrop;
 
                     var pinTintColorAvailable = pinAnnotationView.RespondsToSelector(new Selector("pinTintColor"));
 
@@ -1220,8 +1230,11 @@ namespace TK.CustomMap.iOSUnified
                 if (customAnnotion.CustomPin.Equals(this.FormsMap.SelectedPin)) return;
 
                 var annotationView = this.Map.ViewForAnnotation(customAnnotion);
-                if(annotationView != null)
+                if (annotationView != null)
+                {
                     annotationView.Selected = false;
+                    this.Map.DeselectAnnotation(annotationView.Annotation, true);
+                }
 
                 this._selectedAnnotation = null;
             }
@@ -1239,7 +1252,7 @@ namespace TK.CustomMap.iOSUnified
                     {
                         this.Map.SelectAnnotation(selectedAnnotation, true);
                     }
-                    this.MapFunctions.RaisePinSelected(null);
+                    this.MapFunctions.RaisePinSelected(this.FormsMap.SelectedPin);
                 }
             }
         }
@@ -1252,7 +1265,10 @@ namespace TK.CustomMap.iOSUnified
 
             if (!this.FormsMap.MapCenter.Equals(this.Map.CenterCoordinate.ToPosition()))
             {
-                this.Map.SetCenterCoordinate(this.FormsMap.MapCenter.ToLocationCoordinate(), this.FormsMap.IsRegionChangeAnimated);   
+                BeginInvokeOnMainThread(() => 
+                {
+                    this.Map.SetCenterCoordinate(this.FormsMap.MapCenter.ToLocationCoordinate(), this.FormsMap.IsRegionChangeAnimated);
+                });
             }
         }
         /// <summary>
@@ -1405,11 +1421,14 @@ namespace TK.CustomMap.iOSUnified
             UIImage img = null;
             await Task.Factory.StartNew(() =>
             {
-                UIGraphics.BeginImageContextWithOptions(this.Frame.Size, false, 0.0f);
-                this.Layer.RenderInContext(UIGraphics.GetCurrentContext());
+                BeginInvokeOnMainThread(() => 
+                {
+                    UIGraphics.BeginImageContextWithOptions(this.Frame.Size, false, 0.0f);
+                    this.Layer.RenderInContext(UIGraphics.GetCurrentContext());
 
-                img = UIGraphics.GetImageFromCurrentImageContext();
-                UIGraphics.EndImageContext();
+                    img = UIGraphics.GetImageFromCurrentImageContext();
+                    UIGraphics.EndImageContext();
+                });
             });
             return img.AsPNG().ToArray();
         }
@@ -1458,6 +1477,36 @@ namespace TK.CustomMap.iOSUnified
             }
             this.Map.SetVisibleMapRect(rect, new UIEdgeInsets(15, 15, 15, 15), animate);
         }
+        /// <inheritdoc/>
+        public void ShowCallout(TKCustomMapPin pin)
+        {
+            if (this.Map == null) return;
+
+            var annotation = this.Map.Annotations
+                .OfType<TKCustomMapAnnotation>()
+                .SingleOrDefault(i => i.CustomPin.Equals(pin));
+
+            this.Map.SelectAnnotation(annotation, true);
+        }
+        /// <inheritdoc/>
+        public void HideCallout(TKCustomMapPin pin)
+        {
+            if (this.Map == null) return;
+
+            var annotation = this.Map.Annotations
+                .OfType<TKCustomMapAnnotation>()
+                .SingleOrDefault(i => i.CustomPin.Equals(pin));
+
+            this.Map.DeselectAnnotation(annotation, true);
+        }
+        /// <inheritdoc />
+        public IEnumerable<Position> ScreenLocationsToGeocoordinates(params Point[] screenLocations)
+        {
+            if (this.Map == null)
+                throw new InvalidOperationException("Map not initialized");
+
+            return screenLocations.Select(i => this.Map.ConvertPoint(i.ToCGPoint(), this.Map).ToPosition());
+        }
         /// <summary>
         /// Returns the <see cref="TKCustomMapPin"/> by the native <see cref="IMKAnnotation"/>
         /// </summary>
@@ -1469,6 +1518,19 @@ namespace TK.CustomMap.iOSUnified
             if (customAnnotation == null) return null;
 
             return customAnnotation.CustomPin;
+        }
+        /// <summary>
+        /// Remove all annotations before disposing
+        /// </summary>
+        /// <param name="disposing">disposing</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (Map != null)
+            {
+                Map.RemoveAnnotations(Map.Annotations);
+            }
+
+            base.Dispose(disposing);
         }
     }
 }
