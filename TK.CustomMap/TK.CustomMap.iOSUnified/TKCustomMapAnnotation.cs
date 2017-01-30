@@ -12,7 +12,7 @@ namespace TK.CustomMap.iOSUnified
     [Preserve(AllMembers = true)]
     internal class TKCustomMapAnnotation : MKAnnotation
     {
-        private CLLocationCoordinate2D _coordinate;
+        CLLocationCoordinate2D _coordinate;
         private readonly TKCustomMapPin _formsPin;
 
         ///<inheritdoc/>
@@ -57,8 +57,8 @@ namespace TK.CustomMap.iOSUnified
         [Export("_original_setCoordinate:")]
         public void SetCoordinateOriginal(CLLocationCoordinate2D value)
         {
-            this._formsPin.Position = value.ToPosition();
-            this.SetCoordinate(value);
+            _formsPin.Position = value.ToPosition();
+            _coordinate = value;
         }
         /// <summary>
         /// Creates a new instance of <see cref="TKCustomMapAnnotation"/>
@@ -67,7 +67,7 @@ namespace TK.CustomMap.iOSUnified
         public TKCustomMapAnnotation(TKCustomMapPin pin)
         {
             this._formsPin = pin;
-            this._coordinate = pin.Position.ToLocationCoordinate();
+            _coordinate = pin.Position.ToLocationCoordinate();
             this._formsPin.PropertyChanged += formsPin_PropertyChanged;
         }
 

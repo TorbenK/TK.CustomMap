@@ -78,6 +78,16 @@ public override bool FinishedLaunching(UIApplication app, NSDictionary options)
 Make sure you call `FormsMaps.Init("Your_key_here");` in your `MainPage.xaml.cs` before `LoadApplication(new Sample.App());`.
 Also you need the Location capability in your app manifest.
 
+# Contributions
+
+If you want to contribute, please use the Development branch to submit PRs.
+
+# Known Issues
+
+## Image offset
+
+If you notice wrong offsets or moving images during zoom, you can use the `Anchor` property to properly adjust the anchor point.
+
 # Video
 
 ## Android
@@ -97,4 +107,13 @@ Also you need the Location capability in your app manifest.
 * [JeanCollas](https://github.com/JeanCollas)
 * [Falco20019](https://github.com/Falco20019)
 * [RanaInside](https://github.com/RanaInside)
+* [xalikoutis](https://github.com/xalikoutis)
+* [jessejiang0214](https://github.com/jessejiang0214)
+* [dapug](https://github.com/dapug)
+* [hardcodet](https://github.com/hardcodet)
+* [Spierki](https://github.com/Spierki)
+* [DennisWelu](https://github.com/DennisWelu)
+* [SavikPavel](https://github.com/SavikPavel)
+* [krisrok](https://github.com/krisrok)
+
 
