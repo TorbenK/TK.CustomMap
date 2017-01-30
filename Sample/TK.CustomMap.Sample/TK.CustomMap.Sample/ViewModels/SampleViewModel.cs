@@ -63,10 +63,24 @@ namespace TK.CustomMap.Sample
 
                     var pin = new TKCustomMapPin 
                     {
-                        Position = new Position(40.718577, -74.083754)
+                        Position = new Position(40.718577, -74.083754),
+                        Title = "Simulation Test",
+                        ShowCallout = true
                     };
 
                     this._pins.Add(pin);
+                    await Task.Delay(1000);
+
+                    SelectedPin = pin;
+                    await Task.Delay(1000);
+
+                    SelectedPin = null;
+                    await Task.Delay(1000);
+
+                    SelectedPin = pin;
+                    await Task.Delay(1000);
+
+                    SelectedPin = null;
                     await Task.Delay(1000);
 
                     pin.DefaultPinColor = Color.Purple;

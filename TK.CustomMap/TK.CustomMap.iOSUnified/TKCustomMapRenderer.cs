@@ -1230,8 +1230,11 @@ namespace TK.CustomMap.iOSUnified
                 if (customAnnotion.CustomPin.Equals(this.FormsMap.SelectedPin)) return;
 
                 var annotationView = this.Map.ViewForAnnotation(customAnnotion);
-                if(annotationView != null)
+                if (annotationView != null)
+                {
                     annotationView.Selected = false;
+                    this.Map.DeselectAnnotation(annotationView.Annotation, true);
+                }
 
                 this._selectedAnnotation = null;
             }
