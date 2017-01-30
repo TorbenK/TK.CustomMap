@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using ModernHttpClient;
 using Newtonsoft.Json;
 
 namespace TK.CustomMap.Api.Google
@@ -35,7 +34,7 @@ namespace TK.CustomMap.Api.Google
         {
             if (_apiKey == null) throw new InvalidOperationException("NO API KEY PROVIDED");
 
-            this._httpClient = new HttpClient(new NativeMessageHandler())
+            this._httpClient = new HttpClient()
             {
                 BaseAddress = new Uri(BaseUrl)
             };

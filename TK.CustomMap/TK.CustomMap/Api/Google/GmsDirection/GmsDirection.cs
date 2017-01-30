@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using ModernHttpClient;
 using Newtonsoft.Json;
 using Xamarin.Forms.Maps;
 
@@ -34,7 +33,7 @@ namespace TK.CustomMap.Api.Google
         /// </summary>
         private GmsDirection()
         {
-            this._httpClient = new HttpClient(new NativeMessageHandler());
+            this._httpClient = new HttpClient();
             this._httpClient.BaseAddress = new Uri(BaseUrl);
         }
         /// <summary>

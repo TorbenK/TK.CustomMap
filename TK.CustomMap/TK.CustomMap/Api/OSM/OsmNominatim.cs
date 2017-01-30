@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using ModernHttpClient;
 using Newtonsoft.Json;
 
 namespace TK.CustomMap.Api.OSM
@@ -43,7 +42,7 @@ namespace TK.CustomMap.Api.OSM
         /// </summary>
         private OsmNominatim()
         {
-            this._httpClient = new HttpClient(new NativeMessageHandler());
+            this._httpClient = new HttpClient();
             this._httpClient.BaseAddress = new Uri(BaseUrl);
 
             this.Limit = 5;

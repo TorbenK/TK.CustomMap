@@ -1230,8 +1230,11 @@ namespace TK.CustomMap.iOSUnified
                 if (customAnnotion.CustomPin.Equals(this.FormsMap.SelectedPin)) return;
 
                 var annotationView = this.Map.ViewForAnnotation(customAnnotion);
-                if(annotationView != null)
+                if (annotationView != null)
+                {
                     annotationView.Selected = false;
+                    this.Map.DeselectAnnotation(annotationView.Annotation, true);
+                }
 
                 this._selectedAnnotation = null;
             }
@@ -1515,6 +1518,19 @@ namespace TK.CustomMap.iOSUnified
             if (customAnnotation == null) return null;
 
             return customAnnotation.CustomPin;
+        }
+        /// <summary>
+        /// Remove all annotations before disposing
+        /// </summary>
+        /// <param name="disposing">disposing</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (Map != null)
+            {
+                Map.RemoveAnnotations(Map.Annotations);
+            }
+
+            base.Dispose(disposing);
         }
     }
 }
