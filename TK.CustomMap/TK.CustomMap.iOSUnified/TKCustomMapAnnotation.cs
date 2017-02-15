@@ -34,7 +34,7 @@ namespace TK.CustomMap.iOSUnified
         ///<inheritdoc/>
         public override CLLocationCoordinate2D Coordinate
         {
-            get { return _coordinate; }
+            get { return _coordinate; } 
         }
         /// <summary>
         /// Gets the forms pin
@@ -46,9 +46,8 @@ namespace TK.CustomMap.iOSUnified
         ///<inheritdoc/>
         public override void SetCoordinate(CLLocationCoordinate2D value)
         {
-            this.WillChangeValue("coordinate");
+            _formsPin.Position = value.ToPosition();
             _coordinate = value;
-            this.DidChangeValue("coordinate");
         }
         /// <summary>
         /// Xamarin.iOS does (still) not export <value>_original_setCoordinate</value>
