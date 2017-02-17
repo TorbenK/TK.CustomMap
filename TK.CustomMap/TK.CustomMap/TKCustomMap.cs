@@ -416,6 +416,16 @@ namespace TK.CustomMap
         {
             this.MapCenter = region.Center;
         }
+        /// <summary>
+        /// Creates a new instance of <see cref="TKCustomMap"/>
+        /// </summary>
+        /// <param name="initialLatitude">The initial latitude value</param>
+        /// <param name="initialLongitude">The initial longitude value</param>
+        /// <param name="distanceInKilometers">The initial zoom distance in kilometers</param>
+        public TKCustomMap(double initialLatitude, double initialLongitude, double distanceInKilometers) : 
+            base(MapSpan.FromCenterAndRadius(new Position(initialLatitude, initialLongitude), Distance.FromKilometers(distanceInKilometers)))
+        {
+        }
         /// <inheritdoc/>
         protected override void OnPropertyChanged(string propertyName = null)
         {
