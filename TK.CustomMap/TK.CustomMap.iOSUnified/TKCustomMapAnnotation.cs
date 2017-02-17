@@ -46,18 +46,19 @@ namespace TK.CustomMap.iOSUnified
         ///<inheritdoc/>
         public override void SetCoordinate(CLLocationCoordinate2D value)
         {
+            if (!value.IsValid()) return;
+            
             _formsPin.Position = value.ToPosition();
             _coordinate = value;
         }
         /// <summary>
-        /// Xamarin.iOS does (still) not export <value>_original_setCoordinate</value>
+        /// xamarin.ios does (still) not export <value>_original_setcoordinate</value>
         /// </summary>
-        /// <param name="value">The coordinate</param>
+        /// <param name="value">the coordinate</param>
         [Export("_original_setCoordinate:")]
         public void SetCoordinateOriginal(CLLocationCoordinate2D value)
         {
-            _formsPin.Position = value.ToPosition();
-            _coordinate = value;
+            SetCoordinate(value);
         }
         /// <summary>
         /// Creates a new instance of <see cref="TKCustomMapAnnotation"/>
@@ -67,10 +68,27 @@ namespace TK.CustomMap.iOSUnified
         {
             this._formsPin = pin;
             _coordinate = pin.Position.ToLocationCoordinate();
-            this._formsPin.PropertyChanged += formsPin_PropertyChanged;
+            this._formsPin.PropertyChanged += FormsPinPropertyChanged;
         }
-
-        void formsPin_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        /// <summary>
+        /// Forwards to <see cref="SetCoordinate(CLLocationCoordinate2D)"/> while only triggering the observer if <paramref name="triggerObserver"/> is true
+        /// </summary>
+        /// <param name="value">The coordinate</param>
+        /// <param name="triggerObserver">True to trigger the observer</param>
+        internal void SetCoordinateInternal(CLLocationCoordinate2D value, bool triggerObserver)
+        {
+            if(triggerObserver)
+                WillChangeValue("coordinate");
+            SetCoordinate(value);
+            if (triggerObserver)
+                DidChangeValue("coordinate");
+        }
+        /// <summary>
+        /// When property of the custom pin changes
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Event Arguments</param>
+        void FormsPinPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == TKCustomMapPin.SubititlePropertyName)
             {
@@ -83,14 +101,14 @@ namespace TK.CustomMap.iOSUnified
                 this.DidChangeValue("title");
             }
         }
-
+        /// <inheritdoc />
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
             if (disposing)
-                this._formsPin.PropertyChanged -= formsPin_PropertyChanged;
+                this._formsPin.PropertyChanged -= FormsPinPropertyChanged;
 
-
+            
         }
     }
 }
