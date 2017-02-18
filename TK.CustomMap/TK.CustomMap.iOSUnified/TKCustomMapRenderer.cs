@@ -762,6 +762,7 @@ namespace TK.CustomMap.iOSUnified
 
             if (e.PropertyName != TKPolygon.CoordinatesPropertyName)
             {
+				if (item.Value.Renderer == null) return;
                 if (e.PropertyName == TKPolygon.StrokeColorPropertyName)
                 {
                     item.Value.Renderer.StrokeColor = item.Value.Overlay.StrokeColor.ToUIColor();
@@ -937,6 +938,7 @@ namespace TK.CustomMap.iOSUnified
                 e.PropertyName != TKRoute.SourceProperty &&
                 e.PropertyName != TKRoute.DestinationProperty)
             {
+				if (item.Value.Renderer == null) return;
                 if (e.PropertyName == TKPolyline.ColorPropertyName)
                 {
                     item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
@@ -986,6 +988,7 @@ namespace TK.CustomMap.iOSUnified
             if (e.PropertyName != TKCircle.CenterPropertyName &&
                 e.PropertyName != TKCircle.RadiusPropertyName)
             {
+				if (item.Value.Renderer == null) return;
                 if (e.PropertyName == TKCircle.ColorPropertyName)
                 {
                     item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
@@ -1024,6 +1027,7 @@ namespace TK.CustomMap.iOSUnified
 
             if (e.PropertyName != TKPolyline.LineCoordinatesPropertyName)
             {
+				if (item.Value.Renderer == null) return;
                 if (e.PropertyName == TKPolyline.ColorPropertyName)
                 {
                     item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
