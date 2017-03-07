@@ -288,7 +288,7 @@ namespace TK.CustomMap.Droid
         /// <param name="e">Event Arguments</param>
         private void OnMapClick(object sender, GoogleMap.MapClickEventArgs e)
         {
-            if (this.FormsMap == null || this.FormsMap.MapClickedCommand == null) return;
+            if (this.FormsMap == null) return;
 
             var position = e.Point.ToPosition();
 
@@ -353,7 +353,7 @@ namespace TK.CustomMap.Droid
 
             Marker marker = null;
             if (!this._markers.ContainsKey(pin) || (marker= this._markers[pin]) == null) return;
-
+            
             switch (e.PropertyName)
             {
                 case TKCustomMapPin.TitlePropertyName:
@@ -382,6 +382,9 @@ namespace TK.CustomMap.Droid
                     {
                         marker.SetAnchor((float)pin.Anchor.X, (float)pin.Anchor.Y);
                     }
+                    break;
+                case TKCustomMapPin.IsDraggablePropertyName:
+                    marker.Draggable = pin.IsDraggable;
                     break;
                 case TKCustomMapPin.RotationPropertyName:
                     marker.Rotation = (float)pin.Rotation;

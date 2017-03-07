@@ -4,11 +4,11 @@
     <id>TK.CustomMap</id>
     <version>1.5.1</version>
     <title>Extended, bindable Map of Xamarin.Forms.Maps</title>
-    <authors>Torben Kruse</authors>
-    <owners>Torben Kruse</owners>
+    <authors>Torben Sudau</authors>
+    <owners>Torben Sudau</owners>
     <licenseUrl>https://github.com/TorbenK/TK.CustomMap/blob/master/License.md</licenseUrl>
     <projectUrl>https://github.com/TorbenK/TK.CustomMap/tree/master</projectUrl>
-    <iconUrl>https://www.nuget.org/Content/Images/packageDefaultIcon.png</iconUrl>
+    <!--<iconUrl>https://www.nuget.org/Content/Images/packageDefaultIcon.png</iconUrl>-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
       TK.CustomMap lets you customize pins, add overlays, calculate routes and many more! It is designed with MVVM in mind.
