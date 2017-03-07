@@ -362,7 +362,8 @@ namespace TK.CustomMap.iOSUnified
             }
             else if (e.NewState == MKAnnotationViewDragState.Ending || e.NewState == MKAnnotationViewDragState.Canceling)
             {
-                e.AnnotationView.DragState = MKAnnotationViewDragState.None;
+                if(!(e.AnnotationView is MKPinAnnotationView))
+                    e.AnnotationView.DragState = MKAnnotationViewDragState.None;
                 this._isDragging = false;
                 this.MapFunctions.RaisePinDragEnd(annotation.CustomPin);
             }
@@ -762,6 +763,7 @@ namespace TK.CustomMap.iOSUnified
 
             if (e.PropertyName != TKPolygon.CoordinatesPropertyName)
             {
+                if (item.Value.Renderer == null) return;
                 if (e.PropertyName == TKPolygon.StrokeColorPropertyName)
                 {
                     item.Value.Renderer.StrokeColor = item.Value.Overlay.StrokeColor.ToUIColor();
@@ -937,6 +939,7 @@ namespace TK.CustomMap.iOSUnified
                 e.PropertyName != TKRoute.SourceProperty &&
                 e.PropertyName != TKRoute.DestinationProperty)
             {
+                if (item.Value.Renderer == null) return;
                 if (e.PropertyName == TKPolyline.ColorPropertyName)
                 {
                     item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
@@ -986,6 +989,7 @@ namespace TK.CustomMap.iOSUnified
             if (e.PropertyName != TKCircle.CenterPropertyName &&
                 e.PropertyName != TKCircle.RadiusPropertyName)
             {
+                if (item.Value.Renderer == null) return;
                 if (e.PropertyName == TKCircle.ColorPropertyName)
                 {
                     item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
@@ -1024,6 +1028,7 @@ namespace TK.CustomMap.iOSUnified
 
             if (e.PropertyName != TKPolyline.LineCoordinatesPropertyName)
             {
+                if (item.Value.Renderer == null) return;
                 if (e.PropertyName == TKPolyline.ColorPropertyName)
                 {
                     item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
@@ -1079,8 +1084,8 @@ namespace TK.CustomMap.iOSUnified
                 case TKCustomMapPin.IsVisiblePropertyName:
                     this.SetAnnotationViewVisibility(annotationView, formsPin);
                     break;
-                case TKCustomMapPin.PositionPropertyName:
-                    annotation.SetCoordinate(formsPin.Position.ToLocationCoordinate());
+                case TKCustomMapPin.PositionPropertyName: 
+                    annotation.SetCoordinateInternal(formsPin.Position.ToLocationCoordinate(), true);
                     break;
                 case TKCustomMapPin.ShowCalloutPropertyName:
                     annotationView.CanShowCallout = formsPin.ShowCallout;
@@ -1123,7 +1128,7 @@ namespace TK.CustomMap.iOSUnified
             routeFunctions.SetDistance(nativeRoute.Distance);
             routeFunctions.SetTravelTime(nativeRoute.ExpectedTravelTime);
             
-            var region = MKCoordinateRegion.FromMapRect(this.Map.MapRectThatFits(nativeRoute.Polyline.BoundingMapRect, new UIEdgeInsets(15, 15, 15, 15)));
+            var region = MKCoordinateRegion.FromMapRect(this.Map.MapRectThatFits(nativeRoute.Polyline.BoundingMapRect, new UIEdgeInsets(25, 25, 25, 25)));
 
             routeFunctions.SetBounds(new MapSpan(region.Center.ToPosition(), region.Span.LatitudeDelta, region.Span.LongitudeDelta));
             routeFunctions.SetIsCalculated(true);

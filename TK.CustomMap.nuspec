@@ -2,13 +2,13 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
-    <version>1.5.1</version>
+    <version>1.5.2-pre1</version>
     <title>Extended, bindable Map of Xamarin.Forms.Maps</title>
-    <authors>Torben Kruse</authors>
-    <owners>Torben Kruse</owners>
+    <authors>Torben Sudau</authors>
+    <owners>Torben Sudau</owners>
     <licenseUrl>https://github.com/TorbenK/TK.CustomMap/blob/master/License.md</licenseUrl>
     <projectUrl>https://github.com/TorbenK/TK.CustomMap/tree/master</projectUrl>
-    <iconUrl>https://www.nuget.org/Content/Images/packageDefaultIcon.png</iconUrl>
+    <!--<iconUrl>https://www.nuget.org/Content/Images/packageDefaultIcon.png</iconUrl>-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
       TK.CustomMap lets you customize pins, add overlays, calculate routes and many more! It is designed with MVVM in mind.
@@ -17,33 +17,25 @@
     <tags>xamarin, map, xamarin.forms, xamarin.forms.maps, extended map, custom map</tags>
     <dependencies>
       <group>
-        <dependency id="Xamarin.Forms.Maps" version="2.3.3.180" />
+        <dependency id="Xamarin.Forms.Maps" version="2.3.3.193" />
         <dependency id="Newtonsoft.Json" version="9.0.1" />
         <dependency id="Microsoft.Net.Http" version="2.2.29" />
       </group>
       <group targetFramework="MonoAndroid10">
-        <dependency id="Xamarin.Forms.Maps" version="2.3.3.180" />
+        <dependency id="Xamarin.Forms.Maps" version="2.3.3.193" />
         <dependency id="Xamarin.GooglePlayServices.Location" version="29.0.0.1" />
       </group>
       <group targetFramework="Xamarin.iOS10">
-        <dependency id="Xamarin.Forms.Maps" version="2.3.3.180" />
+        <dependency id="Xamarin.Forms.Maps" version="2.3.3.193" />
       </group>
     </dependencies>
     <releaseNotes>
-      [1.5.1]
-      New: Posibility to convert screen coordinates to geocoordinates
+      [1.5.2-pre1]
 
-      Fixed: Deselect a pin on map not working
-      Fixed: Pins not initially visible when using MapType.Satellite (ios)
-      Fixed: Crash Map MasterDetail Page - iOS
-      Fixed: Foundation.MonoTouchException: Objective-C exception" thrown when change page after drag a pin
-      Fixed: iOS: GetSnapshot is async but UIKit needs access to UI Thread
-      Fixed: Pin position is not changed on iOS
-      Fixed: Callout with hidden "i" button
-      Fixed: Changing bindingcontext does not work very well
-      Fixed: Binding pinClick, MapClick and PinSelect to events doesn't appear to work
-
-      Minor bugfixes
+      Fixed: Trouble getting MapClicked event to fire #198
+      Fixed: Android CustomPin do not change IsDraggable status after render #196
+      Fixed: iOS pin strange behavior/crash #185
+      Fixed: On Navigate Back after MapView_PinDragEnd; is called. ( iOS ) 1.5.1 #177
     </releaseNotes>
   </metadata>
   <files>
