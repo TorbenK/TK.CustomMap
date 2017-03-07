@@ -26,6 +26,7 @@ namespace CalloutSample
                             {
                                 new TKCustomMapPin
                                 {
+                                    ID = "123", //optional ID for the client app to refer to
                                     Title = "Custom Callout Sample",
                                     Position = new Position(40.7142700, -74.0059700),
                                     ShowCallout = true
