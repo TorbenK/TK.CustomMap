@@ -326,10 +326,13 @@ namespace TK.CustomMap.iOSUnified
             }
             else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                foreach (var annotation in this.Map.Annotations.OfType<TKCustomMapAnnotation>())
-                {
-                    annotation.CustomPin.PropertyChanged -= OnPinPropertyChanged;
-                }
+				if (this.Map != null)
+				{
+					foreach (var annotation in this.Map.Annotations.OfType<TKCustomMapAnnotation>())
+					{
+						annotation.CustomPin.PropertyChanged -= OnPinPropertyChanged;
+					}
+				}
                 this.UpdatePins(false);
             }
         }
@@ -512,9 +515,10 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         private void UpdatePins(bool firstUpdate = true)
         {
-            this.Map.RemoveAnnotations(this.Map.Annotations);
+			if (this.Map != null)
+            	this.Map.RemoveAnnotations(this.Map.Annotations);
 
-            if (this.FormsMap.CustomPins == null) return;
+			if (this.FormsMap == null || this.FormsMap.CustomPins == null) return;
 
             foreach (var i in FormsMap.CustomPins)
             {
@@ -865,9 +869,12 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="pin">The pin to add</param>
         private void AddPin(TKCustomMapPin pin)
-        {
-            var annotation = new TKCustomMapAnnotation(pin);
-            this.Map.AddAnnotation(annotation);
+		{
+			if (this.Map != null)
+			{
+				var annotation = new TKCustomMapAnnotation(pin);
+				this.Map.AddAnnotation(annotation);
+			}
 
             pin.PropertyChanged += OnPinPropertyChanged;
         }

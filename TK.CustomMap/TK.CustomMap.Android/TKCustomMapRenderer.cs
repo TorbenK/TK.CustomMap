@@ -463,7 +463,7 @@ namespace TK.CustomMap.Droid
                 this.RemovePin(i.Key, false);
             }
             this._markers.Clear();
-            if (this.FormsMap.CustomPins != null)
+			if (this.FormsMap != null && this.FormsMap.CustomPins != null)
             {
                 foreach (var pin in this.FormsMap.CustomPins)
                 {
