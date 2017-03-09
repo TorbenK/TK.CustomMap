@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Windows.Devices.Geolocation;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.UI.Xaml.Media.Imaging;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
@@ -73,8 +74,10 @@ namespace TK.CustomMap.UWP
         /// </summary>
         /// <param name="source">Self instance</param>
         /// <returns>The Bitmap</returns>
-        public static async Task<RandomAccessStreamReference> ToUWPImageSource(this ImageSource source)
+        public static async Task<Windows.UI.Xaml.Media.ImageSource> ToUWPImageSource(this ImageSource source)
         {
+            RandomAccessStreamReference accessStream = null;
+
             if (source is FileImageSource)
             {
                 var fileName = ((FileImageSource)source).File;
@@ -94,17 +97,22 @@ namespace TK.CustomMap.UWP
                 if (file == null)
                     throw new FileNotFoundException($"{fileName} not found for map icon");
 
-                return RandomAccessStreamReference.CreateFromFile(file);
+                 accessStream = RandomAccessStreamReference.CreateFromFile(file);
             }
             if (source is UriImageSource)
             {
-                return RandomAccessStreamReference.CreateFromUri(((UriImageSource)source).Uri);
+                accessStream = RandomAccessStreamReference.CreateFromUri(((UriImageSource)source).Uri);
             }
             if (source is StreamImageSource)
             {
-                return RandomAccessStreamReference.CreateFromStream((await ((StreamImageSource)source).GetStreamAsync()).AsRandomAccessStream());
+                accessStream = RandomAccessStreamReference.CreateFromStream((await ((StreamImageSource)source).GetStreamAsync()).AsRandomAccessStream());
             }
-            return null;
+
+            if (accessStream == null) return null;
+
+            var imageSource = new BitmapImage();
+            await imageSource.SetSourceAsync(await accessStream.OpenReadAsync());
+            return imageSource;
         }
 
         public static async Task<Stream> GetStreamAsync(this StreamImageSource imageSource, CancellationToken cancellationToken = default(CancellationToken))

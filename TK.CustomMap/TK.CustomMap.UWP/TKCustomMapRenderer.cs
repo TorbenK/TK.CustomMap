@@ -37,17 +37,10 @@ namespace TK.CustomMap.UWP
 
         private readonly Dictionary<TKRoute, MapPolyline> _routes = new Dictionary<TKRoute, MapPolyline>();
         private readonly Dictionary<TKPolyline, MapPolyline> _polylines = new Dictionary<TKPolyline, MapPolyline>();
-        private readonly Dictionary<MapIcon, TKCustomMapAnnotation> _pins = new Dictionary<MapIcon, TKCustomMapAnnotation>();
+        private readonly Dictionary<TKCustomMapPin, TKCustomBingMapsPin> _pins = new Dictionary<TKCustomMapPin, TKCustomBingMapsPin>();
         private readonly Dictionary<TKCircle, MapPolygon> _circles = new Dictionary<TKCircle, MapPolygon>();
         private readonly Dictionary<TKPolygon, MapPolygon> _polygons = new Dictionary<TKPolygon, MapPolygon>();
 
-        private bool _isDragging;
-        //private IMKAnnotation _selectedAnnotation;
-        //private MKTileOverlay _tileOverlay;
-        //private MKTileOverlayRenderer _tileOverlayRenderer;
-        //private UIGestureRecognizer _longPressGestureRecognizer;
-        //private UIGestureRecognizer _tapGestureRecognizer;
-        //private UIGestureRecognizer _doubleTapGestureRecognizer;
 
         private MapControl Map
         {
@@ -87,48 +80,16 @@ namespace TK.CustomMap.UWP
             {
                 e.OldElement.PropertyChanged -= OnMapPropertyChanged;
 
-                //this.Map.GetViewForAnnotation = null;
-                //this.Map.OverlayRenderer = null;
-                //this.Map.DidSelectAnnotationView -= OnDidSelectAnnotationView;
-                //this.Map.RegionChanged -= OnMapRegionChanged;
-                //this.Map.DidUpdateUserLocation -= OnDidUpdateUserLocation;
-                //this.Map.ChangedDragState -= OnChangedDragState;
-                //this.Map.CalloutAccessoryControlTapped -= OnMapCalloutAccessoryControlTapped;
-                //this.UnregisterCollections((TKCustomMap)e.OldElement);
-
                 Map.MapHolding -= Map_MapHolding;
                 Map.MapTapped -= Map_MapTapped;
-
-                //this.Map.RemoveGestureRecognizer(this._longPressGestureRecognizer);
-                //this.Map.RemoveGestureRecognizer(this._tapGestureRecognizer);
-                //this.Map.RemoveGestureRecognizer(this._doubleTapGestureRecognizer);
-                //this._longPressGestureRecognizer.Dispose();
-                //this._tapGestureRecognizer.Dispose();
-                //this._doubleTapGestureRecognizer.Dispose();
             }
 
             if (e.NewElement != null)
             {
                 MapFunctions.SetRenderer(this);
 
-                //this.Map.GetViewForAnnotation = this.GetViewForAnnotation;
-                //this.Map.OverlayRenderer = this.GetOverlayRenderer;
-                //this.Map.DidSelectAnnotationView += OnDidSelectAnnotationView;
-                //this.Map.RegionChanged += OnMapRegionChanged;
-                //this.Map.DidUpdateUserLocation += OnDidUpdateUserLocation;
-                //this.Map.ChangedDragState += OnChangedDragState;
-                //this.Map.CalloutAccessoryControlTapped += OnMapCalloutAccessoryControlTapped;
-
                 Map.MapHolding += Map_MapHolding;
                 Map.MapTapped += Map_MapTapped;
-                //this._doubleTapGestureRecognizer = new UITapGestureRecognizer() { NumberOfTapsRequired = 2 };
-
-                //this._tapGestureRecognizer = new UITapGestureRecognizer(this.OnMapClicked);
-                //this._tapGestureRecognizer.RequireGestureRecognizerToFail(this._doubleTapGestureRecognizer);
-                //this._tapGestureRecognizer.ShouldReceiveTouch = (recognizer, touch) => !(touch.View is MKAnnotationView);
-
-                //this.Map.AddGestureRecognizer(this._tapGestureRecognizer);
-                //this.Map.AddGestureRecognizer(this._doubleTapGestureRecognizer);
 
                 //this.UpdateTileOptions();
                 SetMapCenter();
@@ -141,6 +102,7 @@ namespace TK.CustomMap.UWP
                 FormsMap.PropertyChanged += OnMapPropertyChanged;
             }
         }
+
 
         private void Map_MapTapped(MapControl sender, MapInputEventArgs args)
         {
@@ -227,7 +189,7 @@ namespace TK.CustomMap.UWP
 
             return resultPositions;
         }
-
+        
         /// <summary>
         /// When a property of the forms map changed
         /// </summary>
@@ -286,14 +248,15 @@ namespace TK.CustomMap.UWP
         /// </summary>
         private void UpdatePins(bool firstUpdate = true)
         {
-            // TODO filter on MapIcon?
-            Map.MapElements.Clear();
+            var pins = Map.Children.OfType<TKCustomBingMapsPin>().ToList();
+
+            foreach (var pin in pins) Map.Children.Remove(pin);
+
             _pins.Clear();
             if (FormsMap.CustomPins == null) return;
 
             foreach (var i in FormsMap.CustomPins)
             {
-                i.PropertyChanged -= OnPinPropertyChanged;
                 AddPin(i);
             }
 
@@ -334,133 +297,29 @@ namespace TK.CustomMap.UWP
                             FormsMap.SelectedPin = null;
                         }
 
-                        // TODO now no TKCustomMapAnnotation in the MapElements but MapIcons
-                        var annotation = Map.MapElements
-                            .OfType<MapIcon>()
-                            .SingleOrDefault(i => i.Equals(_pins[i].MapIcon));
+                        var pinControl = _pins[pin];
 
-                        if (annotation != null)
+                        if (pinControl != null)
                         {
-                            _pins[annotation].PropertyChanged -= OnPinPropertyChanged;
-                            Map.MapElements.Remove(annotation);
-                            _pins.Remove(annotation);
+                            pinControl.Observe(false);
+                            Map.Children.Remove(pinControl);
+                            _pins.Remove(pin);
                         }
                     }
                 }
             }
             else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                foreach (var annotation in Map.MapElements.OfType<TKCustomMapAnnotation>())
+                foreach (var pin in Map.Children.OfType<TKCustomBingMapsPin>())
                 {
-                    annotation.CustomPin.PropertyChanged -= OnPinPropertyChanged;
+                    pin.Observe(false);
                 }
 
                 UpdatePins(false);
             }
         }
-
-        /// <summary>
-        /// When a property of the pin changed
-        /// </summary>
-        /// <param name="sender">Event Sender</param>
-        /// <param name="e">Event Arguments</param>
-        private void OnPinPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == TKCustomMapPin.TitlePropertyName ||
-                e.PropertyName == TKCustomMapPin.SubititlePropertyName ||
-                (e.PropertyName == TKCustomMapPin.PositionPropertyName && this._isDragging))
-                return;
-
-            var formsPin = (TKCustomMapPin)sender;
-            //var annotation = Map.MapElements
-            //    .OfType<TKCustomMapAnnotation>()
-            //    .SingleOrDefault(i => i.CustomPin.Equals(formsPin));
-
-            // TODO now no TKCustomMapAnnotation in the MapElements but MapIcons
-            var annotation = Map.MapElements
-                            .OfType<MapIcon>()
-                            .SingleOrDefault(i => i.Equals(_pins[i].MapIcon));
-
-            if (annotation == null) return;
-
-            //var annotationView = Map.ViewForAnnotation(annotation);
-            //if (annotationView == null) return;
-
-            switch (e.PropertyName)
-            {
-                case TKCustomMapPin.TitlePropertyName:
-                    _pins[annotation].MapIcon.Title = formsPin.Title;
-                    break;
-
-                case TKCustomMapPin.ImagePropertyName:
-                    UpdateImage(_pins[annotation].MapIcon, formsPin);
-                    //UpdateImage(annotation.MapIcon, formsPin);
-                    break;
-
-                //case TKCustomMapPin.DefaultPinColorPropertyName:
-                //    this.UpdateImage(annotationView, formsPin);
-                //    break;
-
-                //case TKCustomMapPin.IsDraggablePropertyName:
-
-                //    annotationView.Draggable = formsPin.IsDraggable;
-                //    break;
-
-                case TKCustomMapPin.IsVisiblePropertyName:
-                    annotation.Visible = formsPin.IsVisible;
-                    break;
-
-                case TKCustomMapPin.PositionPropertyName:
-                    //if (!_isDragging)
-                    //{
-                    //    annotation.SetCoordinate(formsPin.Position.ToLocationCoordinate());
-                    //}
-                    break;
-
-                    //case TKCustomMapPin.ShowCalloutPropertyName:
-                    //    annotationView.CanShowCallout = formsPin.ShowCallout;
-                    //    break;
-
-                    //case TKCustomMapPin.AnchorPropertyName:
-                    //    if (formsPin.Image != null)
-                    //    {
-                    //        annotationView.Layer.AnchorPoint = new CGPoint(formsPin.Anchor.X, formsPin.Anchor.Y);
-                    //    }
-                    //    break;
-
-                    //case TKCustomMapPin.RotationPropertyName:
-                    //    annotationView.Transform = CGAffineTransform.MakeRotation((float)formsPin.Rotation);
-                    //    break;
-
-                    //case TKCustomMapPin.IsCalloutClickablePropertyName:
-                    //    this.UpdateAccessoryView(formsPin, annotationView);
-                    //    break;
-            }
-        }
-
-        /// <summary>
-        /// Set the image of the annotation view
-        /// </summary>
-        /// <param name="annotationView">The annotation view</param>
-        /// <param name="pin">The forms pin</param>
-        private void UpdateImage(MapIcon annotationView, TKCustomMapPin pin)
-        {
-            if (pin.Image != null)
-            {
-                Device.BeginInvokeOnMainThread(async () =>
-                {
-                    annotationView.Image = await pin.Image.ToUWPImageSource();
-                });
-            }
-            else
-            {
-                // TODO how?
-                //Device.BeginInvokeOnMainThread(() =>
-                //{
-                //    annotationView.Image = null;
-                //});
-            }
-        }
+        
+     
 
         /// <summary>
         /// Adds a pin
@@ -468,11 +327,11 @@ namespace TK.CustomMap.UWP
         /// <param name="pin">The pin to add</param>
         private void AddPin(TKCustomMapPin pin)
         {
-            var annotation = new TKCustomMapAnnotation(pin);
-            Map.MapElements.Add(annotation.MapIcon);
+            var pinControl = new TKCustomBingMapsPin(pin, Map);
+            Map.Children.Add(pinControl);
+            _pins.Add(pin, pinControl);
 
-            pin.PropertyChanged += OnPinPropertyChanged;
-            _pins.Add(annotation.MapIcon, annotation);
+            pinControl.Observe(true);
         }
 
         /// <summary>
@@ -1154,6 +1013,10 @@ namespace TK.CustomMap.UWP
                             new Position(latLngBounds.NorthwestCorner.Latitude, latLngBounds.NorthwestCorner.Longitude)) / 2)));
 
             routeFunctions.SetIsCalculated(true);
+        }
+        protected virtual TKCustomBingMapsPin GetPinControlByPin(TKCustomMapPin pin)
+        {
+            return _pins[pin];
         }
     }
 }
