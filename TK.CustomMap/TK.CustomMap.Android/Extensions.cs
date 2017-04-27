@@ -7,6 +7,8 @@ using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 using Xamarin.Forms.Platform.Android;
 using TK.CustomMap.Api.Google;
+using TK.CustomMap.Utilities;
+using System;
 
 namespace TK.CustomMap.Droid
 {
@@ -82,6 +84,27 @@ namespace TK.CustomMap.Droid
         public static Android.Graphics.Point ToAndroidPoint(this Xamarin.Forms.Point point)
         {
             return new Android.Graphics.Point((int)point.X, (int)point.Y);
+        }
+        /// <summary>
+        /// Converts a <see cref="MapSpan"/> to a <see cref="LatLngBounds"/>
+        /// </summary>
+        /// <param name="self">Self instance</param>
+        /// <returns>The <see cref="LatLngBounds"/></returns>
+        public static LatLngBounds ToBounds(this MapSpan self)
+        {
+            var southWest = GmsSphericalUtil.ComputeOffset(self.Center, self.Radius.Meters * Math.Sqrt(2), 225).ToLatLng();
+            var northEast = GmsSphericalUtil.ComputeOffset(self.Center, self.Radius.Meters * Math.Sqrt(2), 45).ToLatLng();
+            return new LatLngBounds(southWest, northEast);
+        }
+        /// <summary>
+        /// Converts a <see cref="LatLngBounds"/> to a <see cref="MapSpan"/>
+        /// </summary>
+        /// <param name="self">Self instance</param>
+        /// <returns>The <see cref="MapSpan"/></returns>
+        public static MapSpan ToMapSpan(this LatLngBounds self)
+        {
+            var radius = self.Northeast.ToPosition().DistanceTo(self.Southwest.ToPosition()) / 2;
+            return MapSpan.FromCenterAndRadius(self.Center.ToPosition(), Distance.FromKilometers(radius));
         }
     }
 }
