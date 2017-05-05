@@ -520,6 +520,7 @@ namespace TK.CustomMap.iOSUnified
             {
                 i.PropertyChanged -= OnPinPropertyChanged;
                 this.AddPin(i);
+                this.OpenCallOut(i);
             }
 
             if (firstUpdate)
@@ -531,6 +532,31 @@ namespace TK.CustomMap.iOSUnified
                 }
             }
             this.MapFunctions.RaisePinsReady();
+        }
+        /// <summary>
+        /// Show Infowindow when OpenCallout is True
+        /// </summary>
+        /// <param name="pin"></param>
+        private void OpenCallOut(TKCustomMapPin pin)
+        {
+            MKAnnotationViewEventArgs e;
+            if (pin == null) return;
+
+            this._selectedAnnotation = new TKCustomMapAnnotation(pin);
+            this.FormsMap.SelectedPin = pin;
+
+            if (pin.OpenCallout)
+            {
+                var selectedAnnotation = this.Map.Annotations
+                   .OfType<TKCustomMapAnnotation>()
+                   .SingleOrDefault(i => i.CustomPin.Equals(pin));
+
+                if (selectedAnnotation != null)
+                {
+                    this._selectedAnnotation = selectedAnnotation;
+                    this.Map.SelectAnnotation(selectedAnnotation, true);
+                }
+            }
         }
         /// <summary>
         /// Creates the lines

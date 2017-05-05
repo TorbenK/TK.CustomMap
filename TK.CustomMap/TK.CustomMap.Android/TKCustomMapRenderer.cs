@@ -261,6 +261,21 @@ namespace TK.CustomMap.Droid
             }
         }
         /// <summary>
+        /// Show Infowindow when OpenCallout is True
+        /// </summary>
+        /// <param name="marker"></param>
+        private void OpenCallOut(Marker marker)
+        {
+            if (this.FormsMap == null) return;
+            var item = this._markers.SingleOrDefault(i => i.Value.Id.Equals(marker.Id));
+            if (item.Key == null) return;
+
+            if (item.Key.ShowCallout)
+            {
+                item.Value.ShowInfoWindow();
+            }
+        }
+        /// <summary>
         /// When a drag of a marker ends
         /// </summary>
         /// <param name="sender">Event Sender</param>
@@ -515,6 +530,8 @@ namespace TK.CustomMap.Droid
             }
 
             this._markers.Add(pin, this._googleMap.AddMarker(markerWithIcon));
+
+            this.OpenCallOut(this._googleMap.AddMarker(markerWithIcon));
         }
         /// <summary>
         /// Remove a pin from the map and the internal dictionary
