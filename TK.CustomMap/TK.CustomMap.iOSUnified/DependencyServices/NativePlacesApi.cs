@@ -59,8 +59,8 @@ namespace TK.CustomMap.iOSUnified
                         {
                             Coordinate = i.Placemark.Coordinate.ToPosition(),
                             FormattedAddress = i.Placemark.Title,
-                            InternationalPhoneNumber = i.PhoneNumber.ToString(),
-                            Website = i.Url.ToString()
+                            InternationalPhoneNumber = i.PhoneNumber,
+                            Website = i.Url?.ToString()
                            
                         }
                     }));
