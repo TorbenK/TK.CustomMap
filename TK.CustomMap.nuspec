@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
-    <version>1.5.2-pre1</version>
+    <version>1.6.0-pre1</version>
     <title>Extended, bindable Map of Xamarin.Forms.Maps</title>
     <authors>Torben Sudau</authors>
     <owners>Torben Sudau</owners>
@@ -17,43 +17,41 @@
     <tags>xamarin, map, xamarin.forms, xamarin.forms.maps, extended map, custom map</tags>
     <dependencies>
       <group>
-        <dependency id="Xamarin.Forms.Maps" version="2.3.3.193" />
-        <dependency id="Newtonsoft.Json" version="9.0.1" />
+        <dependency id="Xamarin.Forms.Maps" version="2.4.0.282" />
+        <dependency id="Newtonsoft.Json" version="10.0.3" />
         <dependency id="Microsoft.Net.Http" version="2.2.29" />
       </group>
       <group targetFramework="MonoAndroid10">
-        <dependency id="Xamarin.Forms.Maps" version="2.3.3.193" />
-        <dependency id="Xamarin.GooglePlayServices.Location" version="29.0.0.1" />
+        <dependency id="Xamarin.Forms.Maps" version="2.4.0.282" />
+        <dependency id="Xamarin.GooglePlayServices.Location" version="42.1021.1" />
       </group>
       <group targetFramework="Xamarin.iOS10">
-        <dependency id="Xamarin.Forms.Maps" version="2.3.3.193" />
+        <dependency id="Xamarin.Forms.Maps" version="2.4.0.282" />
       </group>
     </dependencies>
     <releaseNotes>
-      [1.5.2-pre1]
+      [1.6.0-pre1]
 
-      Fixed: Trouble getting MapClicked event to fire #198
-      Fixed: Android CustomPin do not change IsDraggable status after render #196
-      Fixed: iOS pin strange behavior/crash #185
-      Fixed: On Navigate Back after MapView_PinDragEnd; is called. ( iOS ) 1.5.1 #177
+      Updated Xamarin dependencies
+      Moved to .NetStandard 2.0
     </releaseNotes>
   </metadata>
   <files>
     <!--Core-->
-    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.dll" target="lib\portable-net45+win8+wpa81+wp8\TK.CustomMap.dll" />
-    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.xml" target="lib\portable-net45+win8+wpa81+wp8\TK.CustomMap.xml" />
+    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.dll" target="lib\netstandard2.0" />
+    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.xml" target="lib\netstandard2.0" />
 
     <!--Xamarin.Android-->
-    <file src="TK.CustomMap\TK.CustomMap.Android\bin\Release\TK.CustomMap.Android.dll" target="lib\MonoAndroid10\TK.CustomMap.Android.dll" />
-    <file src="TK.CustomMap\TK.CustomMap.Android\bin\Release\TK.CustomMap.Android.xml" target="lib\MonoAndroid10\TK.CustomMap.Android.xml" />
-    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.dll" target="lib\MonoAndroid10\TK.CustomMap.dll" />
-    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.xml" target="lib\MonoAndroid10\TK.CustomMap.xml" />
+    <file src="TK.CustomMap\TK.CustomMap.Android\bin\Release\TK.CustomMap.Android.dll" target="lib\MonoAndroid10" />
+    <file src="TK.CustomMap\TK.CustomMap.Android\bin\Release\TK.CustomMap.Android.xml" target="lib\MonoAndroid10" />
+    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.dll" target="lib\MonoAndroid10" />
+    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.xml" target="lib\MonoAndroid10" />
 
     <!--Xamarin.iOS Unified-->
-    <file src="TK.CustomMap\TK.CustomMap.iOSUnified\bin\Release\TK.CustomMap.iOSUnified.dll" target="lib\Xamarin.iOS10\TK.CustomMap.iOSUnified.dll" />
-    <file src="TK.CustomMap\TK.CustomMap.iOSUnified\bin\Release\TK.CustomMap.iOSUnified.xml" target="lib\Xamarin.iOS10\TK.CustomMap.iOSUnified.xml" />
-    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.dll" target="lib\Xamarin.iOS10\TK.CustomMap.dll" />
-    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.xml" target="lib\Xamarin.iOS10\TK.CustomMap.xml" />
+    <file src="TK.CustomMap\TK.CustomMap.iOSUnified\bin\Release\TK.CustomMap.iOSUnified.dll" target="lib\Xamarin.iOS10" />
+    <file src="TK.CustomMap\TK.CustomMap.iOSUnified\bin\Release\TK.CustomMap.iOSUnified.xml" target="lib\Xamarin.iOS10" />
+    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.dll" target="lib\Xamarin.iOS10" />
+    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.xml" target="lib\Xamarin.iOS10" />
 
   </files>
 </package>
