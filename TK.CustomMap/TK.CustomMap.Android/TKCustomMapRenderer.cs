@@ -31,7 +31,6 @@ namespace TK.CustomMap.Droid
     public class TKCustomMapRenderer : MapRenderer, IRendererFunctions, IOnMapReadyCallback, GoogleMap.ISnapshotReadyCallback
     {
         private bool _init = true;
-        private bool _onMapReadyPerformed = false; // Hack
 
         private readonly List<TKRoute> _tempRouteList = new List<TKRoute>();
 
@@ -154,13 +153,9 @@ namespace TK.CustomMap.Droid
         /// When the map is ready to use
         /// </summary>
         /// <param name="googleMap">The map instance</param>
-        public virtual void OnMapReady(GoogleMap googleMap)
+        protected override void OnMapReady(GoogleMap googleMap)
         {
-            if (_onMapReadyPerformed) return;
-
-            _onMapReadyPerformed = true;
-
-            InvokeOnMapReadyBaseClassHack(googleMap);
+            base.OnMapReady(googleMap);
 
             this._googleMap = googleMap;
             
@@ -1305,39 +1300,6 @@ namespace TK.CustomMap.Droid
         protected TKCustomMapPin GetPinByMarker(Marker marker)
         {
             return this._markers.SingleOrDefault(i => i.Value.Id == marker.Id).Key;
-        }
-        private void InvokeOnMapReadyBaseClassHack(GoogleMap googleMap)
-        {
-            System.Reflection.MethodInfo onMapReadyMethodInfo = null;
-
-            Type baseType = typeof(MapRenderer);
-            foreach (var currentMethod in baseType.GetMethods(System.Reflection.BindingFlags.NonPublic |
-                                                             System.Reflection.BindingFlags.Instance |
-                                                              System.Reflection.BindingFlags.DeclaredOnly))
-            {
-
-                if (currentMethod.IsFinal && currentMethod.IsPrivate)
-                {
-                    if (string.Equals(currentMethod.Name, "OnMapReady", StringComparison.Ordinal))
-                    {
-                        onMapReadyMethodInfo = currentMethod;
-
-                        break;
-                    }
-
-                    if (currentMethod.Name.EndsWith(".OnMapReady", StringComparison.Ordinal))
-                    {
-                        onMapReadyMethodInfo = currentMethod;
-
-                        break;
-                    }
-                }
-            }
-
-            if (onMapReadyMethodInfo != null)
-            {
-                onMapReadyMethodInfo.Invoke(this, new[] { googleMap });
-            }
         }
     }
 }

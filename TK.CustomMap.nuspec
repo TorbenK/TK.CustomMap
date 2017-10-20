@@ -38,20 +38,20 @@
   </metadata>
   <files>
     <!--Core-->
-    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.dll" target="lib\netstandard2.0" />
-    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.xml" target="lib\netstandard2.0" />
+    <file src="TK.CustomMap\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.dll" target="lib\netstandard1.1" />
+    <file src="TK.CustomMap\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.xml" target="lib\netstandard1.1" />
 
     <!--Xamarin.Android-->
     <file src="TK.CustomMap\TK.CustomMap.Android\bin\Release\TK.CustomMap.Android.dll" target="lib\MonoAndroid10" />
     <file src="TK.CustomMap\TK.CustomMap.Android\bin\Release\TK.CustomMap.Android.xml" target="lib\MonoAndroid10" />
-    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.dll" target="lib\MonoAndroid10" />
-    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.xml" target="lib\MonoAndroid10" />
+    <file src="TK.CustomMap\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.dll" target="lib\MonoAndroid10" />
+    <file src="TK.CustomMap\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.xml" target="lib\MonoAndroid10" />
 
     <!--Xamarin.iOS Unified-->
     <file src="TK.CustomMap\TK.CustomMap.iOSUnified\bin\Release\TK.CustomMap.iOSUnified.dll" target="lib\Xamarin.iOS10" />
     <file src="TK.CustomMap\TK.CustomMap.iOSUnified\bin\Release\TK.CustomMap.iOSUnified.xml" target="lib\Xamarin.iOS10" />
-    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.dll" target="lib\Xamarin.iOS10" />
-    <file src="TK.CustomMap\TK.CustomMap\bin\Release\TK.CustomMap.xml" target="lib\Xamarin.iOS10" />
+    <file src="TK.CustomMap\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.dll" target="lib\Xamarin.iOS10" />
+    <file src="TK.CustomMap\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.xml" target="lib\Xamarin.iOS10" />
 
   </files>
 </package>

@@ -1,10 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard1.1</TargetFramework>
     <PackageTargetFallback>$(PackageTargetFallback);portable45-net45+win8+wp8+wpa81</PackageTargetFallback>
+    <Authors>Torben Sudau</Authors>
+    <Company />
+    <Version>1.6.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>0</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard1.1\TK.CustomMap.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="project.lock.json" />
