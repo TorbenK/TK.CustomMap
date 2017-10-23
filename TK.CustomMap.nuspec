@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
-    <version>1.6.0-pre1</version>
+    <version>1.6.0-pre2</version>
     <title>Extended, bindable Map of Xamarin.Forms.Maps</title>
     <authors>Torben Sudau</authors>
     <owners>Torben Sudau</owners>
@@ -24,6 +24,7 @@
       <group targetFramework="MonoAndroid10">
         <dependency id="Xamarin.Forms.Maps" version="2.4.0.282" />
         <dependency id="Xamarin.GooglePlayServices.Location" version="42.1021.1" />
+        <dependency id="Xamarin.GooglePlayServices.Places" version="42.1021.1" />
       </group>
       <group targetFramework="Xamarin.iOS10">
         <dependency id="Xamarin.Forms.Maps" version="2.4.0.282" />
@@ -33,7 +34,7 @@
       [1.6.0-pre1]
 
       Updated Xamarin dependencies
-      Moved to .NetStandard 2.0
+      Moved to .NetStandard 
     </releaseNotes>
   </metadata>
   <files>
