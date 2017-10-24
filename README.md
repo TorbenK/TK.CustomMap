@@ -117,3 +117,4 @@ If you notice wrong offsets or moving images during zoom, you can use the `Ancho
 * [SavikPavel](https://github.com/SavikPavel)
 * [krisrok](https://github.com/krisrok)
 * [lgjenero](https://github.com/lgjenero)
+* [dhompanera](https://github.com/dhompanera)
