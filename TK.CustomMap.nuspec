@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
-    <version>1.6.0-pre3</version>
+    <version>1.6.0-pre4</version>
     <title>Extended, bindable Map of Xamarin.Forms.Maps</title>
     <authors>Torben Sudau</authors>
     <owners>Torben Sudau</owners>
@@ -31,9 +31,9 @@
       </group>
     </dependencies>
     <releaseNotes>
-      [1.6.0-pre3]
+      [1.6.0-pre4]
 
-      Android: Fixed issue with MapReadyCallback invoked twice
+      Android: Fixed incorrect/missing disposing in Android renderer
     </releaseNotes>
   </metadata>
   <files>
