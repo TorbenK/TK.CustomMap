@@ -507,7 +507,7 @@ namespace TK.CustomMap.Droid
             {
                 markerWithIcon.Anchor((float)pin.Anchor.X, (float)pin.Anchor.Y);
             }
-
+            markerWithIcon.Flat(true);
             this._markers.Add(pin, this._googleMap.AddMarker(markerWithIcon));
         }
         /// <summary>
