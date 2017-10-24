@@ -28,7 +28,7 @@ namespace TK.CustomMap.Droid
       /// <summary>
       /// Android Renderer of <see cref="TK.CustomMap.TKCustomMap"/>
       /// </summary>
-    public class TKCustomMapRenderer : MapRenderer, IRendererFunctions, IOnMapReadyCallback, GoogleMap.ISnapshotReadyCallback
+    public class TKCustomMapRenderer : MapRenderer, IRendererFunctions, GoogleMap.ISnapshotReadyCallback
     {
         private bool _init = true;
 
@@ -84,7 +84,6 @@ namespace TK.CustomMap.Droid
             {
                 this.MapFunctions.SetRenderer(this);
 
-                mapView.GetMapAsync(this);
                 this.FormsMap.PropertyChanged += FormsMapPropertyChanged;
             }
         }
@@ -515,10 +514,10 @@ namespace TK.CustomMap.Droid
         /// Remove a pin from the map and the internal dictionary
         /// </summary>
         /// <param name="pin">The pin to remove</param>
+        /// <param name="removeMarker">true to remove the marker from the map</param>
         private void RemovePin(TKCustomMapPin pin, bool removeMarker = true)
         {
-            var item = this._markers[pin];
-            if(item == null) return;
+            if(!this._markers.TryGetValue(pin, out var item)) return;
 
             if (this._selectedMarker != null)
             {
