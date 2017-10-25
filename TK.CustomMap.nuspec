@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
-    <version>1.6.0-pre4</version>
+    <version>1.6.0-pre5</version>
     <title>Extended, bindable Map of Xamarin.Forms.Maps</title>
     <authors>Torben Sudau</authors>
     <owners>Torben Sudau</owners>
@@ -31,9 +31,10 @@
       </group>
     </dependencies>
     <releaseNotes>
-      [1.6.0-pre4]
+      [1.6.0-pre5]
 
-      Android: Fixed incorrect/missing disposing in Android renderer
+      iOS: Fixed possible memory leak
+      Basic UWP preview included
     </releaseNotes>
   </metadata>
   <files>
@@ -52,6 +53,12 @@
     <file src="TK.CustomMap\TK.CustomMap.iOSUnified\bin\Release\TK.CustomMap.iOSUnified.xml" target="lib\Xamarin.iOS10" />
     <file src="TK.CustomMap\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.dll" target="lib\Xamarin.iOS10" />
     <file src="TK.CustomMap\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.xml" target="lib\Xamarin.iOS10" />
+
+    <!--UWP-->
+    <file src="TK.CustomMap\TK.CustomMap.UWP\bin\Release\TK.CustomMap.UWP.dll" target="lib\uap10.0" />
+    <file src="TK.CustomMap\TK.CustomMap.UWP\bin\Release\TK.CustomMap.UWP.pri" target="lib\uap10.0" />
+    <file src="TK.CustomMap\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.dll" target="lib\uap10.0" />
+    <file src="TK.CustomMap\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.xml" target="lib\uap10.0" />
 
   </files>
 </package>

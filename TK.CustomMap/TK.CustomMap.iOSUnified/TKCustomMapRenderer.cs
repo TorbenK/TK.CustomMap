@@ -45,6 +45,7 @@ namespace TK.CustomMap.iOSUnified
         private readonly Dictionary<MKPolygon, TKOverlayItem<TKPolygon, MKPolygonRenderer>> _polygons = new Dictionary<MKPolygon, TKOverlayItem<TKPolygon, MKPolygonRenderer>>();
 
         private bool _isDragging;
+        private bool _disposed;
         private IMKAnnotation _selectedAnnotation;
         private MKTileOverlay _tileOverlay;
         private MKTileOverlayRenderer _tileOverlayRenderer;
@@ -136,6 +137,7 @@ namespace TK.CustomMap.iOSUnified
                 this.FormsMap.PropertyChanged += OnMapPropertyChanged;
             }
         }
+        
         /// <summary>
         /// Get the overlay renderer
         /// </summary>
@@ -1530,9 +1532,37 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="disposing">disposing</param>
         protected override void Dispose(bool disposing)
         {
-            if (Map != null)
+            if (_disposed) return;
+
+            _disposed = true;
+
+            if (disposing)
             {
-                Map.RemoveAnnotations(Map.Annotations);
+                if (Map != null)
+                {
+                    Map.RemoveAnnotations(Map.Annotations);
+
+                    this.Map.GetViewForAnnotation = null;
+                    this.Map.OverlayRenderer = null;
+                    this.Map.DidSelectAnnotationView -= OnDidSelectAnnotationView;
+                    this.Map.RegionChanged -= OnMapRegionChanged;
+                    this.Map.DidUpdateUserLocation -= OnDidUpdateUserLocation;
+                    this.Map.ChangedDragState -= OnChangedDragState;
+                    this.Map.CalloutAccessoryControlTapped -= OnMapCalloutAccessoryControlTapped;
+
+                    this.Map.RemoveGestureRecognizer(this._longPressGestureRecognizer);
+                    this.Map.RemoveGestureRecognizer(this._tapGestureRecognizer);
+                    this.Map.RemoveGestureRecognizer(this._doubleTapGestureRecognizer);
+                    this._longPressGestureRecognizer.Dispose();
+                    this._tapGestureRecognizer.Dispose();
+                    this._doubleTapGestureRecognizer.Dispose();
+
+                }
+                if(FormsMap != null)
+                {
+                    this.FormsMap.PropertyChanged -= OnMapPropertyChanged;
+                    this.UnregisterCollections(FormsMap);
+                }
             }
 
             base.Dispose(disposing);
