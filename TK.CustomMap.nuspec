@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
-    <version>1.6.0-pre5</version>
+    <version>1.6.0-pre6</version>
     <title>Extended, bindable Map of Xamarin.Forms.Maps</title>
     <authors>Torben Sudau</authors>
     <owners>Torben Sudau</owners>
@@ -34,8 +34,10 @@
       </group>
     </dependencies>
     <releaseNotes>
-      [1.6.0-pre5]
+      [1.6.0-pre6]
+      Added missing UWP dependency
 
+      [1.6.0-pre5]
       iOS: Fixed possible memory leak
       Basic UWP preview included
     </releaseNotes>
