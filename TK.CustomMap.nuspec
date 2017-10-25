@@ -29,6 +29,9 @@
       <group targetFramework="Xamarin.iOS10">
         <dependency id="Xamarin.Forms.Maps" version="2.4.0.282" />
       </group>
+      <group targetFramework="uap10.0">
+        <dependency id="Xamarin.Forms.Maps" version="2.4.0.282" />
+      </group>
     </dependencies>
     <releaseNotes>
       [1.6.0-pre5]
