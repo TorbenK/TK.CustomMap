@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard1.1</TargetFramework>
-    <PackageTargetFallback>$(PackageTargetFallback);portable45-net45+win8+wp8+wpa81</PackageTargetFallback>
     <Authors>Torben Sudau</Authors>
     <Company />
     <Version>1.6.0</Version>
