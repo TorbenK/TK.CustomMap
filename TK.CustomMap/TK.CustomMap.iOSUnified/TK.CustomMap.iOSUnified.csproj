@@ -37,6 +37,16 @@
     <CodesignKey>iPhone Developer</CodesignKey>
     <DocumentationFile>bin\Release\TK.CustomMap.iOSUnified.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AppVeyor|AnyCPU'">
+    <OutputPath>bin\AppVeyor\</OutputPath>
+    <DefineConstants>__UNIFIED__;__MOBILE__;__IOS__;</DefineConstants>
+    <DocumentationFile>bin\Release\TK.CustomMap.iOSUnified.xml</DocumentationFile>
+    <Optimize>true</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="DependencyServices\NativePlacesApi.cs" />
     <Compile Include="Extensions.cs" />
