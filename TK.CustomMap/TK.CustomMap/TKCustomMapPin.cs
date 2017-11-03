@@ -1,4 +1,5 @@
-﻿using Xamarin.Forms;
+﻿using System;
+using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap
@@ -34,6 +35,10 @@ namespace TK.CustomMap
         public const string RotationPropertyName = "Rotation";
         public const string IsCalloutClickablePropertyName = "IsCalloutClickable";
 
+        /// <summary>
+        /// Gets the id of the <see cref="TKCustomMapPin"/>
+        /// </summary>
+        public Guid Id { get; } = Guid.NewGuid();
         /// <summary>
         /// Gets/Sets visibility of a pin
         /// </summary>
@@ -136,6 +141,25 @@ namespace TK.CustomMap
         public TKCustomMapPin()
         {
             this.IsVisible = true;
+        }
+
+        /// <summary>
+        /// Checks whether the <see cref="Id"/> of the pins match
+        /// </summary>
+        /// <param name="obj">The <see cref="TKCustomMapPin"/> to compare</param>
+        /// <returns>true of the ids match</returns>
+        public override bool Equals(object obj)
+        {
+            var pin = obj as TKCustomMapPin;
+
+            if (pin == null) return false;
+
+            return Id.Equals(pin.Id);
+        }
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
         }
     }
 }

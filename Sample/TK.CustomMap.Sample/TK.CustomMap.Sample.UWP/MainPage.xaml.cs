@@ -10,8 +10,8 @@ namespace TK.CustomMap.Sample.UWP
         public MainPage()
         {
             InitializeComponent();
-
-            Xamarin.FormsMaps.Init("INSERT_AUTHENTICATION_TOKEN_HERE");
+            
+            Xamarin.FormsMaps.Init("bUFZdlnCDt36XoMbwK8F~EI7ldg6jS_T-QtvV2adGQA~Aj1hd2qCzOVv_ITTnnbNamU6vHTe4BPWYkTIc1eGDk1uou5XdB-7nbbRLKk4kouA");
 
             LoadApplication(new Sample.App());
         }

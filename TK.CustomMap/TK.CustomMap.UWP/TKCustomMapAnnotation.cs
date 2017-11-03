@@ -67,7 +67,7 @@ namespace TK.CustomMap.UWP
             _formsPin = pin;
             _coordinate = pin.Position.ToLocationCoordinate();
             _formsPin.PropertyChanged += formsPin_PropertyChanged;
-
+            
             MapIcon = new MapIcon
             {
                 Title = Title,
@@ -77,7 +77,7 @@ namespace TK.CustomMap.UWP
                 NormalizedAnchorPoint = new Windows.Foundation.Point(0.5, 1.0)
             };
         }
-
+        
         private void formsPin_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == TKCustomMapPin.SubititlePropertyName)

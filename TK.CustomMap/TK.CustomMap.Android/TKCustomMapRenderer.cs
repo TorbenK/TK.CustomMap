@@ -28,8 +28,10 @@ namespace TK.CustomMap.Droid
       /// <summary>
       /// Android Renderer of <see cref="TK.CustomMap.TKCustomMap"/>
       /// </summary>
-    public class TKCustomMapRenderer : MapRenderer, IRendererFunctions, IOnMapReadyCallback, GoogleMap.ISnapshotReadyCallback
+    public class TKCustomMapRenderer : MapRenderer, IRendererFunctions, GoogleMap.ISnapshotReadyCallback
     {
+        private object _lockObj = new object();
+
         private bool _init = true;
 
         private readonly List<TKRoute> _tempRouteList = new List<TKRoute>();
@@ -42,6 +44,7 @@ namespace TK.CustomMap.Droid
         
         private Marker _selectedMarker;
         private bool _isDragging;
+        private bool _disposed;
         private byte[] _snapShot;
 
         private TileOverlay _tileOverlay;
@@ -59,34 +62,43 @@ namespace TK.CustomMap.Droid
         /// <inheritdoc />
         protected override void OnElementChanged(ElementChangedEventArgs<Map> e)
         {
-            base.OnElementChanged(e);
-
-            MapView mapView = this.Control as MapView;
-            if (mapView == null) return;
-
-            if(e.OldElement != null && this._googleMap != null)
+            lock (_lockObj)
             {
-                e.OldElement.PropertyChanged -= FormsMapPropertyChanged;
+                base.OnElementChanged(e);
 
-                this._googleMap.MarkerClick -= OnMarkerClick;
-                this._googleMap.MapClick -= OnMapClick;
-                this._googleMap.MapLongClick -= OnMapLongClick;
-                this._googleMap.MarkerDragEnd -= OnMarkerDragEnd;
-                this._googleMap.MarkerDrag -= OnMarkerDrag;
-                this._googleMap.CameraChange -= OnCameraChange;
-                this._googleMap.MarkerDragStart -= OnMarkerDragStart;
-                this._googleMap.InfoWindowClick -= OnInfoWindowClick;
-                this._googleMap.MyLocationChange -= OnUserLocationChange;
-                this.UnregisterCollections((TKCustomMap)e.OldElement);
+                MapView mapView = this.Control as MapView;
+                if (mapView == null) return;
+
+                if (e.OldElement != null)
+                {
+                    e.OldElement.PropertyChanged -= FormsMapPropertyChanged;
+                    this.UnregisterCollections((TKCustomMap)e.OldElement);
+
+                    if (_googleMap != null)
+                    {
+                        this._googleMap.MarkerClick -= OnMarkerClick;
+                        this._googleMap.MapClick -= OnMapClick;
+                        this._googleMap.MapLongClick -= OnMapLongClick;
+                        this._googleMap.MarkerDragEnd -= OnMarkerDragEnd;
+                        this._googleMap.MarkerDrag -= OnMarkerDrag;
+                        this._googleMap.CameraChange -= OnCameraChange;
+                        this._googleMap.MarkerDragStart -= OnMarkerDragStart;
+                        this._googleMap.InfoWindowClick -= OnInfoWindowClick;
+                        this._googleMap.MyLocationChange -= OnUserLocationChange;
+
+                        _googleMap = null;
+                    }
+
+                }
             }
-            
+
             if (e.NewElement != null)
             {
                 this.MapFunctions.SetRenderer(this);
 
-                mapView.GetMapAsync(this);
                 this.FormsMap.PropertyChanged += FormsMapPropertyChanged;
             }
+            
         }
         ///<inheritdoc/>
         protected override void OnLayout(bool changed, int l, int t, int r, int b)
@@ -98,6 +110,38 @@ namespace TK.CustomMap.Droid
                 this.MoveToCenter();
                 this._init = false;
             }
+        }
+        /// <inheritdoc />
+        protected override void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            _disposed = true;
+
+            if(disposing)
+            {
+                if(FormsMap != null)
+                {
+                    FormsMap.PropertyChanged -= FormsMapPropertyChanged;
+                    UnregisterCollections(FormsMap);
+                }
+                if(_googleMap != null)
+                {
+                    this._googleMap.MarkerClick -= OnMarkerClick;
+                    this._googleMap.MapClick -= OnMapClick;
+                    this._googleMap.MapLongClick -= OnMapLongClick;
+                    this._googleMap.MarkerDragEnd -= OnMarkerDragEnd;
+                    this._googleMap.MarkerDrag -= OnMarkerDrag;
+                    this._googleMap.CameraChange -= OnCameraChange;
+                    this._googleMap.MarkerDragStart -= OnMarkerDragStart;
+                    this._googleMap.InfoWindowClick -= OnInfoWindowClick;
+                    this._googleMap.MyLocationChange -= OnUserLocationChange;
+
+                    _googleMap = null;
+                }
+            }
+
+            base.Dispose(disposing);
         }
         /// <summary>
         /// When a property of the Forms map changed
@@ -153,28 +197,33 @@ namespace TK.CustomMap.Droid
         /// When the map is ready to use
         /// </summary>
         /// <param name="googleMap">The map instance</param>
-        public virtual void OnMapReady(GoogleMap googleMap)
+        protected override void OnMapReady(GoogleMap googleMap)
         {
-            this._googleMap = googleMap;
-            
-            this._googleMap.MarkerClick += OnMarkerClick;
-            this._googleMap.MapClick += OnMapClick;
-            this._googleMap.MapLongClick += OnMapLongClick;
-            this._googleMap.MarkerDragEnd += OnMarkerDragEnd;
-            this._googleMap.MarkerDrag += OnMarkerDrag;
-            this._googleMap.CameraChange += OnCameraChange;
-            this._googleMap.MarkerDragStart += OnMarkerDragStart;
-            this._googleMap.InfoWindowClick += OnInfoWindowClick;
-            this._googleMap.MyLocationChange += OnUserLocationChange;
-            
-            this.UpdateTileOptions();
-            this.MoveToCenter();
-            this.UpdatePins();
-            this.UpdateRoutes();
-            this.UpdateLines();
-            this.UpdateCircles();
-            this.UpdatePolygons();
-            this.UpdateShowTraffic();
+            base.OnMapReady(googleMap);
+
+            lock (_lockObj)
+            {
+                this._googleMap = googleMap;
+
+                this._googleMap.MarkerClick += OnMarkerClick;
+                this._googleMap.MapClick += OnMapClick;
+                this._googleMap.MapLongClick += OnMapLongClick;
+                this._googleMap.MarkerDragEnd += OnMarkerDragEnd;
+                this._googleMap.MarkerDrag += OnMarkerDrag;
+                this._googleMap.CameraChange += OnCameraChange;
+                this._googleMap.MarkerDragStart += OnMarkerDragStart;
+                this._googleMap.InfoWindowClick += OnInfoWindowClick;
+                this._googleMap.MyLocationChange += OnUserLocationChange;
+
+                this.UpdateTileOptions();
+                this.MoveToCenter();
+                this.UpdatePins();
+                this.UpdateRoutes();
+                this.UpdateLines();
+                this.UpdateCircles();
+                this.UpdatePolygons();
+                this.UpdateShowTraffic();
+            }
         }
         /// <summary>
         /// When the location of the user changed
@@ -506,17 +555,17 @@ namespace TK.CustomMap.Droid
             {
                 markerWithIcon.Anchor((float)pin.Anchor.X, (float)pin.Anchor.Y);
             }
-
+            markerWithIcon.Flat(true);
             this._markers.Add(pin, this._googleMap.AddMarker(markerWithIcon));
         }
         /// <summary>
         /// Remove a pin from the map and the internal dictionary
         /// </summary>
         /// <param name="pin">The pin to remove</param>
+        /// <param name="removeMarker">true to remove the marker from the map</param>
         private void RemovePin(TKCustomMapPin pin, bool removeMarker = true)
         {
-            var item = this._markers[pin];
-            if(item == null) return;
+            if(!this._markers.TryGetValue(pin, out var item)) return;
 
             if (this._selectedMarker != null)
             {

@@ -60,7 +60,7 @@ namespace TK.CustomMap.iOSUnified
                             Coordinate = i.Placemark.Coordinate.ToPosition(),
                             FormattedAddress = i.Placemark.Title,
                             InternationalPhoneNumber = i.PhoneNumber.ToString(),
-                            Website = i.Url.ToString()
+                            Website = i.Url?.ToString()
                            
                         }
                     }));
