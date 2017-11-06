@@ -232,7 +232,7 @@ namespace TK.CustomMap.Droid
         /// <param name="e">Event Arguments</param>
         private void OnUserLocationChange(object sender, GoogleMap.MyLocationChangeEventArgs e)
         {
-            if (e.Location == null || this.FormsMap == null || this.FormsMap.UserLocationChangedCommand == null) return;
+            if (e.Location == null || this.FormsMap == null) return;
    
             var newPosition = new Position(e.Location.Latitude, e.Location.Longitude);
             this.MapFunctions.RaiseUserLocationChanged(newPosition);
@@ -325,7 +325,7 @@ namespace TK.CustomMap.Droid
         /// <param name="e">Event Arguments</param>
         private void OnMapLongClick(object sender, GoogleMap.MapLongClickEventArgs e)
         {
-            if (this.FormsMap == null || this.FormsMap.MapLongPressCommand == null) return;
+            if (this.FormsMap == null) return;
 
             var position = e.Point.ToPosition();
             this.MapFunctions.RaiseMapLongPress(position);
@@ -341,7 +341,7 @@ namespace TK.CustomMap.Droid
 
             var position = e.Point.ToPosition();
 
-            if (this.FormsMap.Routes != null && this.FormsMap.RouteClickedCommand != null)
+            if (this.FormsMap.Routes != null)
             {
                 foreach(var route in this.FormsMap.Routes.Where(i => i.Selectable))
                 {
