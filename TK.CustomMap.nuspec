@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
-    <version>1.6.0</version>
+    <version>1.6.1</version>
     <title>Extended, bindable Map of Xamarin.Forms.Maps</title>
     <authors>Torben Sudau</authors>
     <owners>Torben Sudau</owners>
@@ -34,6 +34,7 @@
       </group>
     </dependencies>
     <releaseNotes>
+      Fixed: #255 - LongPress not working on Android if using EventHandler rather than Command
     </releaseNotes>
   </metadata>
   <files>
