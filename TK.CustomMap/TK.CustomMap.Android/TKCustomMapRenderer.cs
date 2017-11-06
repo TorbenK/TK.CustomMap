@@ -863,7 +863,7 @@ namespace TK.CustomMap.Droid
             {
                 polygonOptions.InvokeStrokeColor(polygon.StrokeColor.ToAndroid().ToArgb());
             }
-            polygonOptions.InvokeStrokeWidth(polygonOptions.StrokeWidth);
+            polygonOptions.InvokeStrokeWidth(polygon.StrokeWidth);
 
             this._polygons.Add(polygon, this._googleMap.AddPolygon(polygonOptions));
         }
