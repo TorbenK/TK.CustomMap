@@ -14,6 +14,7 @@ namespace TK.CustomMap
         private string _title;
         private string _subtitle;
         private bool _showCallout;
+        private bool _openCallout;
         private Position _position;
         private ImageSource _image;
         private bool _isDraggable;
@@ -78,6 +79,14 @@ namespace TK.CustomMap
         {
             get { return this._showCallout; }
             set { this.SetField(ref this._showCallout, value); }
+        }
+        /// <summary>
+        /// Gets/Sets open the callout without clicked marker
+        /// </summary>
+        public bool OpenShowCallout
+        {
+            get { return this._openCallout; }
+            set { this.SetField(ref this._openCallout, value); }
         }
         /// <summary>
         /// Gets/Sets the position of the pin
