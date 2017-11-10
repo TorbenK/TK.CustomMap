@@ -13,7 +13,7 @@ namespace TK.CustomMap
     /// <summary>
     /// An extensions of the <see cref="Xamarin.Forms.Maps.Map"/>
     /// </summary>
-    public class TKCustomMap : Map, IMapFunctions
+    public class TKCustomMap : View, IMapFunctions
     {
         /// <summary>
         /// Event raised when a pin gets selected
@@ -122,12 +122,11 @@ namespace TK.CustomMap
         /// <summary>
         /// Bindable Property of <see cref="MapCenter"/>
         /// </summary>
-        public static readonly BindableProperty MapCenterProperty = BindableProperty.Create(
+        public static readonly BindablePropertyKey MapCenterProperty = BindableProperty.CreateReadOnly(
             nameof(MapCenter),
             typeof(Position),
             typeof(TKCustomMap),
-            default(Position),
-            defaultBindingMode: BindingMode.TwoWay);
+            default(Position));
         /// <summary>
         /// Bindable Property of <see cref="IsRegionChangeAnimated"/>
         /// </summary>
@@ -225,6 +224,13 @@ namespace TK.CustomMap
             typeof(ICommand),
             typeof(TKCustomMap));
         /// <summary>
+        /// Bindable Property of <see cref="GetClusteredPin"/>
+        /// </summary>
+        public static readonly BindableProperty GetClusteredPinProperty = BindableProperty.Create(
+            nameof(GetClusteredPin),
+            typeof(Func<string, IEnumerable<TKCustomMapPin>, TKCustomMapPin>),
+            typeof(TKCustomMap));
+        /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
         public IEnumerable<TKCustomMapPin> CustomPins
@@ -283,13 +289,9 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets the current center of the map.
         /// </summary>
-        public Position MapCenter
-        {
-            get { return (Position)this.GetValue(MapCenterProperty); }
-            set { this.SetValue(MapCenterProperty, value); }
-        }
+        public Position? MapCenter => MapRegion?.Center;
         /// <summary>
-        /// Gets/Sets if a change of <see cref="MapCenter"/> or <see cref="MapRegion"/> should be animated
+        /// Gets/Sets if a change <see cref="MapRegion"/> should be animated
         /// </summary>
         public bool IsRegionChangeAnimated
         {
@@ -402,19 +404,28 @@ namespace TK.CustomMap
             set { this.SetValue(ShowTrafficProperty, value); }
         }
         /// <summary>
+        /// Gets/Sets function to retrieve a pin for clustering. You receive the group name and all pins getting clustered. 
+        /// </summary>
+        public Func<string, IEnumerable<TKCustomMapPin>, TKCustomMapPin> GetClusteredPin
+        {
+            get => (Func<string, IEnumerable<TKCustomMapPin>, TKCustomMapPin>)GetValue(GetClusteredPinProperty);
+            set => SetValue(GetClusteredPinProperty, value);
+        }
+        /// <summary>
         /// Creates a new instance of <c>TKCustomMap</c>
         /// </summary>
         public TKCustomMap() 
             : base() 
-        { }
+        {
+            
+        }
         /// <summary>
         /// Creates a new instance of <c>TKCustomMap</c>
         /// </summary>
         /// <param name="region">The initial region of the map</param>
         public TKCustomMap(MapSpan region)
-            : base(region)
         {
-            this.MapCenter = region.Center;
+            this.MapRegion = region;
         }
         /// <summary>
         /// Creates a new instance of <see cref="TKCustomMap"/>
@@ -423,18 +434,8 @@ namespace TK.CustomMap
         /// <param name="initialLongitude">The initial longitude value</param>
         /// <param name="distanceInKilometers">The initial zoom distance in kilometers</param>
         public TKCustomMap(double initialLatitude, double initialLongitude, double distanceInKilometers) : 
-            base(MapSpan.FromCenterAndRadius(new Position(initialLatitude, initialLongitude), Distance.FromKilometers(distanceInKilometers)))
+            this(MapSpan.FromCenterAndRadius(new Position(initialLatitude, initialLongitude), Distance.FromKilometers(distanceInKilometers)))
         {
-        }
-        /// <inheritdoc/>
-        protected override void OnPropertyChanged(string propertyName = null)
-        {
-            base.OnPropertyChanged(propertyName);
-
-            if (propertyName == "VisibleRegion")
-            {
-                this.MapRegion = this.VisibleRegion;
-            }
         }
         /// <summary>
         /// Returns the currently visible map as a PNG image

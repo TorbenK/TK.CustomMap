@@ -9,16 +9,19 @@ namespace TK.CustomMap
     /// </summary>
     public class TKCustomMapPin : TKBase
     {
+
+
         private bool _isVisible;
         private string _id;
         private string _title;
         private string _subtitle;
+        private string _group;
         private bool _showCallout;
         private Position _position;
         private ImageSource _image;
         private bool _isDraggable;
         private Color _defaultPinColor;
-        private Point _anchor;
+        private Point _anchor = new Point(0.5, 0.5);
         private double _rotation;
         private bool _isCalloutClickable;
 
@@ -42,7 +45,7 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets visibility of a pin
         /// </summary>
-        public bool IsVisible 
+        public bool IsVisible
         {
             get { return this._isVisible; }
             set { this.SetField(ref this._isVisible, value); }
@@ -58,7 +61,7 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets title of the pin displayed in the callout
         /// </summary>
-        public string Title 
+        public string Title
         {
             get { return this._title; }
             set { this.SetField(ref this._title, value); }
@@ -66,7 +69,7 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets the subtitle of the pin displayed in the callout
         /// </summary>
-        public string Subtitle 
+        public string Subtitle
         {
             get { return this._subtitle; }
             set { this.SetField(ref this._subtitle, value); }
@@ -74,7 +77,7 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets if the callout should be displayed when a pin gets selected
         /// </summary>
-        public bool ShowCallout 
+        public bool ShowCallout
         {
             get { return this._showCallout; }
             set { this.SetField(ref this._showCallout, value); }
@@ -82,7 +85,7 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets the position of the pin
         /// </summary>
-        public Position Position 
+        public Position Position
         {
             get { return this._position; }
             set { this.SetField(ref this._position, value); }
@@ -90,7 +93,7 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets the image of the pin. If null the default is used
         /// </summary>
-        public ImageSource Image 
+        public ImageSource Image
         {
             get { return this._image; }
             set { this.SetField(ref this._image, value); }
@@ -98,7 +101,7 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets if the pin is draggable
         /// </summary>
-        public bool IsDraggable 
+        public bool IsDraggable
         {
             get { return this._isDraggable; }
             set { this.SetField(ref this._isDraggable, value); }
@@ -134,6 +137,14 @@ namespace TK.CustomMap
         {
             get { return this._isCalloutClickable; }
             set { this.SetField(ref this._isCalloutClickable, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the group identifier
+        /// </summary>
+        public string Group
+        {
+            get => _group;
+            set { SetField(ref this._group, value); }
         }
         /// <summary>
         /// Creates a new instance of <see cref="TKCustomMapPin" />

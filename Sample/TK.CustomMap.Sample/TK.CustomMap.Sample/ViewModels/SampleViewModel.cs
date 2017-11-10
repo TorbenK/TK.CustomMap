@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace TK.CustomMap.Sample
     {
         private TKTileUrlOptions _tileUrlOptions;
 
-        private MapSpan _mapRegion;
+        private MapSpan _mapRegion = MapSpan.FromCenterAndRadius(new Position(40.7142700, -74.0059700), Distance.FromKilometers(2));
         private Position _mapCenter;
         private TKCustomMapPin _selectedPin;
         private ObservableCollection<TKCustomMapPin> _pins;
@@ -622,6 +623,16 @@ namespace TK.CustomMap.Sample
                 });
             }
         }
+
+        public Func<string, IEnumerable<TKCustomMapPin>, TKCustomMapPin> GetClusteredPin => (group, clusteredPins) => 
+        {
+            return new TKCustomMapPin
+            {
+                DefaultPinColor = Color.Blue,
+                Title = clusteredPins.Count().ToString(),
+                ShowCallout = true
+            };
+        };
 
         public SampleViewModel()
         {

@@ -20,6 +20,8 @@ using Xamarin.Forms.Maps;
 using Xamarin.Forms.Maps.iOS;
 using Xamarin.Forms.Platform.iOS;
 using System.Collections;
+using Xamarin.ClusterKit;
+using System.Threading;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 
@@ -29,7 +31,7 @@ namespace TK.CustomMap.iOSUnified
     /// iOS Renderer of <see cref="TK.CustomMap.TKCustomMap"/>
     /// </summary>
     [Preserve(AllMembers = true)]
-    public class TKCustomMapRenderer : MapRenderer, IRendererFunctions
+    public class TKCustomMapRenderer : ViewRenderer<TKCustomMap, MKMapView>, IRendererFunctions
     {
 
         private const double MercatorRadius = 85445659.44705395;
@@ -53,6 +55,8 @@ namespace TK.CustomMap.iOSUnified
         private UIGestureRecognizer _tapGestureRecognizer;
         private UIGestureRecognizer _doubleTapGestureRecognizer;
 
+        private TKClusterMap _clusterMap;
+
         private MKMapView Map
         {
             get { return this.Control as MKMapView; }
@@ -69,6 +73,7 @@ namespace TK.CustomMap.iOSUnified
         /// Gets/Sets if the default pin drop animation is enabled
         /// </summary>
         public static bool AnimateOnPinDrop { get; set; } = true;
+
         /// <summary>
         /// Dummy function to avoid linker.
         /// </summary>
@@ -78,7 +83,7 @@ namespace TK.CustomMap.iOSUnified
             var temp = DateTime.Now;
         }
         /// <inheritdoc/>
-        protected override void OnElementChanged(ElementChangedEventArgs<View> e)
+        protected override void OnElementChanged(ElementChangedEventArgs<TKCustomMap> e)
         {
             base.OnElementChanged(e);
 
@@ -105,7 +110,15 @@ namespace TK.CustomMap.iOSUnified
 
             if (e.NewElement != null)
             {
+                if (Control == null)
+                {
+                    var mapView = new MKMapView();
+                    SetNativeControl(mapView);
+                }
+
                 this.MapFunctions.SetRenderer(this);
+
+                _clusterMap = new TKClusterMap(Map);
 
                 this.Map.GetViewForAnnotation = this.GetViewForAnnotation;
                 this.Map.OverlayRenderer = this.GetOverlayRenderer;
@@ -127,13 +140,13 @@ namespace TK.CustomMap.iOSUnified
                 this.Map.AddGestureRecognizer(this._doubleTapGestureRecognizer);
 
                 this.UpdateTileOptions();
-                this.SetMapCenter();
                 this.UpdatePins();
                 this.UpdateRoutes();
                 this.UpdateLines();
                 this.UpdateCircles();
                 this.UpdatePolygons();
                 this.UpdateShowTraffic();
+                this.UpdateMapRegion();
                 this.FormsMap.PropertyChanged += OnMapPropertyChanged;
             }
         }
@@ -252,10 +265,6 @@ namespace TK.CustomMap.iOSUnified
             {
                 this.SetSelectedPin();
             }
-            else if (e.PropertyName == TKCustomMap.MapCenterProperty.PropertyName)
-            {
-                this.SetMapCenter();
-            }
             else if (e.PropertyName == TKCustomMap.PolylinesProperty.PropertyName)
             {
                 this.UpdateLines();
@@ -305,6 +314,8 @@ namespace TK.CustomMap.iOSUnified
             }
             else if (e.Action == NotifyCollectionChangedAction.Remove)
             {
+                List<TKCustomMapAnnotation> annotationsToRemove = new List<TKCustomMapAnnotation>();
+
                 foreach (TKCustomMapPin pin in e.OldItems)
                 {
                     if (!this.FormsMap.CustomPins.Contains(pin))
@@ -314,21 +325,20 @@ namespace TK.CustomMap.iOSUnified
                             this.FormsMap.SelectedPin = null;
                         }
 
-                        var annotation = this.Map.Annotations
-                            .OfType<TKCustomMapAnnotation>()
-                            .SingleOrDefault(i => i.CustomPin.Equals(pin));
+                        var annotation = _clusterMap.ClusterManager.Annotations.OfType<TKCustomMapAnnotation>().SingleOrDefault(i => i.CustomPin.Equals(pin));
 
                         if (annotation != null)
                         {
                             annotation.CustomPin.PropertyChanged -= OnPinPropertyChanged;
-                            this.Map.RemoveAnnotation(annotation);
+                            annotationsToRemove.Add(annotation);
                         }
                     }
                 }
+                _clusterMap.ClusterManager.RemoveAnnotations(annotationsToRemove.ToArray());
             }
             else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                foreach (var annotation in this.Map.Annotations.OfType<TKCustomMapAnnotation>())
+                foreach (var annotation in _clusterMap.ClusterManager.Annotations.OfType<TKCustomMapAnnotation>())
                 {
                     annotation.CustomPin.PropertyChanged -= OnPinPropertyChanged;
                 }
@@ -351,7 +361,7 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="e">Event Arguments</param>
         private void OnChangedDragState(object sender, MKMapViewDragStateEventArgs e)
         {
-            var annotation = e.AnnotationView.Annotation as TKCustomMapAnnotation;
+            var annotation = GetCustomAnnotation(e.AnnotationView);
             if (annotation == null) return;
 
             if (e.NewState == MKAnnotationViewDragState.Starting)
@@ -364,6 +374,10 @@ namespace TK.CustomMap.iOSUnified
             }
             else if (e.NewState == MKAnnotationViewDragState.Ending || e.NewState == MKAnnotationViewDragState.Canceling)
             {
+                var ckCluster = e.AnnotationView.Annotation as CKCluster;
+
+                (ckCluster.FirstAnnotation as TKCustomMapAnnotation)?.SetCoordinateInternal(ckCluster.Coordinate, true);
+
                 if(!(e.AnnotationView is MKPinAnnotationView))
                     e.AnnotationView.DragState = MKAnnotationViewDragState.None;
                 this._isDragging = false;
@@ -377,7 +391,8 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="e">Event Arguments</param>
         private void OnMapRegionChanged(object sender, MKMapViewChangeEventArgs e)
         {
-            this.FormsMap.MapCenter = this.Map.CenterCoordinate.ToPosition();
+            FormsMap.MapRegion = Map.GetCurrentMapRegion();
+            _clusterMap.ClusterManager.UpdateClustersIfNeeded();
         }
         /// <summary>
         /// When an annotation view got selected
@@ -386,8 +401,7 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="e">Event Arguments</param>
         public virtual void OnDidSelectAnnotationView(object sender, MKAnnotationViewEventArgs e)
         {
-            var pin = e.View.Annotation as TKCustomMapAnnotation;
-            if(pin == null) return;
+            var pin = GetCustomAnnotation(e.View);
 
             this._selectedAnnotation = e.View.Annotation;
             this.FormsMap.SelectedPin = pin.CustomPin;
@@ -454,8 +468,21 @@ namespace TK.CustomMap.iOSUnified
         /// <returns>The annotation view</returns>
         public virtual MKAnnotationView GetViewForAnnotation(MKMapView mapView, IMKAnnotation annotation)
         {
-            var customAnnotation = annotation as TKCustomMapAnnotation;
+            var clusterAnnotation = annotation as CKCluster;
             
+            if (clusterAnnotation == null) return null;
+
+            TKCustomMapAnnotation customAnnotation;
+            if(clusterAnnotation.Count > 1)
+            {
+                var clusterPin = FormsMap.GetClusteredPin?.Invoke(null, clusterAnnotation.Annotations.OfType<TKCustomMapAnnotation>().Select(i => i.CustomPin));
+                customAnnotation = new TKCustomMapAnnotation(clusterPin);
+            }
+            else
+            {
+                customAnnotation = clusterAnnotation.FirstAnnotation as TKCustomMapAnnotation;
+            }
+
             if (customAnnotation == null) return null;
 
             MKAnnotationView annotationView;
@@ -514,7 +541,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         private void UpdatePins(bool firstUpdate = true)
         {
-            this.Map.RemoveAnnotations(this.Map.Annotations);
+            _clusterMap.ClusterManager.RemoveAnnotations(_clusterMap.ClusterManager.Annotations);
 
             if (this.FormsMap.CustomPins == null) return;
 
@@ -869,7 +896,7 @@ namespace TK.CustomMap.iOSUnified
         private void AddPin(TKCustomMapPin pin)
         {
             var annotation = new TKCustomMapAnnotation(pin);
-            this.Map.AddAnnotation(annotation);
+            _clusterMap.ClusterManager.AddAnnotation(annotation);
 
             pin.PropertyChanged += OnPinPropertyChanged;
         }
@@ -1063,13 +1090,12 @@ namespace TK.CustomMap.iOSUnified
                 return;
 
             var formsPin = (TKCustomMapPin)sender;
-            var annotation = this.Map.Annotations
-                .OfType<TKCustomMapAnnotation>()
+            var annotation = this._clusterMap.ClusterManager.Annotations.OfType<TKCustomMapAnnotation>()
                 .SingleOrDefault(i => i.CustomPin.Equals(formsPin));
 
             if (annotation == null) return;
 
-            var annotationView = this.Map.ViewForAnnotation(annotation);
+            var annotationView = this.Map.ViewForAnnotation(Map.Annotations.GetCluster(annotation));
             if (annotationView == null) return;
 
             switch (e.PropertyName)
@@ -1086,7 +1112,8 @@ namespace TK.CustomMap.iOSUnified
                 case TKCustomMapPin.IsVisiblePropertyName:
                     this.SetAnnotationViewVisibility(annotationView, formsPin);
                     break;
-                case TKCustomMapPin.PositionPropertyName: 
+                case TKCustomMapPin.PositionPropertyName:
+                    annotationView.Annotation.SetCoordinate(formsPin.Position.ToLocationCoordinate());
                     annotation.SetCoordinateInternal(formsPin.Position.ToLocationCoordinate(), true);
                     break;
                 case TKCustomMapPin.ShowCalloutPropertyName:
@@ -1156,10 +1183,11 @@ namespace TK.CustomMap.iOSUnified
             if (pin.Image != null)
             {
                 // If this is the case, we need to get a whole new annotation view. 
-                if (annotationView.GetType() == typeof (MKPinAnnotationView))
+                if (annotationView.GetType() == typeof(MKPinAnnotationView))
                 {
-                    this.Map.RemoveAnnotation(annotationView.Annotation);
-                    this.Map.AddAnnotation(new TKCustomMapAnnotation(pin));
+
+                    _clusterMap.ClusterManager.RemoveAnnotation(GetCustomAnnotation(annotationView));
+                    this._clusterMap.ClusterManager.AddAnnotation(new TKCustomMapAnnotation(pin));
                     return;
                 }
                 UIImage image = await pin.Image.ToImage();
@@ -1190,6 +1218,12 @@ namespace TK.CustomMap.iOSUnified
                     {
                         pinAnnotationView.PinTintColor = UIColor.Red;
                     }
+                }
+                else
+                {
+                    _clusterMap.ClusterManager.RemoveAnnotation(GetCustomAnnotation(annotationView));
+                    this._clusterMap.ClusterManager.AddAnnotation(new TKCustomMapAnnotation(pin));
+
                 }
             }
         }
@@ -1236,7 +1270,7 @@ namespace TK.CustomMap.iOSUnified
             {
                 if (customAnnotion.CustomPin.Equals(this.FormsMap.SelectedPin)) return;
 
-                var annotationView = this.Map.ViewForAnnotation(customAnnotion);
+                var annotationView = this.Map.ViewForAnnotation(Map.Annotations.GetCluster(customAnnotion));
                 if (annotationView != null)
                 {
                     annotationView.Selected = false;
@@ -1247,35 +1281,19 @@ namespace TK.CustomMap.iOSUnified
             }
             if (this.FormsMap.SelectedPin != null)
             {
-                var selectedAnnotation = this.Map.Annotations
-                    .OfType<TKCustomMapAnnotation>()
+                var selectedAnnotation = this._clusterMap.ClusterManager.Annotations.OfType<TKCustomMapAnnotation>()
                     .SingleOrDefault(i => i.CustomPin.Equals(this.FormsMap.SelectedPin));
 
                 if (selectedAnnotation != null)
                 {
-                    var annotationView = this.Map.ViewForAnnotation(selectedAnnotation);
+                    var annotationView = this.Map.ViewForAnnotation(Map.Annotations.GetCluster(selectedAnnotation));
                     this._selectedAnnotation = selectedAnnotation;
                     if (annotationView != null)
                     {
-                        this.Map.SelectAnnotation(selectedAnnotation, true);
+                        this.Map.SelectAnnotation(annotationView.Annotation, true);
                     }
                     this.MapFunctions.RaisePinSelected(this.FormsMap.SelectedPin);
                 }
-            }
-        }
-        /// <summary>
-        /// Sets the center of the map
-        /// </summary>
-        private void SetMapCenter()
-        {
-            if(this.FormsMap == null || this.Map == null) return;
-
-            if (!this.FormsMap.MapCenter.Equals(this.Map.CenterCoordinate.ToPosition()))
-            {
-                BeginInvokeOnMainThread(() => 
-                {
-                    this.Map.SetCenterCoordinate(this.FormsMap.MapCenter.ToLocationCoordinate(), this.FormsMap.IsRegionChangeAnimated);
-                });
             }
         }
         /// <summary>
@@ -1298,12 +1316,10 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         private void UpdateMapRegion()
         {
-            if (this.FormsMap == null || this.FormsMap.MapRegion == null) return;
+            if (FormsMap?.MapRegion == null) return;
 
-            if(this.FormsMap.MapRegion != this.FormsMap.VisibleRegion)
-            {
-                this.MoveToMapRegion(this.FormsMap.MapRegion, this.FormsMap.IsRegionChangeAnimated);
-            }
+            if (Map.GetCurrentMapRegion().Equals(FormsMap.MapRegion)) return;
+            MoveToMapRegion(FormsMap.MapRegion, FormsMap.IsRegionChangeAnimated);
         }
         /// <summary>
         /// Calculates the closest distance of a point to a polyline
@@ -1489,8 +1505,7 @@ namespace TK.CustomMap.iOSUnified
         {
             if (this.Map == null) return;
 
-            var annotation = this.Map.Annotations
-                .OfType<TKCustomMapAnnotation>()
+            var annotation = _clusterMap.ClusterManager.Annotations.OfType<TKCustomMapAnnotation>()
                 .SingleOrDefault(i => i.CustomPin.Equals(pin));
 
             this.Map.SelectAnnotation(annotation, true);
@@ -1500,8 +1515,7 @@ namespace TK.CustomMap.iOSUnified
         {
             if (this.Map == null) return;
 
-            var annotation = this.Map.Annotations
-                .OfType<TKCustomMapAnnotation>()
+            var annotation = _clusterMap.ClusterManager.Annotations.OfType<TKCustomMapAnnotation>()
                 .SingleOrDefault(i => i.CustomPin.Equals(pin));
 
             this.Map.DeselectAnnotation(annotation, true);
@@ -1521,10 +1535,15 @@ namespace TK.CustomMap.iOSUnified
         /// <returns>The forms pin</returns>
         protected TKCustomMapPin GetPinByAnnotation(IMKAnnotation annotation)
         {
-            var customAnnotation = annotation as TKCustomMapAnnotation;
-            if (customAnnotation == null) return null;
-
-            return customAnnotation.CustomPin;
+            var customAnnotation = annotation as CKCluster;
+            if (customAnnotation.Annotations.Count() > 1)
+            {
+                return FormsMap.GetClusteredPin?.Invoke(null, customAnnotation.Annotations.OfType<TKCustomMapAnnotation>().Select(i => i.CustomPin));
+            }
+            else
+            {
+                return customAnnotation.Annotations.OfType<TKCustomMapAnnotation>().FirstOrDefault()?.CustomPin;
+            }
         }
         /// <summary>
         /// Remove all annotations before disposing
@@ -1540,6 +1559,7 @@ namespace TK.CustomMap.iOSUnified
             {
                 if (Map != null)
                 {
+                    _clusterMap.ClusterManager.RemoveAnnotations(_clusterMap.ClusterManager.Annotations);
                     Map.RemoveAnnotations(Map.Annotations);
 
                     this.Map.GetViewForAnnotation = null;
@@ -1557,6 +1577,9 @@ namespace TK.CustomMap.iOSUnified
                     this._tapGestureRecognizer.Dispose();
                     this._doubleTapGestureRecognizer.Dispose();
 
+                    Map.Dispose();
+                    _clusterMap.Dispose();
+
                 }
                 if(FormsMap != null)
                 {
@@ -1567,5 +1590,14 @@ namespace TK.CustomMap.iOSUnified
 
             base.Dispose(disposing);
         }
+        TKCustomMapAnnotation GetCustomAnnotation(MKAnnotationView view)
+        {
+            var cluster = view.Annotation as CKCluster;
+
+            if (cluster?.Annotations.Count() != 1) return null;
+
+            return cluster.Annotations.First() as TKCustomMapAnnotation;
+        }
+
     }
 }
