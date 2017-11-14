@@ -24,7 +24,7 @@ namespace TK.CustomMap.Droid
         ///<inheritdoc/>
         public async Task<IEnumerable<IPlaceResult>> GetPredictions(string query, MapSpan bounds)
         {
-            if (this._apiClient == null || !this._apiClient.IsConnected) this.Connect();
+            if (_apiClient == null || !_apiClient.IsConnected) Connect();
 
             List<IPlaceResult> result = new List<IPlaceResult>();
 
@@ -42,21 +42,21 @@ namespace TK.CustomMap.Droid
             double maxLat = bounds.Center.Latitude + deltaLat;
             double maxLong = bounds.Center.Longitude + deltaLong;
 
-            if (this._buffer != null)
+            if (_buffer != null)
             {
-                this._buffer.Dispose();
-                this._buffer = null;
+                _buffer.Dispose();
+                _buffer = null;
             }
 
-            this._buffer = await PlacesClass.GeoDataApi.GetAutocompletePredictionsAsync(
-                this._apiClient, 
+            _buffer = await PlacesClass.GeoDataApi.GetAutocompletePredictionsAsync(
+                _apiClient, 
                 query, 
                 new LatLngBounds(new LatLng(minLat, minLong), new LatLng(maxLat, maxLong)), 
                 null);
             
-            if (this._buffer != null)
+            if (_buffer != null)
             {
-                result.AddRange(this._buffer.Select(i => 
+                result.AddRange(_buffer.Select(i => 
                     new TKNativeAndroidPlaceResult
                     {
                         Description = i.GetPrimaryText(null),
@@ -69,40 +69,40 @@ namespace TK.CustomMap.Droid
         ///<inheritdoc/>
         public void Connect()
         {
-            if(this._apiClient == null)
+            if(_apiClient == null)
             {
-                this._apiClient = new GoogleApiClient.Builder(Forms.Context)
+                _apiClient = new GoogleApiClient.Builder(Forms.Context)
                     .AddApi(PlacesClass.GEO_DATA_API)
                     .Build();
             }
-            if(!this._apiClient.IsConnected && !this._apiClient.IsConnecting)
+            if(!_apiClient.IsConnected && !_apiClient.IsConnecting)
             {
-                this._apiClient.Connect();
+                _apiClient.Connect();
             }
         }
         ///<inheritdoc/>
         public void DisconnectAndRelease()
         {
-            if (this._apiClient == null) return;
+            if (_apiClient == null) return;
 
-            if (this._apiClient.IsConnected)
-                this._apiClient.Disconnect();
+            if (_apiClient.IsConnected)
+                _apiClient.Disconnect();
 
-            this._apiClient.Dispose();
-            this._apiClient = null;
+            _apiClient.Dispose();
+            _apiClient = null;
 
-            if (this._buffer != null)
+            if (_buffer != null)
             {
-                this._buffer.Dispose();
-                this._buffer = null;
+                _buffer.Dispose();
+                _buffer = null;
             }
         }
         /// <inheritdoc/>
         public async Task<TKPlaceDetails> GetDetails(string id)
         {
-            if (this._apiClient == null || !this._apiClient.IsConnected) this.Connect();
+            if (_apiClient == null || !_apiClient.IsConnected) Connect();
 
-            var nativeResult = await PlacesClass.GeoDataApi.GetPlaceByIdAsync(this._apiClient, id);
+            var nativeResult = await PlacesClass.GeoDataApi.GetPlaceByIdAsync(_apiClient, id);
 
             if (nativeResult == null || !nativeResult.Any()) return null;
 

@@ -38,10 +38,10 @@ namespace TK.CustomMap.Droid
                     Marker.Snippet = Pin.Subtitle;
                     break;
                 case TKCustomMapPin.ImagePropertyName:
-                    await this.UpdateImageAsync();
+                    await UpdateImageAsync();
                     break;
                 case TKCustomMapPin.DefaultPinColorPropertyName:
-                    await this.UpdateImageAsync();
+                    await UpdateImageAsync();
                     break;
                 case TKCustomMapPin.PositionPropertyName:
                     if (!isDragging)
@@ -67,9 +67,12 @@ namespace TK.CustomMap.Droid
             }
         }
 
-        public async Task InitializeMarkerOptionsAsync(MarkerOptions markerOptions)
+        public async Task InitializeMarkerOptionsAsync(MarkerOptions markerOptions, bool setPosition = true)
         {
-            markerOptions.SetPosition(new LatLng(Pin.Position.Latitude, Pin.Position.Longitude));
+            if (setPosition)
+            {
+                markerOptions.SetPosition(new LatLng(Pin.Position.Latitude, Pin.Position.Longitude));
+            }
 
             if (!string.IsNullOrWhiteSpace(Pin.Title))
                 markerOptions.SetTitle(Pin.Title);

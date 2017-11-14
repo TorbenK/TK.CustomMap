@@ -69,7 +69,8 @@ namespace TK.CustomMap.Droid
             else
             {
                 var tempMarker = new TKMarker(customPin, _context);
-                await tempMarker.InitializeMarkerOptionsAsync(p1);
+                
+                await tempMarker.InitializeMarkerOptionsAsync(p1, false);
             }
         }
 
