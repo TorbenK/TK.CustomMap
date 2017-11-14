@@ -131,10 +131,7 @@
       <Version>6.0.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Forms">
-      <Version>2.4.0.282</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.Forms.Maps">
-      <Version>2.4.0.282</Version>
+      <Version>2.4.0.74863</Version>
     </PackageReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

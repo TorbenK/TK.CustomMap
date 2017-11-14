@@ -6,7 +6,6 @@ using TK.CustomMap.Interfaces;
 using TK.CustomMap.Models;
 using TK.CustomMap.Overlays;
 using Xamarin.Forms;
-using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap
 {

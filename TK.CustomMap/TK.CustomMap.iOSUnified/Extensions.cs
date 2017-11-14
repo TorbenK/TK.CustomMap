@@ -4,7 +4,6 @@ using MapKit;
 using TK.CustomMap.Overlays;
 using UIKit;
 using Xamarin.Forms;
-using Xamarin.Forms.Maps;
 using Xamarin.Forms.Platform.iOS;
 using CoreGraphics;
 using System.Collections;

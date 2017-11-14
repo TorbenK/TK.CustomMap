@@ -3,7 +3,6 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.Api.Google
 {

@@ -1,6 +1,4 @@
-﻿using Xamarin.Forms.Maps;
-
-namespace TK.CustomMap.Overlays
+﻿namespace TK.CustomMap.Overlays
 {
     /// <summary>
     /// A route to display on the map

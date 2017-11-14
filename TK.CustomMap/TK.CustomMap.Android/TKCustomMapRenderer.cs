@@ -16,8 +16,6 @@ using TK.CustomMap.Models;
 using TK.CustomMap.Overlays;
 using TK.CustomMap.Utilities;
 using Xamarin.Forms;
-using Xamarin.Forms.Maps;
-using Xamarin.Forms.Maps.Android;
 using Xamarin.Forms.Platform.Android;
 using Color = Xamarin.Forms.Color;
 using System.Collections;

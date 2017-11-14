@@ -15,7 +15,6 @@
  */
 
 using System;
-using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.Utilities
 {

@@ -8,7 +8,6 @@ using Android.Gms.Maps.Model;
 using TK.CustomMap.Api;
 using TK.CustomMap.Droid;
 using Xamarin.Forms;
-using Xamarin.Forms.Maps;
 
 [assembly: Dependency(typeof(NativePlacesApi))]
 

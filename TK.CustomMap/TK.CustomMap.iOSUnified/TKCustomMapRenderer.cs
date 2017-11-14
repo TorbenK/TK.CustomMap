@@ -16,8 +16,6 @@ using TK.CustomMap.Models;
 using TK.CustomMap.Overlays;
 using UIKit;
 using Xamarin.Forms;
-using Xamarin.Forms.Maps;
-using Xamarin.Forms.Maps.iOS;
 using Xamarin.Forms.Platform.iOS;
 using System.Collections;
 using Xamarin.ClusterKit;
