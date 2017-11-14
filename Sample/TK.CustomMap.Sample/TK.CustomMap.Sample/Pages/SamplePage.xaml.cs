@@ -20,6 +20,7 @@ namespace TK.CustomMap.Sample
 
             var newYork = new Position(40.7142700, -74.0059700);
             var mapView = new TKCustomMap(MapSpan.FromCenterAndRadius(newYork, Distance.FromKilometers(2)));
+            mapView.SetBinding(TKCustomMap.IsClusteringEnabledProperty, "IsClusteringEnabled");
             mapView.SetBinding(TKCustomMap.GetClusteredPinProperty, "GetClusteredPin");
             mapView.SetBinding(TKCustomMap.CustomPinsProperty, "Pins");
             mapView.SetBinding(TKCustomMap.MapClickedCommandProperty, "MapClickedCommand");

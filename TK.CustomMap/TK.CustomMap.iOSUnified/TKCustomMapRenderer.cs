@@ -118,7 +118,10 @@ namespace TK.CustomMap.iOSUnified
 
                 this.MapFunctions.SetRenderer(this);
 
-                _clusterMap = new TKClusterMap(Map);
+                if (FormsMap.IsClusteringEnabled)
+                {
+                    _clusterMap = new TKClusterMap(Map);
+                }
 
                 this.Map.GetViewForAnnotation = this.GetViewForAnnotation;
                 this.Map.OverlayRenderer = this.GetOverlayRenderer;
@@ -297,6 +300,10 @@ namespace TK.CustomMap.iOSUnified
             {
                 this.UpdateMapRegion();
             }
+            else if(e.PropertyName == TKCustomMap.IsClusteringEnabledProperty.PropertyName)
+            {
+                UpdateIsClusteringEnabled();
+            }
         }
         /// <summary>
         /// When the collection of pins changed
@@ -325,7 +332,7 @@ namespace TK.CustomMap.iOSUnified
                             this.FormsMap.SelectedPin = null;
                         }
 
-                        var annotation = _clusterMap.ClusterManager.Annotations.OfType<TKCustomMapAnnotation>().SingleOrDefault(i => i.CustomPin.Equals(pin));
+                        var annotation = GetCustomAnnotation(pin);
 
                         if (annotation != null)
                         {
@@ -334,11 +341,21 @@ namespace TK.CustomMap.iOSUnified
                         }
                     }
                 }
-                _clusterMap.ClusterManager.RemoveAnnotations(annotationsToRemove.ToArray());
+
+                if (FormsMap.IsClusteringEnabled)
+                {
+                    _clusterMap.ClusterManager.RemoveAnnotations(annotationsToRemove.ToArray());
+                }
+                else
+                {
+                    Map.RemoveAnnotations(annotationsToRemove.ToArray());
+                }
             }
             else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                foreach (var annotation in _clusterMap.ClusterManager.Annotations.OfType<TKCustomMapAnnotation>())
+                IEnumerable<IMKAnnotation> annotations = FormsMap.IsClusteringEnabled ? _clusterMap.ClusterManager.Annotations : Map.Annotations;
+
+                foreach (var annotation in annotations.OfType<TKCustomMapAnnotation>())
                 {
                     annotation.CustomPin.PropertyChanged -= OnPinPropertyChanged;
                 }
@@ -374,9 +391,12 @@ namespace TK.CustomMap.iOSUnified
             }
             else if (e.NewState == MKAnnotationViewDragState.Ending || e.NewState == MKAnnotationViewDragState.Canceling)
             {
-                var ckCluster = e.AnnotationView.Annotation as CKCluster;
 
-                (ckCluster.FirstAnnotation as TKCustomMapAnnotation)?.SetCoordinateInternal(ckCluster.Coordinate, true);
+                if (FormsMap.IsClusteringEnabled)
+                {
+                    var ckCluster = e.AnnotationView.Annotation as CKCluster;
+                    annotation.SetCoordinateInternal(ckCluster.Coordinate, true);
+                }
 
                 if(!(e.AnnotationView is MKPinAnnotationView))
                     e.AnnotationView.DragState = MKAnnotationViewDragState.None;
@@ -392,7 +412,11 @@ namespace TK.CustomMap.iOSUnified
         private void OnMapRegionChanged(object sender, MKMapViewChangeEventArgs e)
         {
             FormsMap.MapRegion = Map.GetCurrentMapRegion();
-            _clusterMap.ClusterManager.UpdateClustersIfNeeded();
+
+            if (FormsMap.IsClusteringEnabled)
+            {
+                _clusterMap.ClusterManager.UpdateClustersIfNeeded();
+            }
         }
         /// <summary>
         /// When an annotation view got selected
@@ -469,18 +493,24 @@ namespace TK.CustomMap.iOSUnified
         public virtual MKAnnotationView GetViewForAnnotation(MKMapView mapView, IMKAnnotation annotation)
         {
             var clusterAnnotation = annotation as CKCluster;
-            
-            if (clusterAnnotation == null) return null;
 
             TKCustomMapAnnotation customAnnotation;
-            if(clusterAnnotation.Count > 1)
+
+            if (clusterAnnotation == null)
             {
-                var clusterPin = FormsMap.GetClusteredPin?.Invoke(null, clusterAnnotation.Annotations.OfType<TKCustomMapAnnotation>().Select(i => i.CustomPin));
-                customAnnotation = new TKCustomMapAnnotation(clusterPin);
+                customAnnotation = annotation as TKCustomMapAnnotation;
             }
             else
             {
-                customAnnotation = clusterAnnotation.FirstAnnotation as TKCustomMapAnnotation;
+                if (clusterAnnotation.Count > 1)
+                {
+                    var clusterPin = FormsMap.GetClusteredPin?.Invoke(null, clusterAnnotation.Annotations.OfType<TKCustomMapAnnotation>().Select(i => i.CustomPin));
+                    customAnnotation = new TKCustomMapAnnotation(clusterPin);
+                }
+                else
+                {
+                    customAnnotation = clusterAnnotation.FirstAnnotation as TKCustomMapAnnotation;
+                }
             }
 
             if (customAnnotation == null) return null;
@@ -541,7 +571,14 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         private void UpdatePins(bool firstUpdate = true)
         {
-            _clusterMap.ClusterManager.RemoveAnnotations(_clusterMap.ClusterManager.Annotations);
+            if (FormsMap.IsClusteringEnabled)
+            {
+                _clusterMap.ClusterManager.RemoveAnnotations(_clusterMap.ClusterManager.Annotations);
+            }
+            else
+            {
+                Map.RemoveAnnotations(Map.Annotations);
+            }
 
             if (this.FormsMap.CustomPins == null) return;
 
@@ -896,7 +933,15 @@ namespace TK.CustomMap.iOSUnified
         private void AddPin(TKCustomMapPin pin)
         {
             var annotation = new TKCustomMapAnnotation(pin);
-            _clusterMap.ClusterManager.AddAnnotation(annotation);
+
+            if (FormsMap.IsClusteringEnabled)
+            {
+                _clusterMap.ClusterManager.AddAnnotation(annotation);
+            }
+            else
+            {
+                Map.AddAnnotation(annotation);
+            }
 
             pin.PropertyChanged += OnPinPropertyChanged;
         }
@@ -1090,14 +1135,14 @@ namespace TK.CustomMap.iOSUnified
                 return;
 
             var formsPin = (TKCustomMapPin)sender;
-            var annotation = this._clusterMap.ClusterManager.Annotations.OfType<TKCustomMapAnnotation>()
-                .SingleOrDefault(i => i.CustomPin.Equals(formsPin));
+            var annotation = GetCustomAnnotation(formsPin);
 
             if (annotation == null) return;
 
-            var annotationView = this.Map.ViewForAnnotation(Map.Annotations.GetCluster(annotation));
-            if (annotationView == null) return;
+            MKAnnotationView annotationView = GetViewByAnnotation(annotation);
 
+            if (annotationView == null) return;
+            
             switch (e.PropertyName)
             {
                 case TKCustomMapPin.ImagePropertyName:
@@ -1186,8 +1231,16 @@ namespace TK.CustomMap.iOSUnified
                 if (annotationView.GetType() == typeof(MKPinAnnotationView))
                 {
 
-                    _clusterMap.ClusterManager.RemoveAnnotation(GetCustomAnnotation(annotationView));
-                    this._clusterMap.ClusterManager.AddAnnotation(new TKCustomMapAnnotation(pin));
+                    if (FormsMap.IsClusteringEnabled)
+                    {
+                        _clusterMap.ClusterManager.RemoveAnnotation(GetCustomAnnotation(annotationView));
+                        _clusterMap.ClusterManager.AddAnnotation(new TKCustomMapAnnotation(pin));
+                    }
+                    else
+                    {
+                        Map.RemoveAnnotation(GetCustomAnnotation(annotationView));
+                        Map.AddAnnotation(new TKCustomMapAnnotation(pin));
+                    }
                     return;
                 }
                 UIImage image = await pin.Image.ToImage();
@@ -1221,9 +1274,16 @@ namespace TK.CustomMap.iOSUnified
                 }
                 else
                 {
-                    _clusterMap.ClusterManager.RemoveAnnotation(GetCustomAnnotation(annotationView));
-                    this._clusterMap.ClusterManager.AddAnnotation(new TKCustomMapAnnotation(pin));
-
+                    if (FormsMap.IsClusteringEnabled)
+                    {
+                        _clusterMap.ClusterManager.RemoveAnnotation(GetCustomAnnotation(annotationView));
+                        _clusterMap.ClusterManager.AddAnnotation(new TKCustomMapAnnotation(pin));
+                    }
+                    else
+                    {
+                        Map.RemoveAnnotation(GetCustomAnnotation(annotationView));
+                        Map.AddAnnotation(new TKCustomMapAnnotation(pin));
+                    }
                 }
             }
         }
@@ -1270,7 +1330,7 @@ namespace TK.CustomMap.iOSUnified
             {
                 if (customAnnotion.CustomPin.Equals(this.FormsMap.SelectedPin)) return;
 
-                var annotationView = this.Map.ViewForAnnotation(Map.Annotations.GetCluster(customAnnotion));
+                var annotationView = GetViewByAnnotation(customAnnotion);
                 if (annotationView != null)
                 {
                     annotationView.Selected = false;
@@ -1281,12 +1341,11 @@ namespace TK.CustomMap.iOSUnified
             }
             if (this.FormsMap.SelectedPin != null)
             {
-                var selectedAnnotation = this._clusterMap.ClusterManager.Annotations.OfType<TKCustomMapAnnotation>()
-                    .SingleOrDefault(i => i.CustomPin.Equals(this.FormsMap.SelectedPin));
+                var selectedAnnotation = GetCustomAnnotation(FormsMap.SelectedPin);
 
                 if (selectedAnnotation != null)
                 {
-                    var annotationView = this.Map.ViewForAnnotation(Map.Annotations.GetCluster(selectedAnnotation));
+                    var annotationView = GetViewByAnnotation(selectedAnnotation);
                     this._selectedAnnotation = selectedAnnotation;
                     if (annotationView != null)
                     {
@@ -1320,6 +1379,38 @@ namespace TK.CustomMap.iOSUnified
 
             if (Map.GetCurrentMapRegion().Equals(FormsMap.MapRegion)) return;
             MoveToMapRegion(FormsMap.MapRegion, FormsMap.IsRegionChangeAnimated);
+        }
+        /// <summary>
+        /// Updates clustering
+        /// </summary>
+        private void UpdateIsClusteringEnabled()
+        {
+            if (FormsMap == null || Map == null) return;
+
+            if(FormsMap.IsClusteringEnabled)
+            {
+                if(_clusterMap == null)
+                {
+                    _clusterMap = new TKClusterMap(Map);
+                }
+
+                Map.RemoveAnnotations(Map.Annotations);
+                foreach(var pin in FormsMap.CustomPins)
+                {
+                    AddPin(pin);
+                }
+                _clusterMap.ClusterManager.UpdateClusters();
+            }
+            else
+            {
+                _clusterMap.ClusterManager.RemoveAnnotations(_clusterMap.ClusterManager.Annotations);
+                foreach(var pin in FormsMap.CustomPins)
+                {
+                    AddPin(pin);
+                }
+                _clusterMap.Dispose();
+                _clusterMap = null;
+            }
         }
         /// <summary>
         /// Calculates the closest distance of a point to a polyline
@@ -1505,20 +1596,32 @@ namespace TK.CustomMap.iOSUnified
         {
             if (this.Map == null) return;
 
-            var annotation = _clusterMap.ClusterManager.Annotations.OfType<TKCustomMapAnnotation>()
-                .SingleOrDefault(i => i.CustomPin.Equals(pin));
+            var annotation = GetCustomAnnotation(pin);
 
-            this.Map.SelectAnnotation(annotation, true);
+            if(FormsMap.IsClusteringEnabled)
+            {
+                _clusterMap.ClusterManager.SelectAnnotation(annotation, true);
+            }
+            else
+            {
+                this.Map.SelectAnnotation(annotation, true);
+            }
         }
         /// <inheritdoc/>
         public void HideCallout(TKCustomMapPin pin)
         {
             if (this.Map == null) return;
 
-            var annotation = _clusterMap.ClusterManager.Annotations.OfType<TKCustomMapAnnotation>()
-                .SingleOrDefault(i => i.CustomPin.Equals(pin));
+            var annotation = GetCustomAnnotation(pin);
 
-            this.Map.DeselectAnnotation(annotation, true);
+            if (FormsMap.IsClusteringEnabled)
+            {
+                _clusterMap.ClusterManager.DeselectAnnotation(annotation, true);
+            }
+            else
+            {
+                this.Map.DeselectAnnotation(annotation, true);
+            }
         }
         /// <inheritdoc />
         public IEnumerable<Position> ScreenLocationsToGeocoordinates(params Point[] screenLocations)
@@ -1559,7 +1662,7 @@ namespace TK.CustomMap.iOSUnified
             {
                 if (Map != null)
                 {
-                    _clusterMap.ClusterManager.RemoveAnnotations(_clusterMap.ClusterManager.Annotations);
+                    _clusterMap?.ClusterManager?.RemoveAnnotations(_clusterMap.ClusterManager.Annotations);
                     Map.RemoveAnnotations(Map.Annotations);
 
                     this.Map.GetViewForAnnotation = null;
@@ -1578,7 +1681,7 @@ namespace TK.CustomMap.iOSUnified
                     this._doubleTapGestureRecognizer.Dispose();
 
                     Map.Dispose();
-                    _clusterMap.Dispose();
+                    _clusterMap?.Dispose();
 
                 }
                 if(FormsMap != null)
@@ -1592,11 +1695,40 @@ namespace TK.CustomMap.iOSUnified
         }
         TKCustomMapAnnotation GetCustomAnnotation(MKAnnotationView view)
         {
-            var cluster = view.Annotation as CKCluster;
+            if (FormsMap.IsClusteringEnabled)
+            {
+                var cluster = view.Annotation as CKCluster;
 
-            if (cluster?.Annotations.Count() != 1) return null;
+                if (cluster?.Annotations.Count() != 1) return null;
 
-            return cluster.Annotations.First() as TKCustomMapAnnotation;
+                return cluster.Annotations.First() as TKCustomMapAnnotation;
+            }
+            else
+            {
+                return view.Annotation as TKCustomMapAnnotation;
+            }
+        }
+        TKCustomMapAnnotation GetCustomAnnotation(TKCustomMapPin pin)
+        {
+            if(FormsMap.IsClusteringEnabled)
+            {
+                return _clusterMap.ClusterManager.Annotations.OfType<TKCustomMapAnnotation>().SingleOrDefault(i => i.CustomPin.Equals(pin));
+            }
+            else
+            {
+                return Map.Annotations.OfType<TKCustomMapAnnotation>().SingleOrDefault(i => i.CustomPin.Equals(pin));
+            }
+        }
+        MKAnnotationView GetViewByAnnotation(TKCustomMapAnnotation annotation)
+        {
+            if (FormsMap.IsClusteringEnabled)
+            {
+                return this.Map.ViewForAnnotation(Map.Annotations.GetCluster(annotation));
+            }
+            else
+            {
+                return this.Map.ViewForAnnotation(annotation);
+            }
         }
 
     }

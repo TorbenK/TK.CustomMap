@@ -22,11 +22,13 @@ namespace TK.CustomMap.Sample
         private MapSpan _mapRegion = MapSpan.FromCenterAndRadius(new Position(40.7142700, -74.0059700), Distance.FromKilometers(2));
         private Position _mapCenter;
         private TKCustomMapPin _selectedPin;
+        private bool _isClusteringEnabled;
         private ObservableCollection<TKCustomMapPin> _pins;
         private ObservableCollection<TKRoute> _routes;
         private ObservableCollection<TKCircle> _circles;
         private ObservableCollection<TKPolyline> _lines;
         private ObservableCollection<TKPolygon> _polygons;
+        private Random _random = new Random(1984);
 
         public TKTileUrlOptions TilesUrlOptions
         {
@@ -58,6 +60,34 @@ namespace TK.CustomMap.Sample
                 {
                     if (!(await Application.Current.MainPage.DisplayAlert("Start Test?", "Start simulation test?", "Yes", "No")))
                         return;
+
+                    Pins.Clear();
+
+                    #region Clustering Test
+
+                    for (int i = 0; i < 20; i++)
+                    {
+                        var newPin = new TKCustomMapPin
+                        {
+                            Position = GetDummyPosition(),
+                            Title = "Cluster Test"
+                        };
+                        Pins.Add(newPin);
+                    }
+                    MapFunctions.FitMapRegionToPositions(Pins.Select(i => i.Position), false);
+                    IsClusteringEnabled = true;
+                    MapRegion = MapSpan.FromCenterAndRadius(MapRegion.Center, Distance.FromKilometers(100));
+                    await Task.Delay(2000);
+                    IsClusteringEnabled = false;
+                    await Task.Delay(2000);
+                    IsClusteringEnabled = true;
+                    await Task.Delay(2000);
+                    IsClusteringEnabled = false;
+                    await Task.Delay(2000);
+
+                    Pins.Clear();
+
+                    #endregion Clustering Test
 
                     #region PinTest
 
@@ -229,6 +259,16 @@ namespace TK.CustomMap.Sample
 
                     #endregion Tiles Test
                 });
+            }
+        }
+
+        public bool IsClusteringEnabled
+        {
+            get => _isClusteringEnabled;
+            set
+            {
+                _isClusteringEnabled = value;
+                OnPropertyChanged(nameof(IsClusteringEnabled));
             }
         }
 
@@ -493,16 +533,7 @@ namespace TK.CustomMap.Sample
             {
                 return new Command<TKCustomMapPin>((TKCustomMapPin pin) =>
                 {
-                    // Chose one
-
-                    // 1. First possibility
-                    //this.MapCenter = this.SelectedPin.Position;
-                    // 2. Possibility
-                    this.MapRegion = MapSpan.FromCenterAndRadius(this.SelectedPin.Position, this.MapRegion.Radius);
-                    // 3. Possibility
-                    //this.MapFunctions.MoveToMapRegion(
-                    //    MapSpan.FromCenterAndRadius(this.SelectedPin.Position, Distance.FromMeters(this.MapRegion.Radius.Meters)),
-                    //    true);
+                    this.MapRegion = MapSpan.FromCenterAndRadius(this.SelectedPin.Position, Distance.FromKilometers(1));
                 });
             }
         }
@@ -626,13 +657,13 @@ namespace TK.CustomMap.Sample
 
         public Func<string, IEnumerable<TKCustomMapPin>, TKCustomMapPin> GetClusteredPin => (group, clusteredPins) => 
         {
-            return null;
-            //return new TKCustomMapPin
-            //{
-            //    DefaultPinColor = Color.Blue,
-            //    Title = clusteredPins.Count().ToString(),
-            //    ShowCallout = true
-            //};
+            //return null;
+            return new TKCustomMapPin
+            {
+                DefaultPinColor = Color.Blue,
+                Title = clusteredPins.Count().ToString(),
+                ShowCallout = true
+            };
         };
 
         public SampleViewModel()
@@ -646,6 +677,15 @@ namespace TK.CustomMap.Sample
         protected virtual void OnPropertyChanged(string propertyName)
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private Position GetDummyPosition()
+        {
+            return new Position(Random(51.6723432, 51.38494009999999), Random(0.148271, -0.3514683));
+        }
+        private double Random(double min, double max)
+        {
+            return _random.NextDouble() * (max - min) + min;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
