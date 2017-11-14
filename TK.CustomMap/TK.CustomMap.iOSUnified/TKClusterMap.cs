@@ -25,6 +25,7 @@ namespace TK.CustomMap.iOSUnified
             _ckClusterManager = new CKClusterManager();
             _ckClusterManager.Map = this;
             _ckClusterManager.Algorithm = new CKNonHierarchicalDistanceBasedAlgorithm();
+            
             return _ckClusterManager;
         });
 

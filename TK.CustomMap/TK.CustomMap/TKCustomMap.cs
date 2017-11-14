@@ -231,6 +231,14 @@ namespace TK.CustomMap
             typeof(Func<string, IEnumerable<TKCustomMapPin>, TKCustomMapPin>),
             typeof(TKCustomMap));
         /// <summary>
+        /// Bindable property of <see cref="IsClusteringEnabled"/>
+        /// </summary>
+        public static BindableProperty IsClusteringEnabledProperty = BindableProperty.Create(
+            nameof(IsClusteringEnabled),
+            typeof(bool),
+            typeof(TKCustomMap),
+            true);
+        /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
         public IEnumerable<TKCustomMapPin> CustomPins
@@ -289,7 +297,7 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets the current center of the map.
         /// </summary>
-        public Position? MapCenter => MapRegion?.Center;
+        public Position MapCenter => MapRegion.Center;
         /// <summary>
         /// Gets/Sets if a change <see cref="MapRegion"/> should be animated
         /// </summary>
@@ -390,7 +398,7 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets the avaiable functions on the map/renderer
         /// </summary>
-        public  IRendererFunctions MapFunctions
+        public IRendererFunctions MapFunctions
         {
             get { return (IRendererFunctions)this.GetValue(MapFunctionsProperty); }
             private set { this.SetValue(MapFunctionsPropertyKey, value); }
@@ -412,12 +420,20 @@ namespace TK.CustomMap
             set => SetValue(GetClusteredPinProperty, value);
         }
         /// <summary>
+        /// Gets/Sets whether clustering is enabled or not
+        /// </summary>
+        public bool IsClusteringEnabled
+        {
+            get => (bool)GetValue(IsClusteringEnabledProperty);
+            set => SetValue(IsClusteringEnabledProperty, value);
+        }
+        /// <summary>
         /// Creates a new instance of <c>TKCustomMap</c>
         /// </summary>
         public TKCustomMap() 
             : base() 
         {
-            
+            MapRegion = MapSpan.FromCenterAndRadius(new Position(40.7142700, -74.0059700), Distance.FromKilometers(2));
         }
         /// <summary>
         /// Creates a new instance of <c>TKCustomMap</c>

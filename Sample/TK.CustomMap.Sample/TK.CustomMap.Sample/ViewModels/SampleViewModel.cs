@@ -626,12 +626,13 @@ namespace TK.CustomMap.Sample
 
         public Func<string, IEnumerable<TKCustomMapPin>, TKCustomMapPin> GetClusteredPin => (group, clusteredPins) => 
         {
-            return new TKCustomMapPin
-            {
-                DefaultPinColor = Color.Blue,
-                Title = clusteredPins.Count().ToString(),
-                ShowCallout = true
-            };
+            return null;
+            //return new TKCustomMapPin
+            //{
+            //    DefaultPinColor = Color.Blue,
+            //    Title = clusteredPins.Count().ToString(),
+            //    ShowCallout = true
+            //};
         };
 
         public SampleViewModel()
