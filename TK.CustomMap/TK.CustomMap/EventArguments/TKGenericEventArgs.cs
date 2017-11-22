@@ -14,14 +14,14 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets the value of the <see cref="TKGenericEventArgs"/>
         /// </summary>
-        public T Value { get; private set; }
+        public T Value { get;  set; }
         /// <summary>
         /// Creates a new instance of <see cref="TKGenericEventArgs"/>
         /// </summary>
         /// <param name="value">The value</param>
         public TKGenericEventArgs(T value)
         {
-            this.Value = value;
+            Value = value;
         }
     }
 }

@@ -13,12 +13,12 @@ namespace TK.CustomMap.Sample
 {
     public class AddRouteViewModel
     {
-        private IPlaceResult _fromPlace, _toPlace;
-        private Position _from, _to;
+         IPlaceResult _fromPlace, _toPlace;
+         Position _from, _to;
 
-        public ObservableCollection<TKCustomMapPin> Pins { get; private set; }
-        public ObservableCollection<TKRoute> Routes { get; private set; }
-        public MapSpan Bounds { get; private set; }
+        public ObservableCollection<TKCustomMapPin> Pins { get;  set; }
+        public ObservableCollection<TKRoute> Routes { get;  set; }
+        public MapSpan Bounds { get;  set; }
 
         public Command<IPlaceResult> FromSelectedCommand
         {
@@ -29,16 +29,16 @@ namespace TK.CustomMap.Sample
                     if(Device.OS == TargetPlatform.iOS)
                     {
                         TKNativeiOSPlaceResult placeResult = (TKNativeiOSPlaceResult)p;
-                        this._fromPlace = placeResult;
-                        this._from = placeResult.Details.Coordinate;
+                        _fromPlace = placeResult;
+                        _from = placeResult.Details.Coordinate;
                     }
                     else
                     {
                         TKNativeAndroidPlaceResult placeResult = (TKNativeAndroidPlaceResult)p;
-                        this._fromPlace = placeResult;
+                        _fromPlace = placeResult;
                         var details = await TKNativePlacesApi.Instance.GetDetails(placeResult.PlaceId);
 
-                        this._from = details.Coordinate;
+                        _from = details.Coordinate;
                     }
                 });
             }
@@ -52,16 +52,16 @@ namespace TK.CustomMap.Sample
                     if(Device.OS == TargetPlatform.iOS)
                     {
                         TKNativeiOSPlaceResult placeResult = (TKNativeiOSPlaceResult)p;
-                        this._toPlace = placeResult;
-                        this._to = placeResult.Details.Coordinate;
+                        _toPlace = placeResult;
+                        _to = placeResult.Details.Coordinate;
                     }
                     else
                     {
                         TKNativeAndroidPlaceResult placeResult = (TKNativeAndroidPlaceResult)p;
-                        this._toPlace = placeResult;
+                        _toPlace = placeResult;
                         var details = await TKNativePlacesApi.Instance.GetDetails(placeResult.PlaceId);
 
-                        this._to = details.Coordinate;
+                        _to = details.Coordinate;
                     }
                 });
             }
@@ -73,38 +73,38 @@ namespace TK.CustomMap.Sample
             {
                 return new Command(() => 
                 {
-                    if (this._toPlace == null || this._fromPlace == null) return;
+                    if (_toPlace == null || _fromPlace == null) return;
 
                     var route = new TKRoute
                     {
                         TravelMode = TKRouteTravelMode.Driving,
-                        Source = this._from,
-                        Destination = this._to,
+                        Source = _from,
+                        Destination = _to,
                         Color = Color.Blue
                     };
 
-                    this.Pins.Add(new RoutePin 
+                    Pins.Add(new RoutePin 
                     {
                         Route = route,
                         IsSource = true,
                         IsDraggable = true,
-                        Position = this._from,
-                        Title = this._fromPlace.Description,
+                        Position = _from,
+                        Title = _fromPlace.Description,
                         ShowCallout = true,
                         DefaultPinColor = Color.Green
                     });
-                    this.Pins.Add(new RoutePin
+                    Pins.Add(new RoutePin
                     {
                         Route = route,
                         IsSource = false,
                         IsDraggable = true,
-                        Position = this._to,
-                        Title = this._toPlace.Description,
+                        Position = _to,
+                        Title = _toPlace.Description,
                         ShowCallout = true,
                         DefaultPinColor = Color.Red
                     });
 
-                    this.Routes.Add(route);
+                    Routes.Add(route);
 
                     Application.Current.MainPage.Navigation.PopAsync();
                 });
@@ -113,9 +113,9 @@ namespace TK.CustomMap.Sample
 
         public AddRouteViewModel(ObservableCollection<TKRoute> routes, ObservableCollection<TKCustomMapPin> pins, MapSpan bounds)
         {
-            this.Routes = routes;
-            this.Pins = pins;
-            this.Bounds = bounds;
+            Routes = routes;
+            Pins = pins;
+            Bounds = bounds;
         }
     }
 }

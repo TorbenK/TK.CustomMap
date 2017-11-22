@@ -12,14 +12,14 @@ namespace TK.CustomMap.iOSUnified
 {
     public class TKClusterMap : CKMap
     {
-        private MKMapView _internalMap;
+         MKMapView _internalMap;
 
         public TKClusterMap(MKMapView internalMap)
         {
             _internalMap = internalMap;
         }
 
-        private CKClusterManager _ckClusterManager;
+         CKClusterManager _ckClusterManager;
         public override CKClusterManager ClusterManager => LazyInitializer.EnsureInitialized(ref _ckClusterManager, () =>
         {
             _ckClusterManager = new CKClusterManager();

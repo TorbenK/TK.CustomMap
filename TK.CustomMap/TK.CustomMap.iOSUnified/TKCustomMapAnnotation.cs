@@ -13,14 +13,14 @@ namespace TK.CustomMap.iOSUnified
     internal class TKCustomMapAnnotation : MKAnnotation
     {
         CLLocationCoordinate2D _coordinate;
-        private readonly TKCustomMapPin _formsPin;
+         readonly TKCustomMapPin _formsPin;
 
         ///<inheritdoc/>
         public override string Title
         {
             get
             {
-                return this._formsPin.Title;
+                return _formsPin.Title;
             }
         }
         ///<inheritdoc/>
@@ -28,7 +28,7 @@ namespace TK.CustomMap.iOSUnified
         {
             get
             {
-                return this._formsPin.Subtitle;
+                return _formsPin.Subtitle;
             }
         }
         ///<inheritdoc/>
@@ -41,7 +41,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         public TKCustomMapPin CustomPin
         {
-            get { return this._formsPin; }
+            get { return _formsPin; }
         }
         ///<inheritdoc/>
         public override void SetCoordinate(CLLocationCoordinate2D value)
@@ -66,9 +66,9 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="pin">The forms pin</param>
         public TKCustomMapAnnotation(TKCustomMapPin pin)
         {
-            this._formsPin = pin;
+            _formsPin = pin;
             _coordinate = pin.Position.ToLocationCoordinate();
-            this._formsPin.PropertyChanged += FormsPinPropertyChanged;
+            _formsPin.PropertyChanged += FormsPinPropertyChanged;
         }
         /// <summary>
         /// Forwards to <see cref="SetCoordinate(CLLocationCoordinate2D)"/> while only triggering the observer if <paramref name="triggerObserver"/> is true
@@ -92,13 +92,13 @@ namespace TK.CustomMap.iOSUnified
         {
             if (e.PropertyName == TKCustomMapPin.SubititlePropertyName)
             {
-                this.WillChangeValue("subtitle");
-                this.DidChangeValue("subtitle");
+                WillChangeValue("subtitle");
+                DidChangeValue("subtitle");
             }
             if (e.PropertyName == TKCustomMapPin.TitlePropertyName)
             {
-                this.WillChangeValue("title");
-                this.DidChangeValue("title");
+                WillChangeValue("title");
+                DidChangeValue("title");
             }
         }
         /// <inheritdoc />
@@ -106,7 +106,7 @@ namespace TK.CustomMap.iOSUnified
         {
             base.Dispose(disposing);
             if (disposing)
-                this._formsPin.PropertyChanged -= FormsPinPropertyChanged;
+                _formsPin.PropertyChanged -= FormsPinPropertyChanged;
 
             
         }

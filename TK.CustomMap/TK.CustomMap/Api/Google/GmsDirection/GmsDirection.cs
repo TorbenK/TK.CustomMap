@@ -12,11 +12,11 @@ namespace TK.CustomMap.Api.Google
     public class GmsDirection
     {
 
-        private static string _apiKey;
-        private static GmsDirection _instance;
+         static string _apiKey;
+         static GmsDirection _instance;
 
-        private readonly HttpClient _httpClient;
-        private const string BaseUrl = "https://maps.googleapis.com/maps/api/directions/";
+         readonly HttpClient _httpClient;
+         const string BaseUrl = "https://maps.googleapis.com/maps/api/directions/";
         /// <summary>
         /// The <see cref="GmsDirection"/> instance
         /// </summary>
@@ -30,10 +30,10 @@ namespace TK.CustomMap.Api.Google
         /// <summary>
         /// Creates a new instance of <see cref="GmsDirection"/>
         /// </summary>
-        private GmsDirection()
+         GmsDirection()
         {
-            this._httpClient = new HttpClient();
-            this._httpClient.BaseAddress = new Uri(BaseUrl);
+            _httpClient = new HttpClient();
+            _httpClient.BaseAddress = new Uri(BaseUrl);
         }
         /// <summary>
         /// Set the API key 
@@ -53,7 +53,7 @@ namespace TK.CustomMap.Api.Google
         /// <returns>A <see cref="GmsDirectionResult"/></returns>
         public async Task<GmsDirectionResult> CalculateRoute(Position origin, Position destination, GmsDirectionTravelMode mode, string language = null)
         {
-            var response = await _httpClient.GetAsync(this.BuildQueryString(origin, destination, mode, language));
+            var response = await _httpClient.GetAsync(BuildQueryString(origin, destination, mode, language));
 
             if (response.IsSuccessStatusCode)
             {
@@ -69,7 +69,7 @@ namespace TK.CustomMap.Api.Google
         /// <param name="mode">The travelling mode</param>
         /// <param name="language">The language</param>
         /// <returns>The query string</returns>
-        private string BuildQueryString(Position origin, Position destination, GmsDirectionTravelMode mode, string language)
+         string BuildQueryString(Position origin, Position destination, GmsDirectionTravelMode mode, string language)
         {
             StringBuilder strBuilder = new StringBuilder(
                 string.Format(

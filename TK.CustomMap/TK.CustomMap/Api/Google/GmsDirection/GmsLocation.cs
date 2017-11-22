@@ -23,7 +23,7 @@ namespace TK.CustomMap.Api.Google
         /// <returns><see cref="Position"/></returns>
         public Position ToPosition()
         {
-            return new Position(this.Latitude, this.Longitude);
+            return new Position(Latitude, Longitude);
         }
     }
 }

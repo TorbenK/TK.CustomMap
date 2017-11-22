@@ -10,11 +10,11 @@ namespace TK.CustomMap.Models
         /// <summary>
         /// Gets the route
         /// </summary>
-        public TKRoute Route { get; private set; }
+        public TKRoute Route { get;  set; }
         /// <summary>
         /// Gets the error message
         /// </summary>
-        public string ErrorMessage { get; private set; }
+        public string ErrorMessage { get;  set; }
         /// <summary>
         /// Creates a new instance of <see cref="TKRouteCalculationError"/>
         /// </summary>
@@ -22,8 +22,8 @@ namespace TK.CustomMap.Models
         /// <param name="errorMessage">The error message</param>
         public TKRouteCalculationError(TKRoute route, string errorMessage)
         {
-            this.Route = route;
-            this.ErrorMessage = errorMessage;
+            Route = route;
+            ErrorMessage = errorMessage;
         }
     }
 }

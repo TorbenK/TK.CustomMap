@@ -10,15 +10,15 @@ namespace TK.CustomMap.Api.Google
     /// </summary>
     public sealed class GmsPlace
     {
-        private static string _apiKey;
+         static string _apiKey;
 
-        private static GmsPlace _instance;
+         static GmsPlace _instance;
 
-        private readonly HttpClient _httpClient;
+         readonly HttpClient _httpClient;
 
-        private const string BaseUrl = "https://maps.googleapis.com/maps/api/";
-        private const string UrlPredictions = "place/autocomplete/json"; // ?input=SEARCHTEXT&key=API_KEY
-        private const string UrlDetails = "place/details/json";
+         const string BaseUrl = "https://maps.googleapis.com/maps/api/";
+         const string UrlPredictions = "place/autocomplete/json"; // ?input=SEARCHTEXT&key=API_KEY
+         const string UrlDetails = "place/details/json";
 
         /// <summary>
         /// Google Maps Place API instance
@@ -30,11 +30,11 @@ namespace TK.CustomMap.Api.Google
         /// <summary>
         /// Creates a new instance of <see cref="GmsPlace"/> 
         /// </summary>
-        private GmsPlace() 
+         GmsPlace() 
         {
             if (_apiKey == null) throw new InvalidOperationException("NO API KEY PROVIDED");
 
-            this._httpClient = new HttpClient()
+            _httpClient = new HttpClient()
             {
                 BaseAddress = new Uri(BaseUrl)
             };
@@ -54,7 +54,7 @@ namespace TK.CustomMap.Api.Google
         /// <returns>Result containing place predictions</returns>
         public async Task<GmsPlaceResult> GetPredictions(string searchText)
         {
-            var result = await this._httpClient.GetAsync(this.BuildQueryPredictions(searchText));
+            var result = await _httpClient.GetAsync(BuildQueryPredictions(searchText));
 
             if (result.IsSuccessStatusCode)
             {
@@ -72,7 +72,7 @@ namespace TK.CustomMap.Api.Google
         /// <returns>Result containing place details</returns>
         public async Task<GmsDetailsResult> GetDetails(string placeId)
         {
-            var result = await this._httpClient.GetAsync(this.BuildQueryDetails(placeId));
+            var result = await _httpClient.GetAsync(BuildQueryDetails(placeId));
 
             if (result.IsSuccessStatusCode)
             {
@@ -86,7 +86,7 @@ namespace TK.CustomMap.Api.Google
         /// </summary>
         /// <param name="searchText">The search text</param>
         /// <returns>The Query string</returns>
-        private string BuildQueryPredictions(string searchText)
+         string BuildQueryPredictions(string searchText)
         {
             return string.Format("{0}?input={1}&key={2}", UrlPredictions, searchText, _apiKey);
         }
@@ -95,7 +95,7 @@ namespace TK.CustomMap.Api.Google
         /// </summary>
         /// <param name="placeId">The google place id</param>
         /// <returns>The Query string</returns>
-        private string BuildQueryDetails(string placeId)
+         string BuildQueryDetails(string placeId)
         {
             return string.Format("{0}?placeid={1}&key={2}", UrlDetails, placeId, _apiKey);
         }

@@ -26,7 +26,7 @@ namespace TK.CustomMap.Utilities
     /// </summary>
     public class GmsPolyUtil
     {
-         private const double DefaultTolerance = 0.1;  // meters.
+          const double DefaultTolerance = 0.1;  // meters.
 
         /// <summary>
         /// Returns tan(latitude-at-lng3) on the great circle (lat1, lng1) to (lat2, lng2). lng1==0.
@@ -37,7 +37,7 @@ namespace TK.CustomMap.Utilities
         /// <param name="lng2"></param>
         /// <param name="lng3"></param>
         /// <returns></returns>
-        private static double TanLatGC(double lat1, double lat2, double lng2, double lng3)
+         static double TanLatGC(double lat1, double lat2, double lng2, double lng3)
         {
             return (Math.Tan(lat1) * Math.Sin(lng2 - lng3) + Math.Tan(lat2) * Math.Sin(lng3)) / Math.Sin(lng2);
         }
@@ -49,7 +49,7 @@ namespace TK.CustomMap.Utilities
         /// <param name="lng2"></param>
         /// <param name="lng3"></param>
         /// <returns></returns>
-        private static double MercatorLatRhumb(double lat1, double lat2, double lng2, double lng3)
+         static double MercatorLatRhumb(double lat1, double lat2, double lng2, double lng3)
         {
             return (GmsMathUtils.Mercator(lat1) * (lng2 - lng3) + GmsMathUtils.Mercator(lat2) * lng3) / lng2;
         }
@@ -65,7 +65,7 @@ namespace TK.CustomMap.Utilities
         /// <param name="lng3"></param>
         /// <param name="geodesic"></param>
         /// <returns></returns>
-        private static bool Intersects(double lat1, double lat2, double lng2,
+         static bool Intersects(double lat1, double lat2, double lng2,
                                       double lat3, double lng3, bool geodesic)
         {
             // Both ends on the same side of lng3.
@@ -229,7 +229,7 @@ namespace TK.CustomMap.Utilities
             return IsLocationOnPath(point, polyline, geodesic, tolerance);
         }
 
-        private static bool IsLocationOnEdgeOrPath(Position point, IEnumerable<Position> poly, bool closed,
+         static bool IsLocationOnEdgeOrPath(Position point, IEnumerable<Position> poly, bool closed,
                                                   bool geodesic, double toleranceEarth) 
         {
             int size = poly.Count();
@@ -303,7 +303,7 @@ namespace TK.CustomMap.Utilities
             }
             return false;
         }
-        private static bool IsOnSegmentGC(double lat1, double lng1, double lat2, double lng2,
+         static bool IsOnSegmentGC(double lat1, double lng1, double lat2, double lng2,
                                          double lat3, double lng3, double havTolerance)
         {
             double havDist13 = GmsMathUtils.HavDistance(lat1, lat3, lng1 - lng3);
@@ -350,7 +350,7 @@ namespace TK.CustomMap.Utilities
         /// <param name="lat3"></param>
         /// <param name="lng3"></param>
         /// <returns></returns>
-        private static double SinDeltaBearing(double lat1, double lng1, double lat2, double lng2,
+         static double SinDeltaBearing(double lat1, double lng1, double lat2, double lng2,
                                           double lat3, double lng3)
         {
             double sinLat1 = Math.Sin(lat1);

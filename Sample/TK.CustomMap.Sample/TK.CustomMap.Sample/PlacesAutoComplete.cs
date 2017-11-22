@@ -23,15 +23,15 @@ namespace TK.CustomMap.Sample
             Native
         }
 
-        private readonly bool _useSearchBar;
+         readonly bool _useSearchBar;
 
-        private bool _textChangeItemSelected;
+         bool _textChangeItemSelected;
 
-        private SearchBar _searchBar;
-        private Entry _entry;
-        private ListView _autoCompleteListView;
+         SearchBar _searchBar;
+         Entry _entry;
+         ListView _autoCompleteListView;
 
-        private IEnumerable<IPlaceResult> _predictions;
+         IEnumerable<IPlaceResult> _predictions;
 
         public PlacesApi ApiToUse { get; set; }
 
@@ -42,70 +42,70 @@ namespace TK.CustomMap.Sample
 
         public Command<IPlaceResult> PlaceSelectedCommand
         {
-            get { return (Command<IPlaceResult>)this.GetValue(PlaceSelectedCommandProperty); }
-            set { this.SetValue(PlaceSelectedCommandProperty, value); }
+            get { return (Command<IPlaceResult>)GetValue(PlaceSelectedCommandProperty); }
+            set { SetValue(PlaceSelectedCommandProperty, value); }
         }
         public double HeightOfSearchBar
         {
             get
             {
-                return this._useSearchBar ? this._searchBar.Height : this._entry.Height;
+                return _useSearchBar ? _searchBar.Height : _entry.Height;
             }
         }
-        private string SearchText
+         string SearchText
         {
             get
             {
-                return this._useSearchBar ? this._searchBar.Text : this._entry.Text;
+                return _useSearchBar ? _searchBar.Text : _entry.Text;
             }
             set
             {
-                if (this._useSearchBar)
-                    this._searchBar.Text = value;
+                if (_useSearchBar)
+                    _searchBar.Text = value;
                 else
-                    this._entry.Text = value;
+                    _entry.Text = value;
             }
         }
         public MapSpan Bounds
         {
-            get { return (MapSpan)this.GetValue(BoundsProperty); }
-            set { this.SetValue(BoundsProperty, value); }
+            get { return (MapSpan)GetValue(BoundsProperty); }
+            set { SetValue(BoundsProperty, value); }
         }
         public PlacesAutoComplete(bool useSearchBar)
         {
-            this._useSearchBar = useSearchBar;
-            this.Init();
+            _useSearchBar = useSearchBar;
+            Init();
         }
 
         public string Placeholder
         {
-            get { return this._useSearchBar ? this._searchBar.Placeholder : this._entry.Placeholder; }
+            get { return _useSearchBar ? _searchBar.Placeholder : _entry.Placeholder; }
             set
             {
-                if (this._useSearchBar)
-                    this._searchBar.Placeholder = value;
+                if (_useSearchBar)
+                    _searchBar.Placeholder = value;
                 else
-                    this._entry.Placeholder = value;
+                    _entry.Placeholder = value;
             }
         }
         public PlacesAutoComplete()
         {
-            this._useSearchBar = true;
-            this.Init();
+            _useSearchBar = true;
+            Init();
         }
-        private void Init()
+         void Init()
         {
 
             OsmNominatim.Instance.CountryCodes.Add("de");
 
-            this._autoCompleteListView = new ListView
+            _autoCompleteListView = new ListView
             {
                 IsVisible = false,
                 RowHeight = 40,
                 HeightRequest = 0,
                 BackgroundColor = Color.White
             };
-            this._autoCompleteListView.ItemTemplate = new DataTemplate(() =>
+            _autoCompleteListView.ItemTemplate = new DataTemplate(() =>
             {
                 var cell = new TextCell();
                 cell.SetBinding(ImageCell.TextProperty, "Description");
@@ -114,104 +114,104 @@ namespace TK.CustomMap.Sample
             });
 
             View searchView;
-            if (this._useSearchBar)
+            if (_useSearchBar)
             {
-                this._searchBar = new SearchBar
+                _searchBar = new SearchBar
                 {
                     Placeholder = "Search for address..."
                 };
-                this._searchBar.TextChanged += SearchTextChanged;
-                this._searchBar.SearchButtonPressed += SearchButtonPressed;
+                _searchBar.TextChanged += SearchTextChanged;
+                _searchBar.SearchButtonPressed += SearchButtonPressed;
 
-                searchView = this._searchBar;
+                searchView = _searchBar;
 
             }
             else
             {
-                this._entry = new Entry
+                _entry = new Entry
                 {
                     Placeholder = "Sarch for address"
                 };
-                this._entry.TextChanged += SearchTextChanged;
+                _entry.TextChanged += SearchTextChanged;
 
-                searchView = this._entry;
+                searchView = _entry;
             }
-            this.Children.Add(searchView,
+            Children.Add(searchView,
                 Constraint.Constant(0),
                 Constraint.Constant(0),
                 widthConstraint: Constraint.RelativeToParent(l => l.Width));
 
-            this.Children.Add(
-                this._autoCompleteListView,
+            Children.Add(
+                _autoCompleteListView,
                 Constraint.Constant(0),
                 Constraint.RelativeToView(searchView, (r, v) => v.Y + v.Height));
 
-            this._autoCompleteListView.ItemSelected += ItemSelected;
+            _autoCompleteListView.ItemSelected += ItemSelected;
 
-            this._textChangeItemSelected = false;
+            _textChangeItemSelected = false;
         }
         
-        private void SearchButtonPressed(object sender, EventArgs e)
+         void SearchButtonPressed(object sender, EventArgs e)
         {
-            if (this._predictions != null && this._predictions.Any())
-                this.HandleItemSelected(this._predictions.First());
+            if (_predictions != null && _predictions.Any())
+                HandleItemSelected(_predictions.First());
             else
-                this.Reset();
+                Reset();
         }
 
-        private void SearchTextChanged(object sender, TextChangedEventArgs e)
+         void SearchTextChanged(object sender, TextChangedEventArgs e)
         {
-            if (this._textChangeItemSelected)
+            if (_textChangeItemSelected)
             {
-                this._textChangeItemSelected = false;
+                _textChangeItemSelected = false;
                 return;
             }
 
-            this.SearchPlaces();
+            SearchPlaces();
         }
 
-        private async void SearchPlaces()
+         async void SearchPlaces()
         {
             try
             {
-                if (string.IsNullOrEmpty(this.SearchText))
+                if (string.IsNullOrEmpty(SearchText))
                 {
-                    this._autoCompleteListView.ItemsSource = null;
-                    this._autoCompleteListView.IsVisible = false;
-                    this._autoCompleteListView.HeightRequest = 0;
+                    _autoCompleteListView.ItemsSource = null;
+                    _autoCompleteListView.IsVisible = false;
+                    _autoCompleteListView.HeightRequest = 0;
                     return;
                 }
 
                 IEnumerable<IPlaceResult> result = null;
 
-                if (this.ApiToUse == PlacesApi.Google)
+                if (ApiToUse == PlacesApi.Google)
                 {
-                    var apiResult = await GmsPlace.Instance.GetPredictions(this.SearchText);
+                    var apiResult = await GmsPlace.Instance.GetPredictions(SearchText);
 
                     if (apiResult != null)
                         result = apiResult.Predictions;
                 }
-                else if (this.ApiToUse == PlacesApi.Native)
+                else if (ApiToUse == PlacesApi.Native)
                 {
-                    result = await TKNativePlacesApi.Instance.GetPredictions(this.SearchText, this.Bounds);
+                    result = await TKNativePlacesApi.Instance.GetPredictions(SearchText, Bounds);
                 }
                 else
                 {
-                    result = await OsmNominatim.Instance.GetPredictions(this.SearchText);
+                    result = await OsmNominatim.Instance.GetPredictions(SearchText);
                 }
 
                 if (result != null && result.Any())
                 {
-                    this._predictions = result;
+                    _predictions = result;
 
-                    this._autoCompleteListView.HeightRequest = result.Count() * 40;
-                    this._autoCompleteListView.IsVisible = true;
-                    this._autoCompleteListView.ItemsSource = this._predictions;
+                    _autoCompleteListView.HeightRequest = result.Count() * 40;
+                    _autoCompleteListView.IsVisible = true;
+                    _autoCompleteListView.ItemsSource = _predictions;
                 }
                 else
                 {
-                    this._autoCompleteListView.HeightRequest = 0;
-                    this._autoCompleteListView.IsVisible = false;
+                    _autoCompleteListView.HeightRequest = 0;
+                    _autoCompleteListView.IsVisible = false;
                 }
             }
             catch (Exception x)
@@ -219,38 +219,38 @@ namespace TK.CustomMap.Sample
                 // TODO
             }
         }
-        private void ItemSelected(object sender, SelectedItemChangedEventArgs e)
+         void ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             if (e.SelectedItem == null) return;
             var prediction = (IPlaceResult)e.SelectedItem;
 
-            this.HandleItemSelected(prediction);
+            HandleItemSelected(prediction);
         }
 
-        private void HandleItemSelected(IPlaceResult prediction)
+         void HandleItemSelected(IPlaceResult prediction)
         {
-            if (this.PlaceSelectedCommand != null && this.PlaceSelectedCommand.CanExecute(this))
+            if (PlaceSelectedCommand != null && PlaceSelectedCommand.CanExecute(this))
             {
-                this.PlaceSelectedCommand.Execute(prediction);
+                PlaceSelectedCommand.Execute(prediction);
             }
 
-            this._textChangeItemSelected = true;
+            _textChangeItemSelected = true;
 
-            this.SearchText = prediction.Description;
-            this._autoCompleteListView.SelectedItem = null;
+            SearchText = prediction.Description;
+            _autoCompleteListView.SelectedItem = null;
 
-            this.Reset();
+            Reset();
         }
-        private void Reset()
+         void Reset()
         {
-            this._autoCompleteListView.ItemsSource = null;
-            this._autoCompleteListView.IsVisible = false;
-            this._autoCompleteListView.HeightRequest = 0;
+            _autoCompleteListView.ItemsSource = null;
+            _autoCompleteListView.IsVisible = false;
+            _autoCompleteListView.HeightRequest = 0;
 
-            if (this._useSearchBar)
-                this._searchBar.Unfocus();
+            if (_useSearchBar)
+                _searchBar.Unfocus();
             else
-                this._entry.Unfocus();
+                _entry.Unfocus();
         }
     }
 }

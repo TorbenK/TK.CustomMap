@@ -20,7 +20,7 @@ namespace TK.CustomMap.Api.Google
         {
             get
             {
-                return GooglePoints.Decode(this.Points);
+                return GooglePoints.Decode(Points);
             }
         }
     }

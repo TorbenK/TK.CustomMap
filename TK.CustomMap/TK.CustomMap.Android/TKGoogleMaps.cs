@@ -16,9 +16,9 @@ namespace TK.CustomMap.Droid
 {
     public static class TKGoogleMaps
     {
-        public static bool IsInitialized { get; private set; }
+        public static bool IsInitialized { get;  set; }
 
-        public static Context Context { get; private set; }
+        public static Context Context { get;  set; }
 
         public static void Init(Activity activity, Bundle bundle)
         {

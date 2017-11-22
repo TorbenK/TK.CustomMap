@@ -17,8 +17,8 @@ namespace TK.CustomMap.Droid
     public class NativePlacesApi : INativePlacesApi
     {
 
-        private GoogleApiClient _apiClient;
-        private AutocompletePredictionBuffer _buffer;
+         GoogleApiClient _apiClient;
+         AutocompletePredictionBuffer _buffer;
 
         ///<inheritdoc/>
         public async Task<IEnumerable<IPlaceResult>> GetPredictions(string query, MapSpan bounds)

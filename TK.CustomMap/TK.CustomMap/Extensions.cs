@@ -53,7 +53,7 @@ namespace TK.CustomMap
         /// <param name="coordinateB">To coordinate</param>
         /// <param name="inMiles">Calculate in miles if true, otherwise in kilometers</param>
         /// <returns>The distance in kilometers or miles</returns>
-        private static double GetDistance(Position coordinateA, Position coordinateB, bool inMiles)
+         static double GetDistance(Position coordinateA, Position coordinateB, bool inMiles)
         {
             var earthRadius = inMiles ? 3959 : 6371;
 

@@ -10,15 +10,15 @@ namespace TK.CustomMap.Overlays
     {
         public const string ColorPropertyName = "Color";
 
-        private Color _color;
+         Color _color;
 
         /// <summary>
         /// Gets/Sets the main color of the overlay.
         /// </summary>
         public Color Color 
         {
-            get { return this._color; }
-            set { this.SetField(ref this._color, value); }
+            get { return _color; }
+            set { SetField(ref _color, value); }
         }
         /// <summary>
         /// Gets the id of the <see cref="TKOverlay"/>

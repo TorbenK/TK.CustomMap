@@ -54,11 +54,15 @@ namespace TK.CustomMap
         /// Event raised when a callout got tapped
         /// </summary>
         public event EventHandler<TKGenericEventArgs<TKCustomMapPin>> CalloutClicked;
+        /// <summary>
+        /// Event raised when map is ready
+        /// </summary>
+        public event EventHandler MapReady;
 
         /// <summary>
         /// Property Key for the read-only bindable Property <see cref="MapFunctions"/>
         /// </summary>
-        private static readonly BindablePropertyKey MapFunctionsPropertyKey = BindableProperty.CreateReadOnly(
+         static readonly BindablePropertyKey MapFunctionsPropertyKey = BindableProperty.CreateReadOnly(
             nameof(MapFunctions),
             typeof(IRendererFunctions),
             typeof(TKCustomMap),
@@ -238,60 +242,141 @@ namespace TK.CustomMap
             typeof(TKCustomMap),
             true);
         /// <summary>
+        /// Binadble property of <see cref="MapType"/>
+        /// </summary>
+        public static readonly BindableProperty MapTypeProperty = BindableProperty.Create(
+            nameof(MapType), 
+            typeof(MapType), 
+            typeof(TKCustomMap), 
+            default(MapType));
+        /// <summary>
+        /// Binadble property of <see cref="IsShowingUser"/>
+        /// </summary>
+        public static readonly BindableProperty IsShowingUserProperty = BindableProperty.Create(
+            nameof(IsShowingUser),
+            typeof(bool),
+            typeof(TKCustomMap),
+            default(bool));
+        /// <summary>
+        /// Binadble property of <see cref="HasScrollEnabled"/>
+        /// </summary>
+        public static readonly BindableProperty HasScrollEnabledProperty = BindableProperty.Create(
+            nameof(HasScrollEnabled), 
+            typeof(bool),
+            typeof(TKCustomMap),
+            true);
+        /// <summary>
+        /// Binadble property of <see cref="HasZoomEnabled"/>
+        /// </summary>
+        public static readonly BindableProperty HasZoomEnabledProperty = BindableProperty.Create(
+            nameof(HasZoomEnabled), 
+            typeof(bool), 
+            typeof(TKCustomMap), 
+            true);
+        /// <summary>
+        /// Binadble property of <see cref="MapReadyCommand"/>
+        /// </summary>
+        public static readonly BindableProperty MapReadyCommandProperty = BindableProperty.Create(
+            nameof(MapReadyCommand),
+            typeof(ICommand),
+            typeof(TKCustomMap),
+            default(ICommand));
+
+        /// <summary>
+        /// Gets/Sets the command which is raised when the map is ready
+        /// </summary>
+        public ICommand MapReadyCommand
+        {
+            get => (ICommand)GetValue(MapReadyCommandProperty);
+            set => SetValue(MapReadyCommandProperty, value);
+        }
+        /// <summary>
+        /// Gets/Sets the current <see cref="MapType"/>
+        /// </summary>
+        public MapType MapType
+        {
+            get => (MapType)GetValue(MapTypeProperty);
+            set => SetValue(MapTypeProperty, value);
+        }
+        /// <summary>
+        /// Gets/Sets if the user should be displayed on the map
+        /// </summary>
+        public bool IsShowingUser
+        {
+            get => (bool)GetValue(IsShowingUserProperty);
+            set => SetValue(IsShowingUserProperty, value);
+        }
+        /// <summary>
+        /// Gets/Sets whether scrolling is enabled or not
+        /// </summary>
+        public bool HasScrollEnabled
+        {
+            get => (bool)GetValue(HasScrollEnabledProperty);
+            set => SetValue(HasScrollEnabledProperty, value);
+        }
+        /// <summary>
+        /// Gets/Sets whether zooming is enabled or not
+        /// </summary>
+        public bool HasZoomEnabled
+        {
+            get => (bool)GetValue(HasZoomEnabledProperty);
+            set => SetValue(HasZoomEnabledProperty, value);
+        }
+        /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
         public IEnumerable<TKCustomMapPin> CustomPins
         {
-            get { return (IEnumerable<TKCustomMapPin>)this.GetValue(CustomPinsProperty); }
-            set { this.SetValue(CustomPinsProperty, value); } 
+            get => (IEnumerable<TKCustomMapPin>)GetValue(CustomPinsProperty);
+            set => SetValue(CustomPinsProperty, value);
         }
         /// <summary>
         /// Gets/Sets the currently selected pin on the map
         /// </summary>
         public TKCustomMapPin SelectedPin
         {
-            get { return (TKCustomMapPin)this.GetValue(SelectedPinProperty); }
-            set { this.SetValue(SelectedPinProperty, value); }
+            get => (TKCustomMapPin)GetValue(SelectedPinProperty);
+            set => SetValue(SelectedPinProperty, value);
         }
         /// <summary>
         /// Gets/Sets the command when the map was clicked/tapped
         /// </summary>
         public ICommand MapClickedCommand
         {
-            get { return (ICommand)this.GetValue(MapClickedCommandProperty); }
-            set { this.SetValue(MapClickedCommandProperty, value); }
+            get => (ICommand)GetValue(MapClickedCommandProperty);
+            set => SetValue(MapClickedCommandProperty, value);
         }
         /// <summary>
         /// Gets/Sets the command when a long press was performed on the map
         /// </summary>
         public ICommand MapLongPressCommand
         {
-            get { return (ICommand)this.GetValue(MapLongPressCommandProperty); }
-            set { this.SetValue(MapLongPressCommandProperty, value); }
+            get => (ICommand)GetValue(MapLongPressCommandProperty);
+            set => SetValue(MapLongPressCommandProperty, value);
         }
         /// <summary>
         /// Gets/Sets the command when a pin drag ended. The pin already has the updated position set
         /// </summary>
         public ICommand PinDragEndCommand
         {
-            get { return (ICommand)this.GetValue(PinDragEndCommandProperty); }
-            set { this.SetValue(PinDragEndCommandProperty, value); }
+            get => (ICommand)GetValue(PinDragEndCommandProperty);
+            set => SetValue(PinDragEndCommandProperty, value);
         }
         /// <summary>
         /// Gets/Sets the command when a pin got selected
         /// </summary>
         public ICommand PinSelectedCommand
         {
-            get { return (ICommand)this.GetValue(PinSelectedCommandProperty); }
-            set { this.SetValue(PinSelectedCommandProperty, value); }
+            get => (ICommand)GetValue(PinSelectedCommandProperty);
+            set => SetValue(PinSelectedCommandProperty, value);
         }
         /// <summary>
         /// Gets/Sets the command when the pins are ready
         /// </summary>
         public ICommand PinsReadyCommand
         {
-            get { return (ICommand)this.GetValue(PinsReadyCommandProperty); }
-            set { this.SetValue(PinsReadyCommandProperty, value); }
+            get => (ICommand)GetValue(PinsReadyCommandProperty);
+            set => SetValue(PinsReadyCommandProperty, value);
         }
         /// <summary>
         /// Gets/Sets the current center of the map.
@@ -302,24 +387,24 @@ namespace TK.CustomMap
         /// </summary>
         public bool IsRegionChangeAnimated
         {
-            get { return (bool)this.GetValue(IsRegionChangeAnimatedProperty); }
-            set { this.SetValue(IsRegionChangeAnimatedProperty, value); }
+            get => (bool)GetValue(IsRegionChangeAnimatedProperty);
+            set => SetValue(IsRegionChangeAnimatedProperty, value);
         }
         /// <summary>
         /// Gets/Sets the lines to display on the map
         /// </summary>
         public IEnumerable<TKPolyline> Polylines
         {
-            get { return (IEnumerable<TKPolyline>)this.GetValue(PolylinesProperty); }
-            set { this.SetValue(PolylinesProperty, value); }
+            get => (IEnumerable<TKPolyline>)GetValue(PolylinesProperty);
+            set => SetValue(PolylinesProperty, value);
         }
         /// <summary>
         /// Gets/Sets the circles to display on the map
         /// </summary>
         public IEnumerable<TKCircle> Circles
         {
-            get { return (IEnumerable<TKCircle>)this.GetValue(CirclesProperty); }
-            set { this.SetValue(CirclesProperty, value); }
+            get => (IEnumerable<TKCircle>)GetValue(CirclesProperty);
+            set => SetValue(CirclesProperty, value);
         }
         /// <summary>
         /// Gets/Sets the command when a callout gets clicked. When this is set, there will be an accessory button visible inside the callout on iOS.
@@ -327,88 +412,88 @@ namespace TK.CustomMap
         /// </summary>
         public ICommand CalloutClickedCommand
         {
-            get { return (ICommand)this.GetValue(CalloutClickedCommandProperty); }
-            set { this.SetValue(CalloutClickedCommandProperty, value); }
+            get => (ICommand)GetValue(CalloutClickedCommandProperty);
+            set => SetValue(CalloutClickedCommandProperty, value);
         }
         /// <summary>
         /// Gets/Sets the rectangles to display on the map
         /// </summary>
         public IEnumerable<TKPolygon> Polygons
         {
-            get { return (IEnumerable<TKPolygon>)this.GetValue(PolygonsProperty); }
-            set { this.SetValue(PolygonsProperty, value); }
+            get => (IEnumerable<TKPolygon>)GetValue(PolygonsProperty);
+            set => SetValue(PolygonsProperty, value);
         }
         /// <summary>
         /// Gets/Sets the visible map region
         /// </summary>
         public MapSpan MapRegion
         {
-            get { return (MapSpan)this.GetValue(MapRegionProperty); }
-            set { this.SetValue(MapRegionProperty, value); }
+            get => (MapSpan)GetValue(MapRegionProperty);
+            set => SetValue(MapRegionProperty, value);
         }
         /// <summary>
         /// Gets/Sets the routes to calculate and display on the map
         /// </summary>
         public IEnumerable<TKRoute> Routes
         {
-            get { return (IEnumerable<TKRoute>)this.GetValue(RoutesProperty); }
-            set { this.SetValue(RoutesProperty, value); }
+            get => (IEnumerable<TKRoute>)GetValue(RoutesProperty);
+            set => SetValue(RoutesProperty, value);
         }
         /// <summary>
         /// Gets/Sets the command when a route gets tapped
         /// </summary>
         public ICommand RouteClickedCommand
         {
-            get { return (Command<TKRoute>)this.GetValue(RouteClickedCommandProperty); }
-            set { this.SetValue(RouteClickedCommandProperty, value); }
+            get => (Command<TKRoute>)GetValue(RouteClickedCommandProperty);
+            set => SetValue(RouteClickedCommandProperty, value);
         }
         /// <summary>
         /// Gets/Sets the command when a route calculation finished successfully
         /// </summary>
         public ICommand RouteCalculationFinishedCommand
         {
-            get { return (ICommand)this.GetValue(RouteCalculationFinishedCommandProperty); }
-            set { this.SetValue(RouteCalculationFinishedCommandProperty, value); }
+            get => (ICommand)GetValue(RouteCalculationFinishedCommandProperty);
+            set => SetValue(RouteCalculationFinishedCommandProperty, value);
         }
         /// <summary>
         /// Gets/Sets the command when a route calculation failed
         /// </summary>
         public ICommand RouteCalculationFailedCommand
         {
-            get { return (ICommand)this.GetValue(RouteCalculationFailedCommandProperty); }
-            set { this.SetValue(RouteCalculationFailedCommandProperty, value); }
+            get => (ICommand)GetValue(RouteCalculationFailedCommandProperty);
+            set => SetValue(RouteCalculationFailedCommandProperty, value);
         }
         /// <summary>
         /// Gets/Sets the options for displaying custom tiles via an url
         /// </summary>
         public TKTileUrlOptions TilesUrlOptions
         {
-            get { return (TKTileUrlOptions)this.GetValue(TilesUrlOptionsProperty); }
-            set { this.SetValue(TilesUrlOptionsProperty, value); }
+            get => (TKTileUrlOptions)GetValue(TilesUrlOptionsProperty);
+            set => SetValue(TilesUrlOptionsProperty, value);
         }
         /// <summary>
         /// Gets/Sets the command when the user location changed
         /// </summary>
         public ICommand UserLocationChangedCommand
         {
-            get { return (ICommand)this.GetValue(UserLocationChangedCommandProperty); }
-            set { this.SetValue(UserLocationChangedCommandProperty, value); }
+            get => (ICommand)GetValue(UserLocationChangedCommandProperty);
+            set => SetValue(UserLocationChangedCommandProperty, value);
         }
         /// <summary>
         /// Gets/Sets the avaiable functions on the map/renderer
         /// </summary>
         public IRendererFunctions MapFunctions
         {
-            get { return (IRendererFunctions)this.GetValue(MapFunctionsProperty); }
-            private set { this.SetValue(MapFunctionsPropertyKey, value); }
+            get => (IRendererFunctions)GetValue(MapFunctionsProperty);
+             set => SetValue(MapFunctionsPropertyKey, value);
         }
         /// <summary>
         /// Gets/Sets if traffic information should be displayed
         /// </summary>
         public bool ShowTraffic
         {
-            get { return (bool)this.GetValue(ShowTrafficProperty); }
-            set { this.SetValue(ShowTrafficProperty, value); }
+            get => (bool)GetValue(ShowTrafficProperty);
+            set => SetValue(ShowTrafficProperty, value);
         }
         /// <summary>
         /// Gets/Sets function to retrieve a pin for clustering. You receive the group name and all pins getting clustered. 
@@ -440,7 +525,7 @@ namespace TK.CustomMap
         /// <param name="region">The initial region of the map</param>
         public TKCustomMap(MapSpan region)
         {
-            this.MapRegion = region;
+            MapRegion = region;
         }
         /// <summary>
         /// Creates a new instance of <see cref="TKCustomMap"/>
@@ -456,55 +541,40 @@ namespace TK.CustomMap
         /// Returns the currently visible map as a PNG image
         /// </summary>
         /// <returns>Map as image</returns>
-        public async Task<byte[]> GetSnapshot()
-        {
-            return await this.MapFunctions.GetSnapshot();
-        }
+        public async Task<byte[]> GetSnapshot() => await MapFunctions.GetSnapshot();
         /// <summary>
         /// Moves the visible region to the specified <see cref="MapSpan"/>
         /// </summary>
         /// <param name="region">Region to move the map to</param>
         /// <param name="animate">If the region change should be animated or not</param>
-        public void MoveToMapRegion(MapSpan region, bool animate = false)
-        {
-            this.MapFunctions.MoveToMapRegion(region, animate);
-        }
+        public void MoveToMapRegion(MapSpan region, bool animate = false) => MapFunctions.MoveToMapRegion(region, animate);
         /// <summary>
         /// Fits the map region to make all given positions visible
         /// </summary>
         /// <param name="positions">Positions to fit inside the MapRegion</param>
         /// <param name="animate">If the camera change should be animated</param>
-        public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false)
-        {
-            this.MapFunctions.FitMapRegionToPositions(positions, animate);
-        }
+        public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false) => MapFunctions.FitMapRegionToPositions(positions, animate);
         /// <summary>
         /// Fit all regions on the map
         /// </summary>
         /// <param name="regions">The regions to fit to the map</param>
         /// <param name="animate">Animation on/off</param>
-        public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate = false)
-        {
-            this.MapFunctions.FitToMapRegions(regions, animate);
-        }
+        public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate = false) => MapFunctions.FitToMapRegions(regions, animate);
         /// <summary>
         /// Converts an array of <see cref="Point"/> into geocoordinates
         /// </summary>
         /// <param name="screenLocations">The screen locations(pixel)</param>
         /// <returns>A collection of <see cref="Position"/></returns>
-        public IEnumerable<Position> ScreenLocationsToGeocoordinates(params Point[] screenLocations)
-        {
-            return this.MapFunctions.ScreenLocationsToGeocoordinates(screenLocations);
-        }
+        public IEnumerable<Position> ScreenLocationsToGeocoordinates(params Point[] screenLocations) => MapFunctions.ScreenLocationsToGeocoordinates(screenLocations);
         /// <summary>
         /// Raises <see cref="PinSelected"/>
         /// </summary>
         /// <param name="pin">The selected pin</param>
         protected void OnPinSelected(TKCustomMapPin pin)
         {
-            this.PinSelected?.Invoke(this, new TKGenericEventArgs<TKCustomMapPin>(pin));
+            PinSelected?.Invoke(this, new TKGenericEventArgs<TKCustomMapPin>(pin));
 
-            this.RaiseCommand(this.PinSelectedCommand, pin);
+            RaiseCommand(PinSelectedCommand, pin);
         }
         /// <summary>
         /// Raises <see cref="PinDragEnd"/>
@@ -512,9 +582,9 @@ namespace TK.CustomMap
         /// <param name="pin">The dragged pin</param>
         protected void OnPinDragEnd(TKCustomMapPin pin)
         {
-            this.PinDragEnd?.Invoke(this, new TKGenericEventArgs<TKCustomMapPin>(pin));
+            PinDragEnd?.Invoke(this, new TKGenericEventArgs<TKCustomMapPin>(pin));
 
-            this.RaiseCommand(this.PinDragEndCommand, pin);
+            RaiseCommand(PinDragEndCommand, pin);
         }
         /// <summary>
         /// Raises <see cref="MapClicked"/>
@@ -522,9 +592,9 @@ namespace TK.CustomMap
         /// <param name="position">The position on the map</param>
         protected void OnMapClicked(Position position)
         {
-            this.MapClicked?.Invoke(this, new TKGenericEventArgs<Position>(position));
+            MapClicked?.Invoke(this, new TKGenericEventArgs<Position>(position));
 
-            this.RaiseCommand(this.MapClickedCommand, position);
+            RaiseCommand(MapClickedCommand, position);
         }
         /// <summary>
         /// Raises <see cref="MapLongPress"/>
@@ -532,9 +602,9 @@ namespace TK.CustomMap
         /// <param name="position">The position on the map</param>
         protected void OnMapLongPress(Position position)
         {
-            this.MapLongPress?.Invoke(this, new TKGenericEventArgs<Position>(position));
+            MapLongPress?.Invoke(this, new TKGenericEventArgs<Position>(position));
 
-            this.RaiseCommand(this.MapLongPressCommand, position);
+            RaiseCommand(MapLongPressCommand, position);
         }
         /// <summary>
         /// Raises <see cref="RouteClicked"/>
@@ -542,9 +612,9 @@ namespace TK.CustomMap
         /// <param name="route">The tapped route</param>
         protected void OnRouteClicked(TKRoute route)
         {
-            this.RouteClicked?.Invoke(this, new TKGenericEventArgs<TKRoute>(route));
+            RouteClicked?.Invoke(this, new TKGenericEventArgs<TKRoute>(route));
 
-            this.RaiseCommand(this.RouteClickedCommand, route);
+            RaiseCommand(RouteClickedCommand, route);
         }
         /// <summary>
         /// Raises <see cref="RouteCalculationFinished"/>
@@ -552,9 +622,9 @@ namespace TK.CustomMap
         /// <param name="route">The route</param>
         protected void OnRouteCalculationFinished(TKRoute route)
         {
-            this.RouteCalculationFinished?.Invoke(this, new TKGenericEventArgs<TKRoute>(route));
+            RouteCalculationFinished?.Invoke(this, new TKGenericEventArgs<TKRoute>(route));
 
-            this.RaiseCommand(this.RouteCalculationFinishedCommand, route);
+            RaiseCommand(RouteCalculationFinishedCommand, route);
         }
         /// <summary>
         /// Raises <see cref="RouteCalculationFailed"/>
@@ -562,9 +632,9 @@ namespace TK.CustomMap
         /// <param name="error">The error</param>
         protected void OnRouteCalculationFailed(TKRouteCalculationError error)
         {
-            this.RouteCalculationFailed?.Invoke(this, new TKGenericEventArgs<TKRouteCalculationError>(error));
+            RouteCalculationFailed?.Invoke(this, new TKGenericEventArgs<TKRouteCalculationError>(error));
 
-            this.RaiseCommand(this.RouteCalculationFailedCommand, error);
+            RaiseCommand(RouteCalculationFailedCommand, error);
         }
         /// <summary>
         /// Raises <see cref="UserLocationChanged"/>
@@ -572,34 +642,42 @@ namespace TK.CustomMap
         /// <param name="position">The position of the user</param>
         protected void OnUserLocationChanged(Position position)
         {
-            this.UserLocationChanged?.Invoke(this, new TKGenericEventArgs<Position>(position));
+            UserLocationChanged?.Invoke(this, new TKGenericEventArgs<Position>(position));
 
-            this.RaiseCommand(this.UserLocationChangedCommand, position);
+            RaiseCommand(UserLocationChangedCommand, position);
         }
         /// <summary>
         /// Raises <see cref="PinsReady"/>
         /// </summary>
         protected void OnPinsReady()
         {
-            this.PinsReady?.Invoke(this, new EventArgs());
+            PinsReady?.Invoke(this, new EventArgs());
 
-            this.RaiseCommand(this.PinsReadyCommand, null);
+            RaiseCommand(PinsReadyCommand, null);
         }
         /// <summary>
         /// Raises <see cref="CalloutClicked"/>
         /// </summary>
         protected void OnCalloutClicked(TKCustomMapPin pin)
         {
-            this.CalloutClicked?.Invoke(this, new TKGenericEventArgs<TKCustomMapPin>(pin));
+            CalloutClicked?.Invoke(this, new TKGenericEventArgs<TKCustomMapPin>(pin));
 
-            this.RaiseCommand(this.CalloutClickedCommand, pin);
+            RaiseCommand(CalloutClickedCommand, pin);
+        }
+        /// <summary>
+        /// Raises <see cref="MapReady"/>
+        /// </summary>
+        protected void OnMapReady()
+        {
+            MapReady?.Invoke(this, EventArgs.Empty);
+            RaiseCommand(MapReadyCommand, null);
         }
         /// <summary>
         /// Raises a specific command
         /// </summary>
         /// <param name="command">The command to raise</param>
         /// <param name="parameter">Addition command parameter</param>
-        private void RaiseCommand(ICommand command, object parameter)
+         void RaiseCommand(ICommand command, object parameter)
         {
             if(command != null && command.CanExecute(parameter))
             {
@@ -609,59 +687,28 @@ namespace TK.CustomMap
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        void IMapFunctions.SetRenderer(IRendererFunctions renderer)
-        {
-            this.MapFunctions = renderer;
-        }
+        void IMapFunctions.SetRenderer(IRendererFunctions renderer) => MapFunctions = renderer;
         /// <inheritdoc/>
-        void IMapFunctions.RaisePinSelected(TKCustomMapPin pin)
-        {
-            this.OnPinSelected(pin);
-        }
+        void IMapFunctions.RaisePinSelected(TKCustomMapPin pin) => OnPinSelected(pin);
         /// <inheritdoc/>
-        void IMapFunctions.RaisePinDragEnd(TKCustomMapPin pin)
-        {
-            this.OnPinDragEnd(pin);
-        }
+        void IMapFunctions.RaisePinDragEnd(TKCustomMapPin pin) => OnPinDragEnd(pin);
         /// <inheritdoc/>
-        void IMapFunctions.RaiseMapClicked(Position position)
-        {
-            this.OnMapClicked(position);
-        }
+        void IMapFunctions.RaiseMapClicked(Position position) => OnMapClicked(position);
         /// <inheritdoc/>
-        void IMapFunctions.RaiseMapLongPress(Position position)
-        {
-            this.OnMapLongPress(position);
-        }
+        void IMapFunctions.RaiseMapLongPress(Position position) => OnMapLongPress(position);
         /// <inheritdoc/>
-        void IMapFunctions.RaiseUserLocationChanged(Position position)
-        {
-            this.OnUserLocationChanged(position);
-        }
+        void IMapFunctions.RaiseUserLocationChanged(Position position) => OnUserLocationChanged(position);
         /// <inheritdoc/>
-        void IMapFunctions.RaiseRouteClicked(TKRoute route)
-        {
-            this.OnRouteClicked(route);
-        }
+        void IMapFunctions.RaiseRouteClicked(TKRoute route) => OnRouteClicked(route);
         /// <inheritdoc/>
-        void IMapFunctions.RaiseRouteCalculationFinished(TKRoute route)
-        {
-            this.OnRouteCalculationFinished(route);
-        }
+        void IMapFunctions.RaiseRouteCalculationFinished(TKRoute route) => OnRouteCalculationFinished(route);
         /// <inheritdoc/>
-        void IMapFunctions.RaiseRouteCalculationFailed(TKRouteCalculationError route)
-        {
-            this.OnRouteCalculationFailed(route);
-        }
+        void IMapFunctions.RaiseRouteCalculationFailed(TKRouteCalculationError route) => OnRouteCalculationFailed(route);
         /// <inheritdoc/>
-        void IMapFunctions.RaisePinsReady()
-        {
-            this.OnPinsReady();
-        }
+        void IMapFunctions.RaisePinsReady() => OnPinsReady();
         /// <inheritdoc/>
-        void IMapFunctions.RaiseCalloutClicked(TKCustomMapPin pin)
-        {
-            this.OnCalloutClicked(pin);
-        }
+        void IMapFunctions.RaiseCalloutClicked(TKCustomMapPin pin) => OnCalloutClicked(pin);
+        /// <inheritdoc/>
+        void IMapFunctions.RaiseMapReady() => OnMapReady();
     }
 }

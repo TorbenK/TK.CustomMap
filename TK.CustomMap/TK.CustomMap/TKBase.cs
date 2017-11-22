@@ -29,7 +29,7 @@ namespace TK.CustomMap
                 }
             }
             field = value;
-            this.OnPropertyChanged(propertyName);
+            OnPropertyChanged(propertyName);
             return true;
         }
     }

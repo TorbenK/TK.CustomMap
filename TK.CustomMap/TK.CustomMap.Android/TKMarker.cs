@@ -17,7 +17,7 @@ namespace TK.CustomMap.Droid
             _context = context;
         }
 
-        public TKCustomMapPin Pin { get; private set; }
+        public TKCustomMapPin Pin { get;  set; }
 
         public LatLng Position => Pin.Position.ToLatLng();
 

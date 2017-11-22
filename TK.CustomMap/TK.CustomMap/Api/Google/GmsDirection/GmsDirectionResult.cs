@@ -12,7 +12,7 @@ namespace TK.CustomMap.Api.Google
         /// Status as text
         /// </summary>
         [JsonProperty("status")]
-        private string StatusText { get; set; }
+         string StatusText { get; set; }
         /// <summary>
         /// Gets the result status of the API call
         /// </summary>
@@ -20,7 +20,7 @@ namespace TK.CustomMap.Api.Google
         {
             get
             {
-                switch (this.StatusText)
+                switch (StatusText)
                 {
                     case "OK": return GmsDirectionResultStatus.Ok;
                     case "NOT_FOUND": return GmsDirectionResultStatus.NotFound;

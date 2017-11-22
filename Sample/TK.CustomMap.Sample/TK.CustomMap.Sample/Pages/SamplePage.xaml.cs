@@ -9,11 +9,11 @@ namespace TK.CustomMap.Sample
         {
             InitializeComponent();
 
-            this.CreateView();
-            this.BindingContext = new SampleViewModel();
+            CreateView();
+            BindingContext = new SampleViewModel();
         }
 
-        private async void CreateView()
+         async void CreateView()
         {
             var autoComplete = new PlacesAutoComplete { ApiToUse = PlacesAutoComplete.PlacesApi.Native };
             autoComplete.SetBinding(PlacesAutoComplete.PlaceSelectedCommandProperty, "PlaceSelectedCommand");
@@ -43,15 +43,15 @@ namespace TK.CustomMap.Sample
 
             autoComplete.SetBinding(PlacesAutoComplete.BoundsProperty, "MapRegion");
 
-            this.Content = mapView;
-            //this._baseLayout.Children.Add(
+            Content = mapView;
+            //_baseLayout.Children.Add(
             //    mapView,
             //    Constraint.RelativeToView(autoComplete, (r, v) => v.X),
             //    Constraint.RelativeToView(autoComplete, (r, v) => autoComplete.HeightOfSearchBar),
             //    heightConstraint: Constraint.RelativeToParent((r) => r.Height - autoComplete.HeightOfSearchBar),
             //    widthConstraint: Constraint.RelativeToView(autoComplete, (r, v) => v.Width));
 
-            //this._baseLayout.Children.Add(
+            //_baseLayout.Children.Add(
             //    autoComplete,
             //    Constraint.Constant(0),
             //    Constraint.Constant(0));

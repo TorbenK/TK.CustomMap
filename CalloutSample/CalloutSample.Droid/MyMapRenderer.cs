@@ -31,10 +31,10 @@ namespace CalloutSample.Droid
 
         Android.Views.View Android.Gms.Maps.GoogleMap.IInfoWindowAdapter.GetInfoContents(Android.Gms.Maps.Model.Marker marker)
         {
-            var pin = this.GetPinByMarker(marker);
+            var pin = GetPinByMarker(marker);
             if (pin == null) return null;
 
-            var image = new ImageView(this.Context);
+            var image = new ImageView(Context);
             image.SetImageResource(Resource.Drawable.icon);
 
             return image;

@@ -61,5 +61,9 @@ namespace TK.CustomMap.Interfaces
         /// Raises the callout clicked event and command
         /// </summary>
         void RaiseCalloutClicked(TKCustomMapPin pin);
+        /// <summary>
+        /// Raises the map ready event and command
+        /// </summary>
+        void RaiseMapReady();
     }
 }
