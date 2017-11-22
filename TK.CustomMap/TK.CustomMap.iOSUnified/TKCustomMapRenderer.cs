@@ -32,38 +32,38 @@ namespace TK.CustomMap.iOSUnified
     public class TKCustomMapRenderer : ViewRenderer<TKCustomMap, MKMapView>, IRendererFunctions
     {
 
-         const double MercatorRadius = 85445659.44705395;
+        const double MercatorRadius = 85445659.44705395;
 
-         const string AnnotationIdentifier = "TKCustomAnnotation";
-         const string AnnotationIdentifierDefaultPin = "TKCustomAnnotationDefaultPin";
+        const string AnnotationIdentifier = "TKCustomAnnotation";
+        const string AnnotationIdentifierDefaultPin = "TKCustomAnnotationDefaultPin";
 
-         readonly List<TKRoute> _tempRouteList = new List<TKRoute>();
+        readonly List<TKRoute> _tempRouteList = new List<TKRoute>();
 
-         readonly Dictionary<MKPolyline, TKOverlayItem<TKRoute, MKPolylineRenderer>> _routes = new Dictionary<MKPolyline, TKOverlayItem<TKRoute, MKPolylineRenderer>>();
-         readonly Dictionary<MKPolyline, TKOverlayItem<TKPolyline, MKPolylineRenderer>> _lines = new Dictionary<MKPolyline, TKOverlayItem<TKPolyline, MKPolylineRenderer>>();
-         readonly Dictionary<MKCircle, TKOverlayItem<TKCircle, MKCircleRenderer>> _circles = new Dictionary<MKCircle, TKOverlayItem<TKCircle, MKCircleRenderer>>();
-         readonly Dictionary<MKPolygon, TKOverlayItem<TKPolygon, MKPolygonRenderer>> _polygons = new Dictionary<MKPolygon, TKOverlayItem<TKPolygon, MKPolygonRenderer>>();
+        readonly Dictionary<MKPolyline, TKOverlayItem<TKRoute, MKPolylineRenderer>> _routes = new Dictionary<MKPolyline, TKOverlayItem<TKRoute, MKPolylineRenderer>>();
+        readonly Dictionary<MKPolyline, TKOverlayItem<TKPolyline, MKPolylineRenderer>> _lines = new Dictionary<MKPolyline, TKOverlayItem<TKPolyline, MKPolylineRenderer>>();
+        readonly Dictionary<MKCircle, TKOverlayItem<TKCircle, MKCircleRenderer>> _circles = new Dictionary<MKCircle, TKOverlayItem<TKCircle, MKCircleRenderer>>();
+        readonly Dictionary<MKPolygon, TKOverlayItem<TKPolygon, MKPolygonRenderer>> _polygons = new Dictionary<MKPolygon, TKOverlayItem<TKPolygon, MKPolygonRenderer>>();
 
-         bool _isDragging;
-         bool _disposed;
-         IMKAnnotation _selectedAnnotation;
-         MKTileOverlay _tileOverlay;
-         MKTileOverlayRenderer _tileOverlayRenderer;
-         UIGestureRecognizer _longPressGestureRecognizer;
-         UIGestureRecognizer _tapGestureRecognizer;
-         UIGestureRecognizer _doubleTapGestureRecognizer;
+        bool _isDragging;
+        bool _disposed;
+        IMKAnnotation _selectedAnnotation;
+        MKTileOverlay _tileOverlay;
+        MKTileOverlayRenderer _tileOverlayRenderer;
+        UIGestureRecognizer _longPressGestureRecognizer;
+        UIGestureRecognizer _tapGestureRecognizer;
+        UIGestureRecognizer _doubleTapGestureRecognizer;
 
-         TKClusterMap _clusterMap;
+        TKClusterMap _clusterMap;
 
-         MKMapView Map
+        MKMapView Map
         {
             get { return Control as MKMapView; }
         }
-         TKCustomMap FormsMap
+        TKCustomMap FormsMap
         {
             get { return Element as TKCustomMap; }
         }
-         IMapFunctions MapFunctions
+        IMapFunctions MapFunctions
         {
             get { return Element as IMapFunctions; }
         }
@@ -85,7 +85,7 @@ namespace TK.CustomMap.iOSUnified
         {
             base.OnElementChanged(e);
 
-            if(e.OldElement != null && Map != null)
+            if (e.OldElement != null && Map != null)
             {
                 e.OldElement.PropertyChanged -= OnMapPropertyChanged;
 
@@ -151,14 +151,14 @@ namespace TK.CustomMap.iOSUnified
                 FormsMap.PropertyChanged += OnMapPropertyChanged;
             }
         }
-        
+
         /// <summary>
         /// Get the overlay renderer
         /// </summary>
         /// <param name="mapView">The <see cref="MKMapView"/></param>
         /// <param name="overlay">The overlay to render</param>
         /// <returns>The overlay renderer</returns>
-         MKOverlayRenderer GetOverlayRenderer(MKMapView mapView, IMKOverlay overlay)
+        MKOverlayRenderer GetOverlayRenderer(MKMapView mapView, IMKOverlay overlay)
         {
 
             var polyline = overlay as MKPolyline;
@@ -220,14 +220,14 @@ namespace TK.CustomMap.iOSUnified
                 {
                     polygon.Renderer = new MKPolygonRenderer(mkPolygon);
                 }
-                
+
                 polygon.Renderer.FillColor = polygon.Overlay.Color.ToUIColor();
                 polygon.Renderer.StrokeColor = polygon.Overlay.StrokeColor.ToUIColor();
                 polygon.Renderer.LineWidth = polygon.Overlay.StrokeWidth;
                 return polygon.Renderer;
             }
 
-            if(overlay is MKTileOverlay)
+            if (overlay is MKTileOverlay)
             {
                 if (_tileOverlayRenderer != null)
                 {
@@ -244,7 +244,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-         void OnDidUpdateUserLocation(object sender, MKUserLocationEventArgs e)
+        void OnDidUpdateUserLocation(object sender, MKUserLocationEventArgs e)
         {
             if (e.UserLocation == null || FormsMap == null || FormsMap.UserLocationChangedCommand == null) return;
 
@@ -256,63 +256,66 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-         void OnMapPropertyChanged(object sender, PropertyChangedEventArgs e)
+        void OnMapPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == TKCustomMap.CustomPinsProperty.PropertyName)
+            switch (e.PropertyName)
             {
-                UpdatePins();
+                case nameof(TKCustomMap.CustomPins):
+                    UpdatePins();
+                    break;
+                case nameof(TKCustomMap.SelectedPin):
+                    SetSelectedPin();
+                    break;
+                case nameof(TKCustomMap.Polylines):
+                    UpdateLines();
+                    break;
+                case nameof(TKCustomMap.Circles):
+                    UpdateCircles();
+                    break;
+                case nameof(TKCustomMap.Polygons):
+                    UpdatePolygons();
+                    break;
+                case nameof(TKCustomMap.RoutesProperty):
+                    UpdateRoutes();
+                    break;
+                case nameof(TKCustomMap.TilesUrlOptions):
+                    UpdateTileOptions();
+                    break;
+                case nameof(TKCustomMap.ShowTraffic):
+                    UpdateShowTraffic();
+                    break;
+                case nameof(TKCustomMap.MapRegion):
+                    UpdateMapRegion();
+                    break;
+                case nameof(TKCustomMap.IsClusteringEnabled):
+                    UpdateIsClusteringEnabled();
+                    break;
+                case nameof(TKCustomMap.MapType):
+                    UpdateMapType();
+                    break;
+                case nameof(TKCustomMap.IsShowingUser):
+                    UpdateIsShowingUser();
+                    break;
+                case nameof(TKCustomMap.HasScrollEnabled):
+                    UpdateHasScrollEnabled();
+                    break;
+                case nameof(TKCustomMap.HasZoomEnabled):
+                    UpdateHasZoomEnabled();
+                    break;
             }
-            else if (e.PropertyName == TKCustomMap.SelectedPinProperty.PropertyName)
-            {
-                SetSelectedPin();
-            }
-            else if (e.PropertyName == TKCustomMap.PolylinesProperty.PropertyName)
-            {
-                UpdateLines();
-            }
-            else if (e.PropertyName == TKCustomMap.CirclesProperty.PropertyName)
-            {
-                UpdateCircles();
-            }
-            else if (e.PropertyName == TKCustomMap.CalloutClickedCommandProperty.PropertyName)
-            {
-                UpdatePins(false);
-            }
-            else if(e.PropertyName == TKCustomMap.PolygonsProperty.PropertyName)
-            {
-                UpdatePolygons();
-            }
-            else if (e.PropertyName == TKCustomMap.RoutesProperty.PropertyName)
-            {
-                UpdateRoutes();
-            }
-            else if(e.PropertyName == TKCustomMap.TilesUrlOptionsProperty.PropertyName)
-            {
-                UpdateTileOptions();
-            }
-            else if(e.PropertyName == TKCustomMap.ShowTrafficProperty.PropertyName)
-            {
-                UpdateShowTraffic();
-            }
-            else if(e.PropertyName == TKCustomMap.MapRegionProperty.PropertyName)
-            {
-                UpdateMapRegion();
-            }
-            else if(e.PropertyName == TKCustomMap.IsClusteringEnabledProperty.PropertyName)
-            {
-                UpdateIsClusteringEnabled();
-            }
+
+
         }
         /// <summary>
         /// When the collection of pins changed
         /// </summary>
         /// <param name="sender">Event sender</param>
         /// <param name="e">Event arguments</param>
-         void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                foreach(TKCustomMapPin pin in e.NewItems)
+                foreach (TKCustomMapPin pin in e.NewItems)
                 {
                     AddPin(pin);
                 }
@@ -365,16 +368,16 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-         void OnMapCalloutAccessoryControlTapped(object sender, MKMapViewAccessoryTappedEventArgs e)
+        void OnMapCalloutAccessoryControlTapped(object sender, MKMapViewAccessoryTappedEventArgs e)
         {
             MapFunctions.RaiseCalloutClicked(GetPinByAnnotation(e.View.Annotation));
-        } 
+        }
         /// <summary>
         /// When the drag state changed
         /// </summary>
         /// <param name="sender">Event sender</param>
         /// <param name="e">Event Arguments</param>
-         void OnChangedDragState(object sender, MKMapViewDragStateEventArgs e)
+        void OnChangedDragState(object sender, MKMapViewDragStateEventArgs e)
         {
             var annotation = GetCustomAnnotation(e.AnnotationView);
             if (annotation == null) return;
@@ -396,7 +399,7 @@ namespace TK.CustomMap.iOSUnified
                     annotation.SetCoordinateInternal(ckCluster.Coordinate, true);
                 }
 
-                if(!(e.AnnotationView is MKPinAnnotationView))
+                if (!(e.AnnotationView is MKPinAnnotationView))
                     e.AnnotationView.DragState = MKAnnotationViewDragState.None;
                 _isDragging = false;
                 MapFunctions.RaisePinDragEnd(annotation.CustomPin);
@@ -407,7 +410,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event sender</param>
         /// <param name="e">Event Arguments</param>
-         void OnMapRegionChanged(object sender, MKMapViewChangeEventArgs e)
+        void OnMapRegionChanged(object sender, MKMapViewChangeEventArgs e)
         {
             FormsMap.MapRegion = Map.GetCurrentMapRegion();
 
@@ -427,14 +430,14 @@ namespace TK.CustomMap.iOSUnified
 
             _selectedAnnotation = e.View.Annotation;
             FormsMap.SelectedPin = pin.CustomPin;
-            
+
             MapFunctions.RaisePinSelected(pin.CustomPin);
         }
         /// <summary>
         /// When a tap was perfomed on the map
         /// </summary>
         /// <param name="recognizer">The gesture recognizer</param>
-         void OnMapClicked(UITapGestureRecognizer recognizer)
+        void OnMapClicked(UITapGestureRecognizer recognizer)
         {
             if (recognizer.State != UIGestureRecognizerState.Ended) return;
 
@@ -473,7 +476,7 @@ namespace TK.CustomMap.iOSUnified
         /// When a long press was performed
         /// </summary>
         /// <param name="recognizer">The gesture recognizer</param>
-         void OnMapLongPress(UILongPressGestureRecognizer recognizer)
+        void OnMapLongPress(UILongPressGestureRecognizer recognizer)
         {
             if (recognizer.State != UIGestureRecognizerState.Began) return;
 
@@ -514,11 +517,11 @@ namespace TK.CustomMap.iOSUnified
             if (customAnnotation == null) return null;
 
             MKAnnotationView annotationView;
-            if(customAnnotation.CustomPin.Image != null)
+            if (customAnnotation.CustomPin.Image != null)
                 annotationView = mapView.DequeueReusableAnnotation(AnnotationIdentifier);
             else
                 annotationView = mapView.DequeueReusableAnnotation(AnnotationIdentifierDefaultPin);
-            
+
             if (annotationView == null)
             {
                 if (customAnnotation.CustomPin.Image != null)
@@ -529,7 +532,7 @@ namespace TK.CustomMap.iOSUnified
                 else
                     annotationView = new MKPinAnnotationView(customAnnotation, AnnotationIdentifierDefaultPin);
             }
-            else 
+            else
             {
                 annotationView.Annotation = customAnnotation;
             }
@@ -541,7 +544,7 @@ namespace TK.CustomMap.iOSUnified
             SetAnnotationViewVisibility(annotationView, customAnnotation.CustomPin);
             UpdateImage(annotationView, customAnnotation.CustomPin);
             UpdateAccessoryView(customAnnotation.CustomPin, annotationView);
-            
+
             return annotationView;
         }
         /// <summary>
@@ -549,7 +552,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="pin">Custom pin</param>
         /// <param name="view">Annotation view</param>
-         void UpdateAccessoryView(TKCustomMapPin pin, MKAnnotationView view)
+        void UpdateAccessoryView(TKCustomMapPin pin, MKAnnotationView view)
         {
             if (pin.IsCalloutClickable)
             {
@@ -567,7 +570,7 @@ namespace TK.CustomMap.iOSUnified
         /// <summary>
         /// Creates the annotations
         /// </summary>
-         void UpdatePins(bool firstUpdate = true)
+        void UpdatePins(bool firstUpdate = true)
         {
             if (FormsMap.IsClusteringEnabled)
             {
@@ -599,15 +602,15 @@ namespace TK.CustomMap.iOSUnified
         /// <summary>
         /// Creates the lines
         /// </summary>
-         void UpdateLines(bool firstUpdate = true)
+        void UpdateLines(bool firstUpdate = true)
         {
             if (_lines.Any())
             {
-                foreach(var line in _lines)
+                foreach (var line in _lines)
                 {
                     line.Value.Overlay.PropertyChanged -= OnLinePropertyChanged;
                 }
-                if(Map != null)
+                if (Map != null)
                     Map.RemoveOverlays(_lines.Select(i => i.Key).ToArray());
                 _lines.Clear();
             }
@@ -632,21 +635,21 @@ namespace TK.CustomMap.iOSUnified
         /// Create the routes
         /// </summary>
         /// <param name="firstUpdate">First update of collection or not</param>
-         void UpdateRoutes(bool firstUpdate = true)
+        void UpdateRoutes(bool firstUpdate = true)
         {
             _tempRouteList.Clear();
 
             if (_routes.Any())
             {
-                foreach(var r in _routes.Where(i => i.Value != null))
+                foreach (var r in _routes.Where(i => i.Value != null))
                 {
                     r.Value.Overlay.PropertyChanged -= OnRoutePropertyChanged;
                 }
-				if (Map != null)
-                	Map.RemoveOverlays(_routes.Select(i => i.Key).ToArray());
+                if (Map != null)
+                    Map.RemoveOverlays(_routes.Select(i => i.Key).ToArray());
                 _routes.Clear();
             }
-			if (FormsMap == null || FormsMap.Routes == null) return;
+            if (FormsMap == null || FormsMap.Routes == null) return;
 
             foreach (var route in FormsMap.Routes)
             {
@@ -667,7 +670,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-         void OnRouteCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        void OnRouteCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
@@ -701,11 +704,11 @@ namespace TK.CustomMap.iOSUnified
         /// <summary>
         /// Creates the circles on the map
         /// </summary>
-         void UpdateCircles(bool firstUpdate = true)
+        void UpdateCircles(bool firstUpdate = true)
         {
             if (_circles.Any())
             {
-                foreach(var circle in _circles)
+                foreach (var circle in _circles)
                 {
                     circle.Value.Overlay.PropertyChanged -= OnCirclePropertyChanged;
                 }
@@ -732,11 +735,11 @@ namespace TK.CustomMap.iOSUnified
         /// Create the polygons
         /// </summary>
         /// <param name="firstUpdate">If the collection updates the first time</param>
-         void UpdatePolygons(bool firstUpdate = true)
+        void UpdatePolygons(bool firstUpdate = true)
         {
             if (_polygons.Any())
             {
-                foreach(var poly in _polygons)
+                foreach (var poly in _polygons)
                 {
                     poly.Value.Overlay.PropertyChanged -= OnPolygonPropertyChanged;
                 }
@@ -764,7 +767,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-         void OnPolygonsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        void OnPolygonsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
@@ -803,10 +806,10 @@ namespace TK.CustomMap.iOSUnified
         /// Adds a polygon to the map
         /// </summary>
         /// <param name="polygon">Polygon to add</param>
-         void AddPolygon(TKPolygon polygon)
+        void AddPolygon(TKPolygon polygon)
         {
             var mkPolygon = MKPolygon.FromCoordinates(polygon.Coordinates.Select(i => i.ToLocationCoordinate()).ToArray());
-            _polygons.Add(mkPolygon, new TKOverlayItem<TKPolygon,MKPolygonRenderer>(polygon));
+            _polygons.Add(mkPolygon, new TKOverlayItem<TKPolygon, MKPolygonRenderer>(polygon));
             Map.AddOverlay(mkPolygon);
 
             polygon.PropertyChanged += OnPolygonPropertyChanged;
@@ -816,7 +819,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-         void OnPolygonPropertyChanged(object sender, PropertyChangedEventArgs e)
+        void OnPolygonPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var poly = (TKPolygon)sender;
 
@@ -847,7 +850,7 @@ namespace TK.CustomMap.iOSUnified
             _polygons.Remove(item.Key);
 
             var mkPolygon = MKPolygon.FromCoordinates(poly.Coordinates.Select(i => i.ToLocationCoordinate()).ToArray());
-            _polygons.Add(mkPolygon, new TKOverlayItem<TKPolygon,MKPolygonRenderer>(poly));
+            _polygons.Add(mkPolygon, new TKOverlayItem<TKPolygon, MKPolygonRenderer>(poly));
             Map.AddOverlay(mkPolygon);
         }
         /// <summary>
@@ -855,7 +858,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-         void OnCirclesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        void OnCirclesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
@@ -881,7 +884,7 @@ namespace TK.CustomMap.iOSUnified
                     }
                 }
                 MKLocalSearchRequest o = new MKLocalSearchRequest();
-                
+
             }
             else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
@@ -893,7 +896,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-         void OnLineCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        void OnLineCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
@@ -928,7 +931,7 @@ namespace TK.CustomMap.iOSUnified
         /// Adds a pin
         /// </summary>
         /// <param name="pin">The pin to add</param>
-         void AddPin(TKCustomMapPin pin)
+        void AddPin(TKCustomMapPin pin)
         {
             var annotation = new TKCustomMapAnnotation(pin);
 
@@ -947,10 +950,10 @@ namespace TK.CustomMap.iOSUnified
         /// Adds a route
         /// </summary>
         /// <param name="line">The route to add</param>
-         void AddLine(TKPolyline line)
+        void AddLine(TKPolyline line)
         {
             var polyLine = MKPolyline.FromCoordinates(line.LineCoordinates.Select(i => i.ToLocationCoordinate()).ToArray());
-            _lines.Add(polyLine, new TKOverlayItem<TKPolyline,MKPolylineRenderer>(line));
+            _lines.Add(polyLine, new TKOverlayItem<TKPolyline, MKPolylineRenderer>(line));
             Map.AddOverlay(polyLine);
 
             line.PropertyChanged += OnLinePropertyChanged;
@@ -959,7 +962,7 @@ namespace TK.CustomMap.iOSUnified
         /// Adds a route to the map
         /// </summary>
         /// <param name="route">The route to add</param>
-         void AddRoute(TKRoute route)
+        void AddRoute(TKRoute route)
         {
             _tempRouteList.Add(route);
 
@@ -967,11 +970,11 @@ namespace TK.CustomMap.iOSUnified
             req.Source = new MKMapItem(new MKPlacemark(route.Source.ToLocationCoordinate(), new MKPlacemarkAddress()));
             req.Destination = new MKMapItem(new MKPlacemark(route.Destination.ToLocationCoordinate(), new MKPlacemarkAddress()));
             req.TransportType = route.TravelMode.ToTransportType();
-            
+
             MKDirections directions = new MKDirections(req);
-            directions.CalculateDirections((r, e) => 
+            directions.CalculateDirections((r, e) =>
             {
-				if (FormsMap == null || Map == null || !_tempRouteList.Contains(route)) return;
+                if (FormsMap == null || Map == null || !_tempRouteList.Contains(route)) return;
 
                 if (e == null)
                 {
@@ -998,7 +1001,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-         void OnRoutePropertyChanged(object sender, PropertyChangedEventArgs e)
+        void OnRoutePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var route = (TKRoute)sender;
 
@@ -1035,11 +1038,11 @@ namespace TK.CustomMap.iOSUnified
         /// Adds a circle to the map
         /// </summary>
         /// <param name="circle">The circle to add</param>
-         void AddCircle(TKCircle circle)
+        void AddCircle(TKCircle circle)
         {
             var mkCircle = MKCircle.Circle(circle.Center.ToLocationCoordinate(), circle.Radius);
-            
-            _circles.Add(mkCircle, new TKOverlayItem<TKCircle,MKCircleRenderer>(circle));
+
+            _circles.Add(mkCircle, new TKOverlayItem<TKCircle, MKCircleRenderer>(circle));
             Map.AddOverlay(mkCircle);
 
             circle.PropertyChanged += OnCirclePropertyChanged;
@@ -1049,7 +1052,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-         void OnCirclePropertyChanged(object sender, PropertyChangedEventArgs e)
+        void OnCirclePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var circle = (TKCircle)sender;
 
@@ -1081,7 +1084,7 @@ namespace TK.CustomMap.iOSUnified
             _circles.Remove(item.Key);
 
             var mkCircle = MKCircle.Circle(circle.Center.ToLocationCoordinate(), circle.Radius);
-            _circles.Add(mkCircle, new TKOverlayItem<TKCircle,MKCircleRenderer>(circle));
+            _circles.Add(mkCircle, new TKOverlayItem<TKCircle, MKCircleRenderer>(circle));
             Map.AddOverlay(mkCircle);
         }
         /// <summary>
@@ -1089,11 +1092,11 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-         void OnLinePropertyChanged(object sender, PropertyChangedEventArgs e)
+        void OnLinePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var line = (TKPolyline)sender;
 
-            if(line == null) return;
+            if (line == null) return;
 
             var item = _lines.SingleOrDefault(i => i.Value.Overlay.Equals(line));
             if (item.Key == null) return;
@@ -1117,7 +1120,7 @@ namespace TK.CustomMap.iOSUnified
             _lines.Remove(item.Key);
 
             var polyLine = MKPolyline.FromCoordinates(line.LineCoordinates.Select(i => i.ToLocationCoordinate()).ToArray());
-            _lines.Add(polyLine, new TKOverlayItem<TKPolyline,MKPolylineRenderer>(line));
+            _lines.Add(polyLine, new TKOverlayItem<TKPolyline, MKPolylineRenderer>(line));
             Map.AddOverlay(polyLine);
         }
         /// <summary>
@@ -1125,7 +1128,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="sender">Event Sender</param>
         /// <param name="e">Event Arguments</param>
-         void OnPinPropertyChanged(object sender, PropertyChangedEventArgs e)
+        void OnPinPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == TKCustomMapPin.TitlePropertyName ||
                 e.PropertyName == TKCustomMapPin.SubititlePropertyName ||
@@ -1140,7 +1143,7 @@ namespace TK.CustomMap.iOSUnified
             MKAnnotationView annotationView = GetViewByAnnotation(annotation);
 
             if (annotationView == null) return;
-            
+
             switch (e.PropertyName)
             {
                 case TKCustomMapPin.ImagePropertyName:
@@ -1163,7 +1166,7 @@ namespace TK.CustomMap.iOSUnified
                     annotationView.CanShowCallout = formsPin.ShowCallout;
                     break;
                 case TKCustomMapPin.AnchorPropertyName:
-                    if(formsPin.Image != null)
+                    if (formsPin.Image != null)
                     {
                         annotationView.Layer.AnchorPoint = new CGPoint(formsPin.Anchor.X, formsPin.Anchor.Y);
                     }
@@ -1181,7 +1184,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="route">PCL route</param>
         /// <param name="nativeRoute">Native route</param>
-         void SetRouteData(TKRoute route, MKRoute nativeRoute)
+        void SetRouteData(TKRoute route, MKRoute nativeRoute)
         {
             var routeFunctions = (IRouteFunctions)route;
             var steps = new TKRouteStep[nativeRoute.Steps.Count()];
@@ -1199,7 +1202,7 @@ namespace TK.CustomMap.iOSUnified
             routeFunctions.SetSteps(steps);
             routeFunctions.SetDistance(nativeRoute.Distance);
             routeFunctions.SetTravelTime(nativeRoute.ExpectedTravelTime);
-            
+
             var region = MKCoordinateRegion.FromMapRect(Map.MapRectThatFits(nativeRoute.Polyline.BoundingMapRect, new UIEdgeInsets(25, 25, 25, 25)));
 
             routeFunctions.SetBounds(new MapSpan(region.Center.ToPosition(), region.Span.LatitudeDelta, region.Span.LongitudeDelta));
@@ -1210,7 +1213,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="annotationView">The annotation view</param>
         /// <param name="pin">The forms pin</param>
-         void SetAnnotationViewVisibility(MKAnnotationView annotationView, TKCustomMapPin pin)
+        void SetAnnotationViewVisibility(MKAnnotationView annotationView, TKCustomMapPin pin)
         {
             annotationView.Hidden = !pin.IsVisible;
             annotationView.UserInteractionEnabled = pin.IsVisible;
@@ -1221,7 +1224,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="annotationView">The annotation view</param>
         /// <param name="pin">The forms pin</param>
-         async void UpdateImage(MKAnnotationView annotationView, TKCustomMapPin pin)
+        async void UpdateImage(MKAnnotationView annotationView, TKCustomMapPin pin)
         {
             if (pin.Image != null)
             {
@@ -1288,24 +1291,24 @@ namespace TK.CustomMap.iOSUnified
         /// <summary>
         /// Updates the tiles and adds or removes the overlay
         /// </summary>
-         void UpdateTileOptions()
+        void UpdateTileOptions()
         {
             if (Map == null) return;
 
-            if(_tileOverlay != null)
+            if (_tileOverlay != null)
             {
                 Map.RemoveOverlay(_tileOverlay);
                 _tileOverlay = null;
             }
 
-            if(FormsMap != null && FormsMap.TilesUrlOptions != null)
+            if (FormsMap != null && FormsMap.TilesUrlOptions != null)
             {
                 _tileOverlay = new MKTileOverlay(
                     FormsMap.TilesUrlOptions.TilesUrl
                         .Replace("{0}", "{x}")
                         .Replace("{1}", "{y}")
                         .Replace("{2}", "{z}"));
-                
+
                 _tileOverlay.TileSize = new CGSize(
                     FormsMap.TilesUrlOptions.TileWidth,
                     FormsMap.TilesUrlOptions.TileHeight);
@@ -1320,7 +1323,7 @@ namespace TK.CustomMap.iOSUnified
         /// <summary>
         /// Sets the selected pin
         /// </summary>
-         void SetSelectedPin()
+        void SetSelectedPin()
         {
             var customAnnotion = _selectedAnnotation as TKCustomMapAnnotation;
 
@@ -1356,7 +1359,7 @@ namespace TK.CustomMap.iOSUnified
         /// <summary>
         /// Sets traffic enabled on the map
         /// </summary>
-         void UpdateShowTraffic()
+        void UpdateShowTraffic()
         {
             if (FormsMap == null || Map == null) return;
 
@@ -1371,7 +1374,7 @@ namespace TK.CustomMap.iOSUnified
         /// <summary>
         /// Updates the map region when changed
         /// </summary>
-         void UpdateMapRegion()
+        void UpdateMapRegion()
         {
             if (FormsMap?.MapRegion == null) return;
 
@@ -1381,19 +1384,19 @@ namespace TK.CustomMap.iOSUnified
         /// <summary>
         /// Updates clustering
         /// </summary>
-         void UpdateIsClusteringEnabled()
+        void UpdateIsClusteringEnabled()
         {
             if (FormsMap == null || Map == null) return;
 
-            if(FormsMap.IsClusteringEnabled)
+            if (FormsMap.IsClusteringEnabled)
             {
-                if(_clusterMap == null)
+                if (_clusterMap == null)
                 {
                     _clusterMap = new TKClusterMap(Map);
                 }
 
                 Map.RemoveAnnotations(Map.Annotations);
-                foreach(var pin in FormsMap.CustomPins)
+                foreach (var pin in FormsMap.CustomPins)
                 {
                     AddPin(pin);
                 }
@@ -1402,7 +1405,7 @@ namespace TK.CustomMap.iOSUnified
             else
             {
                 _clusterMap.ClusterManager.RemoveAnnotations(_clusterMap.ClusterManager.Annotations);
-                foreach(var pin in FormsMap.CustomPins)
+                foreach (var pin in FormsMap.CustomPins)
                 {
                     AddPin(pin);
                 }
@@ -1411,12 +1414,59 @@ namespace TK.CustomMap.iOSUnified
             }
         }
         /// <summary>
+        /// Updates the map type
+        /// </summary>
+        void UpdateMapType()
+        {
+            if (FormsMap == null || Map == null) return;
+            switch (FormsMap.MapType)
+            {
+                case MapType.Hybrid:
+                    Map.MapType = MKMapType.Hybrid;
+                    break;
+                case MapType.Satellite:
+                    Map.MapType = MKMapType.Satellite;
+                    break;
+                case MapType.Street:
+                    Map.MapType = MKMapType.Standard;
+                    break;
+            }
+        }
+        /// <summary>
+        /// Sets whether the user should be shown
+        /// </summary>
+        void UpdateIsShowingUser()
+        {
+            if (FormsMap == null || Map == null) return;
+
+            Map.ShowsUserLocation = FormsMap.IsShowingUser;
+        }
+        /// <summary>
+        /// Update ScrollEnabled
+        /// </summary>
+        void UpdateHasScrollEnabled()
+        {
+            if (FormsMap == null || Map == null) return;
+
+            Map.ScrollEnabled = FormsMap.HasScrollEnabled;
+        }
+        /// <summary>
+        /// Update ZoomEnabled
+        /// </summary>
+        void UpdateHasZoomEnabled()
+        {
+            if (FormsMap == null || Map == null) return;
+
+            Map.ZoomEnabled = FormsMap.HasZoomEnabled;
+        }
+        
+        /// <summary>
         /// Calculates the closest distance of a point to a polyline
         /// </summary>
         /// <param name="pt">The point</param>
         /// <param name="poly">The polyline</param>
         /// <returns>The closes distance</returns>
-         double DistanceOfPoint(MKMapPoint pt, MKPolyline poly)
+        double DistanceOfPoint(MKMapPoint pt, MKPolyline poly)
         {
             double distance = float.MaxValue;
             for (int n = 0; n < poly.PointCount - 1; n++)
@@ -1464,13 +1514,13 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="px">X in pixels</param>
         /// <param name="pt">Position</param>
         /// <returns>Distance in meters</returns>
-         double MetersFromPixel(int px, CGPoint pt)
+        double MetersFromPixel(int px, CGPoint pt)
         {
             CGPoint ptB = new CGPoint(pt.X + px, pt.Y);
 
             CLLocationCoordinate2D coordA = Map.ConvertPoint(pt, Map);
             CLLocationCoordinate2D coordB = Map.ConvertPoint(ptB, Map);
-            
+
             return MKGeometry.MetersBetweenMapPoints(MKMapPoint.FromCoordinate(coordA), MKMapPoint.FromCoordinate(coordB));
         }
         /// <summary>
@@ -1479,7 +1529,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         /// <param name="region">Region to convert</param>
         /// <returns>The map rect</returns>
-         MKMapRect RegionToRect(MKCoordinateRegion region)
+        MKMapRect RegionToRect(MKCoordinateRegion region)
         {
             MKMapPoint a = MKMapPoint.FromCoordinate(
                 new CLLocationCoordinate2D(
@@ -1496,7 +1546,7 @@ namespace TK.CustomMap.iOSUnified
         /// <summary>
         /// Unregisters all collections
         /// </summary>
-         void UnregisterCollections(TKCustomMap map)
+        void UnregisterCollections(TKCustomMap map)
         {
             UnregisterCollection(map.CustomPins, OnCollectionChanged, OnPinPropertyChanged);
             UnregisterCollection(map.Routes, OnRouteCollectionChanged, OnRoutePropertyChanged);
@@ -1510,19 +1560,19 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="collection">The collection to unregister</param>
         /// <param name="observableHandler">The <see cref="NotifyCollectionChangedEventHandler"/> of the collection</param>
         /// <param name="propertyHandler">The <see cref="PropertyChangedEventHandler"/> of the collection items</param>
-         void UnregisterCollection(
-            IEnumerable collection, 
-            NotifyCollectionChangedEventHandler observableHandler, 
-            PropertyChangedEventHandler propertyHandler)
+        void UnregisterCollection(
+           IEnumerable collection,
+           NotifyCollectionChangedEventHandler observableHandler,
+           PropertyChangedEventHandler propertyHandler)
         {
             if (collection == null) return;
 
             var observable = collection as INotifyCollectionChanged;
-            if(observable != null)
+            if (observable != null)
             {
                 observable.CollectionChanged -= observableHandler;
             }
-            foreach(INotifyPropertyChanged obj in collection)
+            foreach (INotifyPropertyChanged obj in collection)
             {
                 obj.PropertyChanged -= propertyHandler;
             }
@@ -1533,7 +1583,7 @@ namespace TK.CustomMap.iOSUnified
             UIImage img = null;
             await Task.Factory.StartNew(() =>
             {
-                BeginInvokeOnMainThread(() => 
+                BeginInvokeOnMainThread(() =>
                 {
                     UIGraphics.BeginImageContextWithOptions(Frame.Size, false, 0.0f);
                     Layer.RenderInContext(UIGraphics.GetCurrentContext());
@@ -1547,11 +1597,11 @@ namespace TK.CustomMap.iOSUnified
         /// <inheritdoc/>
         public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false)
         {
-            if(Map == null) return;
+            if (Map == null) return;
 
             MKMapRect zoomRect = MKMapRect.Null;
 
-            foreach(var position in positions)
+            foreach (var position in positions)
             {
                 MKMapPoint point = MKMapPoint.FromCoordinate(position.ToLocationCoordinate());
                 MKMapRect pointRect = new MKMapRect(point.X, point.Y, 0.1, 0.1);
@@ -1565,10 +1615,10 @@ namespace TK.CustomMap.iOSUnified
             if (Map == null) return;
 
             var coordinateRegion = MKCoordinateRegion.FromDistance(
-                region.Center.ToLocationCoordinate(), 
-                region.Radius.Meters * 2, 
+                region.Center.ToLocationCoordinate(),
+                region.Radius.Meters * 2,
                 region.Radius.Meters * 2);
-            
+
             Map.SetRegion(coordinateRegion, animate);
         }
         /// <inheritdoc/>
@@ -1577,7 +1627,7 @@ namespace TK.CustomMap.iOSUnified
             if (Map == null) return;
 
             MKMapRect rect = MKMapRect.Null;
-            foreach(var region in regions)
+            foreach (var region in regions)
             {
                 rect = MKMapRect.Union(
                     rect,
@@ -1596,7 +1646,7 @@ namespace TK.CustomMap.iOSUnified
 
             var annotation = GetCustomAnnotation(pin);
 
-            if(FormsMap.IsClusteringEnabled)
+            if (FormsMap.IsClusteringEnabled)
             {
                 _clusterMap.ClusterManager.SelectAnnotation(annotation, true);
             }
@@ -1682,7 +1732,7 @@ namespace TK.CustomMap.iOSUnified
                     _clusterMap?.Dispose();
 
                 }
-                if(FormsMap != null)
+                if (FormsMap != null)
                 {
                     FormsMap.PropertyChanged -= OnMapPropertyChanged;
                     UnregisterCollections(FormsMap);
@@ -1708,7 +1758,7 @@ namespace TK.CustomMap.iOSUnified
         }
         TKCustomMapAnnotation GetCustomAnnotation(TKCustomMapPin pin)
         {
-            if(FormsMap.IsClusteringEnabled)
+            if (FormsMap.IsClusteringEnabled)
             {
                 return _clusterMap.ClusterManager.Annotations.OfType<TKCustomMapAnnotation>().SingleOrDefault(i => i.CustomPin.Equals(pin));
             }
