@@ -149,6 +149,8 @@ namespace TK.CustomMap.iOSUnified
                 UpdateShowTraffic();
                 UpdateMapRegion();
                 FormsMap.PropertyChanged += OnMapPropertyChanged;
+
+                MapFunctions.RaiseMapReady();
             }
         }
 
@@ -1595,7 +1597,7 @@ namespace TK.CustomMap.iOSUnified
             return img.AsPNG().ToArray();
         }
         /// <inheritdoc/>
-        public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false)
+        public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false, int padding = 0)
         {
             if (Map == null) return;
 
@@ -1607,7 +1609,7 @@ namespace TK.CustomMap.iOSUnified
                 MKMapRect pointRect = new MKMapRect(point.X, point.Y, 0.1, 0.1);
                 zoomRect = MKMapRect.Union(zoomRect, pointRect);
             }
-            Map.SetVisibleMapRect(zoomRect, animate);
+            Map.SetVisibleMapRect(zoomRect, new UIEdgeInsets(padding, padding, padding, padding), animate);
         }
         /// <inheritdoc/>
         public void MoveToMapRegion(MapSpan region, bool animate)
@@ -1622,7 +1624,7 @@ namespace TK.CustomMap.iOSUnified
             Map.SetRegion(coordinateRegion, animate);
         }
         /// <inheritdoc/>
-        public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate)
+        public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate = false, int padding = 0)
         {
             if (Map == null) return;
 
@@ -1637,7 +1639,7 @@ namespace TK.CustomMap.iOSUnified
                             region.Radius.Meters * 2,
                             region.Radius.Meters * 2)));
             }
-            Map.SetVisibleMapRect(rect, new UIEdgeInsets(15, 15, 15, 15), animate);
+            Map.SetVisibleMapRect(rect, new UIEdgeInsets(padding, padding, padding, padding), animate);
         }
         /// <inheritdoc/>
         public void ShowCallout(TKCustomMapPin pin)

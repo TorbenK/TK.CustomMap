@@ -1390,7 +1390,7 @@ namespace TK.CustomMap.Droid
             }
         }
         ///<inheritdoc/>
-        public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false)
+        public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false, int padding = 0)
         {
             if (_googleMap == null) throw new InvalidOperationException("Map not ready");
             if (positions == null) throw new InvalidOperationException("positions can't be null");
@@ -1400,9 +1400,9 @@ namespace TK.CustomMap.Droid
             positions.ToList().ForEach(i => builder.Include(i.ToLatLng()));
 
             if (animate)
-                _googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(builder.Build(), 30));
+                _googleMap.AnimateCamera(CameraUpdateFactory.NewLatLngBounds(builder.Build(), padding));
             else
-                _googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(builder.Build(), 30));
+                _googleMap.MoveCamera(CameraUpdateFactory.NewLatLngBounds(builder.Build(), padding));
         }
         ///<inheritdoc/>
         public void MoveToMapRegion(MapSpan region, bool animate)
@@ -1421,13 +1421,13 @@ namespace TK.CustomMap.Droid
                 _googleMap.MoveCamera(cam);
         }
         ///<inheritdoc/>
-        public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate)
+        public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate = false, int padding = 0)
         {
             if (_googleMap == null || regions == null || !regions.Any()) return;
 
             var bounds = BoundsFromMapSpans(regions.ToArray());
             if (bounds == null) return;
-            var cam = CameraUpdateFactory.NewLatLngBounds(bounds, 0);
+            var cam = CameraUpdateFactory.NewLatLngBounds(bounds, padding);
 
             if (animate)
                 _googleMap.AnimateCamera(cam);
