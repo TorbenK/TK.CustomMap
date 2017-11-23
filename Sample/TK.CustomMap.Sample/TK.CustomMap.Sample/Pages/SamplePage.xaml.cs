@@ -22,7 +22,7 @@ namespace TK.CustomMap.Sample
             var mapView = new TKCustomMap(MapSpan.FromCenterAndRadius(newYork, Distance.FromKilometers(2)));
             mapView.SetBinding(TKCustomMap.IsClusteringEnabledProperty, "IsClusteringEnabled");
             mapView.SetBinding(TKCustomMap.GetClusteredPinProperty, "GetClusteredPin");
-            mapView.SetBinding(TKCustomMap.CustomPinsProperty, "Pins");
+            mapView.SetBinding(TKCustomMap.PinsProperty, "Pins");
             mapView.SetBinding(TKCustomMap.MapClickedCommandProperty, "MapClickedCommand");
             mapView.SetBinding(TKCustomMap.MapLongPressCommandProperty, "MapLongPressCommand");
             

@@ -2,7 +2,7 @@
 using MapKit;
 using System.Linq;
 using UIKit;
-using Xamarin.ClusterKit;
+using Xamarin.iOS.ClusterKit;
 
 namespace TK.CustomMap.iOSUnified
 {
@@ -75,15 +75,26 @@ namespace TK.CustomMap.iOSUnified
             
             if(count < 8)
             {
-                diameter *= 6;
+                diameter *= 0.6;
             }
             else if(count < 16)
             {
-                diameter *= 16;
+                diameter *= 0.8;
             }
 
             Frame = new CGRect(Frame.Location, new CGSize(diameter, diameter));
             _label.Text = count.ToString();
+        }
+        /// <summary>
+        /// Layout subviews
+        /// </summary>
+        public override void LayoutSubviews()
+        {
+            base.LayoutSubviews();
+
+            Layer.MasksToBounds = true;
+            Layer.CornerRadius = Bounds.Width / 2;
+            _label.Frame = Bounds;
         }
     }
 }

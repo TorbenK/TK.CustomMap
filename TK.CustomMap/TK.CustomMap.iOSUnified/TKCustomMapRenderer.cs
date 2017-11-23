@@ -18,7 +18,7 @@ using UIKit;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.iOS;
 using System.Collections;
-using Xamarin.ClusterKit;
+using Xamarin.iOS.ClusterKit;
 using System.Threading;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]

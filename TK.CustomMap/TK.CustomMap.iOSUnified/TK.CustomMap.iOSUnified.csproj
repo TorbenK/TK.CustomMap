@@ -67,9 +67,6 @@
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
-    <Reference Include="Xamarin.ClusterKit">
-      <HintPath>..\..\Bindings\Xamarin.ClusterKit\bin\Debug\Xamarin.ClusterKit.dll</HintPath>
-    </Reference>
     <Reference Include="Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Xamarin.Forms.2.4.0.74863\lib\Xamarin.iOS10\Xamarin.Forms.Core.dll</HintPath>
     </Reference>
@@ -83,6 +80,9 @@
       <HintPath>..\..\packages\Xamarin.Forms.2.4.0.74863\lib\Xamarin.iOS10\Xamarin.Forms.Xaml.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.iOS" />
+    <Reference Include="Xamarin.iOS.ClusterKit, Version=0.3.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xamarin.iOS.ClusterKit.0.3.1\lib\Xamarin.iOS10\Xamarin.iOS.ClusterKit.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

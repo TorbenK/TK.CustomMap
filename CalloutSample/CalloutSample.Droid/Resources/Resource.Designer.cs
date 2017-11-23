@@ -85,7 +85,7 @@ namespace CalloutSample.Droid
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
 			}
 			
-			 Animation()
+			private Animation()
 			{
 			}
 		}
@@ -101,7 +101,7 @@ namespace CalloutSample.Droid
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
 			}
 			
-			 Animator()
+			private Animator()
 			{
 			}
 		}
@@ -1224,7 +1224,7 @@ namespace CalloutSample.Droid
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
 			}
 			
-			 Attribute()
+			private Attribute()
 			{
 			}
 		}
@@ -1252,7 +1252,7 @@ namespace CalloutSample.Droid
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
 			}
 			
-			 Boolean()
+			private Boolean()
 			{
 			}
 		}
@@ -1625,7 +1625,7 @@ namespace CalloutSample.Droid
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
 			}
 			
-			 Color()
+			private Color()
 			{
 			}
 		}
@@ -2112,7 +2112,7 @@ namespace CalloutSample.Droid
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
 			}
 			
-			 Dimension()
+			private Dimension()
 			{
 			}
 		}
@@ -3037,7 +3037,7 @@ namespace CalloutSample.Droid
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
 			}
 			
-			 Drawable()
+			private Drawable()
 			{
 			}
 		}
@@ -3650,7 +3650,7 @@ namespace CalloutSample.Droid
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
 			}
 			
-			 Id()
+			private Id()
 			{
 			}
 		}
@@ -3702,7 +3702,7 @@ namespace CalloutSample.Droid
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
 			}
 			
-			 Integer()
+			private Integer()
 			{
 			}
 		}
@@ -3721,7 +3721,7 @@ namespace CalloutSample.Droid
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
 			}
 			
-			 Interpolator()
+			private Interpolator()
 			{
 			}
 		}
@@ -3950,7 +3950,7 @@ namespace CalloutSample.Droid
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
 			}
 			
-			 Layout()
+			private Layout()
 			{
 			}
 		}
@@ -4206,7 +4206,7 @@ namespace CalloutSample.Droid
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
 			}
 			
-			 String()
+			private String()
 			{
 			}
 		}
@@ -5404,7 +5404,7 @@ namespace CalloutSample.Droid
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
 			}
 			
-			 Style()
+			private Style()
 			{
 			}
 		}
@@ -7503,7 +7503,7 @@ namespace CalloutSample.Droid
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
 			}
 			
-			 Styleable()
+			private Styleable()
 			{
 			}
 		}
