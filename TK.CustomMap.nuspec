@@ -3,7 +3,7 @@
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
     <version>2.0.0-pre1</version>
-    <title>Extended, bindable Map of Xamarin.Forms.Maps</title>
+    <title>Rich, bindable Map control for Xamarin.Forms</title>
     <authors>Torben Sudau</authors>
     <owners>Torben Sudau</owners>
     <licenseUrl>https://github.com/TorbenK/TK.CustomMap/blob/master/License.md</licenseUrl>
