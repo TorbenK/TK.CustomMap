@@ -8,8 +8,6 @@ namespace TK.CustomMap
     /// </summary>
     public class TKCustomMapPin : TKBase
     {
-
-
          bool _isVisible;
          string _id;
          string _title;
@@ -23,19 +21,6 @@ namespace TK.CustomMap
          Point _anchor = new Point(0.5, 0.5);
          double _rotation;
          bool _isCalloutClickable;
-
-        public const string IDPropertyName = "ID";
-        public const string TitlePropertyName = "Title";
-        public const string SubititlePropertyName = "Subtitle";
-        public const string PositionPropertyName = "Position";
-        public const string ImagePropertyName = "Image";
-        public const string IsVisiblePropertyName = "IsVisible";
-        public const string IsDraggablePropertyName = "IsDraggable";
-        public const string ShowCalloutPropertyName = "ShowCallout";
-        public const string DefaultPinColorPropertyName = "DefaultPinColor";
-        public const string AnchorPropertyName = "Anchor";
-        public const string RotationPropertyName = "Rotation";
-        public const string IsCalloutClickablePropertyName = "IsCalloutClickable";
 
         /// <summary>
         /// Gets the id of the <see cref="TKCustomMapPin"/>

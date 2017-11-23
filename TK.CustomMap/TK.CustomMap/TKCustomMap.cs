@@ -73,10 +73,10 @@ namespace TK.CustomMap
         /// </summary>
         public static readonly BindableProperty MapFunctionsProperty = MapFunctionsPropertyKey.BindableProperty;
         /// <summary>
-        /// Bindable Property of <see cref="CustomPins" />
+        /// Bindable Property of <see cref="Pins" />
         /// </summary>
-        public static readonly BindableProperty CustomPinsProperty = BindableProperty.Create(
-            nameof(CustomPins),
+        public static readonly BindableProperty PinsProperty = BindableProperty.Create(
+            nameof(Pins),
             typeof(IEnumerable<TKCustomMapPin>),
             typeof(TKCustomMap));
         /// <summary>
@@ -325,10 +325,10 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets the custom pins of the Map
         /// </summary>
-        public IEnumerable<TKCustomMapPin> CustomPins
+        public IEnumerable<TKCustomMapPin> Pins
         {
-            get => (IEnumerable<TKCustomMapPin>)GetValue(CustomPinsProperty);
-            set => SetValue(CustomPinsProperty, value);
+            get => (IEnumerable<TKCustomMapPin>)GetValue(PinsProperty);
+            set => SetValue(PinsProperty, value);
         }
         /// <summary>
         /// Gets/Sets the currently selected pin on the map

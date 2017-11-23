@@ -90,12 +90,12 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="e">Event Arguments</param>
         void FormsPinPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == TKCustomMapPin.SubititlePropertyName)
+            if (e.PropertyName == nameof(TKCustomMapPin.Subtitle))
             {
                 WillChangeValue("subtitle");
                 DidChangeValue("subtitle");
             }
-            if (e.PropertyName == TKCustomMapPin.TitlePropertyName)
+            if (e.PropertyName == nameof(TKCustomMapPin.Title))
             {
                 WillChangeValue("title");
                 DidChangeValue("title");

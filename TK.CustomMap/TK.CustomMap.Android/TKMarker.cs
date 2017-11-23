@@ -31,37 +31,37 @@ namespace TK.CustomMap.Droid
         {
             switch (e.PropertyName)
             {
-                case TKCustomMapPin.TitlePropertyName:
+                case nameof(TKCustomMapPin.Title):
                     Marker.Title = Pin.Title;
                     break;
-                case TKCustomMapPin.SubititlePropertyName:
+                case nameof(TKCustomMapPin.Subtitle):
                     Marker.Snippet = Pin.Subtitle;
                     break;
-                case TKCustomMapPin.ImagePropertyName:
+                case nameof(TKCustomMapPin.Image):
                     await UpdateImageAsync();
                     break;
-                case TKCustomMapPin.DefaultPinColorPropertyName:
+                case nameof(TKCustomMapPin.DefaultPinColor):
                     await UpdateImageAsync();
                     break;
-                case TKCustomMapPin.PositionPropertyName:
+                case nameof(TKCustomMapPin.Position):
                     if (!isDragging)
                     {
                         Marker.Position = new LatLng(Pin.Position.Latitude, Pin.Position.Longitude);
                     }
                     break;
-                case TKCustomMapPin.IsVisiblePropertyName:
+                case nameof(TKCustomMapPin.IsVisible):
                     Marker.Visible = Pin.IsVisible;
                     break;
-                case TKCustomMapPin.AnchorPropertyName:
+                case nameof(TKCustomMapPin.Anchor):
                     if (Pin.Image != null)
                     {
                         Marker.SetAnchor((float)Pin.Anchor.X, (float)Pin.Anchor.Y);
                     }
                     break;
-                case TKCustomMapPin.IsDraggablePropertyName:
+                case nameof(TKCustomMapPin.IsDraggable):
                     Marker.Draggable = Pin.IsDraggable;
                     break;
-                case TKCustomMapPin.RotationPropertyName:
+                case nameof(TKCustomMapPin.Rotation):
                     Marker.Rotation = (float)Pin.Rotation;
                     break;
             }

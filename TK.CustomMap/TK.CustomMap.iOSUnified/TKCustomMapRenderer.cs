@@ -36,6 +36,7 @@ namespace TK.CustomMap.iOSUnified
 
         const string AnnotationIdentifier = "TKCustomAnnotation";
         const string AnnotationIdentifierDefaultPin = "TKCustomAnnotationDefaultPin";
+        const string AnnotationIdentifierDefaultClusterPin = "TKDefaultClusterPin";
 
         readonly List<TKRoute> _tempRouteList = new List<TKRoute>();
 
@@ -262,7 +263,7 @@ namespace TK.CustomMap.iOSUnified
         {
             switch (e.PropertyName)
             {
-                case nameof(TKCustomMap.CustomPins):
+                case nameof(TKCustomMap.Pins):
                     UpdatePins();
                     break;
                 case nameof(TKCustomMap.SelectedPin):
@@ -328,7 +329,7 @@ namespace TK.CustomMap.iOSUnified
 
                 foreach (TKCustomMapPin pin in e.OldItems)
                 {
-                    if (!FormsMap.CustomPins.Contains(pin))
+                    if (!FormsMap.Pins.Contains(pin))
                     {
                         if (FormsMap.SelectedPin != null && FormsMap.SelectedPin.Equals(pin))
                         {
@@ -496,8 +497,10 @@ namespace TK.CustomMap.iOSUnified
         public virtual MKAnnotationView GetViewForAnnotation(MKMapView mapView, IMKAnnotation annotation)
         {
             var clusterAnnotation = annotation as CKCluster;
+            bool createDefaultClusterAnnotatioView = false;
 
-            TKCustomMapAnnotation customAnnotation;
+            MKAnnotationView annotationView = null;
+            TKCustomMapAnnotation customAnnotation = null;
 
             if (clusterAnnotation == null)
             {
@@ -508,7 +511,15 @@ namespace TK.CustomMap.iOSUnified
                 if (clusterAnnotation.Count > 1)
                 {
                     var clusterPin = FormsMap.GetClusteredPin?.Invoke(null, clusterAnnotation.Annotations.OfType<TKCustomMapAnnotation>().Select(i => i.CustomPin));
-                    customAnnotation = new TKCustomMapAnnotation(clusterPin);
+
+                    if (clusterPin == null)
+                    {
+                        createDefaultClusterAnnotatioView = true;
+                    }
+                    else
+                    {
+                        customAnnotation = new TKCustomMapAnnotation(clusterPin);
+                    }
                 }
                 else
                 {
@@ -516,36 +527,58 @@ namespace TK.CustomMap.iOSUnified
                 }
             }
 
-            if (customAnnotation == null) return null;
-
-            MKAnnotationView annotationView;
-            if (customAnnotation.CustomPin.Image != null)
-                annotationView = mapView.DequeueReusableAnnotation(AnnotationIdentifier);
-            else
-                annotationView = mapView.DequeueReusableAnnotation(AnnotationIdentifierDefaultPin);
-
-            if (annotationView == null)
+            if (createDefaultClusterAnnotatioView)
             {
-                if (customAnnotation.CustomPin.Image != null)
+                annotationView = mapView.DequeueReusableAnnotation(AnnotationIdentifierDefaultClusterPin);
+                if(annotationView == null)
                 {
-                    annotationView = new MKAnnotationView(customAnnotation, AnnotationIdentifier);
-                    annotationView.Layer.AnchorPoint = new CGPoint(customAnnotation.CustomPin.Anchor.X, customAnnotation.CustomPin.Anchor.Y);
+                    annotationView = new TKDefaultClusterAnnotationView(clusterAnnotation, AnnotationIdentifierDefaultClusterPin);
                 }
                 else
-                    annotationView = new MKPinAnnotationView(customAnnotation, AnnotationIdentifierDefaultPin);
+                {
+                    annotationView.Annotation = clusterAnnotation;
+                    (annotationView as TKDefaultClusterAnnotationView).Configure();
+                }
             }
             else
             {
-                annotationView.Annotation = customAnnotation;
-            }
-            annotationView.CanShowCallout = customAnnotation.CustomPin.ShowCallout;
-            annotationView.Draggable = customAnnotation.CustomPin.IsDraggable;
-            annotationView.Selected = _selectedAnnotation != null && customAnnotation.Equals(_selectedAnnotation);
-            annotationView.Transform = CGAffineTransform.MakeRotation((float)customAnnotation.CustomPin.Rotation.ToRadian());
 
-            SetAnnotationViewVisibility(annotationView, customAnnotation.CustomPin);
-            UpdateImage(annotationView, customAnnotation.CustomPin);
-            UpdateAccessoryView(customAnnotation.CustomPin, annotationView);
+                if (customAnnotation == null) return null;
+
+                if (customAnnotation.CustomPin.Image != null)
+                {
+                    annotationView = mapView.DequeueReusableAnnotation(AnnotationIdentifier);
+                }
+                else
+                {
+                    annotationView = mapView.DequeueReusableAnnotation(AnnotationIdentifierDefaultPin);
+                }
+
+                if (annotationView == null)
+                {
+                    if (customAnnotation.CustomPin.Image != null)
+                    {
+                        annotationView = new MKAnnotationView(customAnnotation, AnnotationIdentifier);
+                        annotationView.Layer.AnchorPoint = new CGPoint(customAnnotation.CustomPin.Anchor.X, customAnnotation.CustomPin.Anchor.Y);
+                    }
+                    else
+                    {
+                        annotationView = new MKPinAnnotationView(customAnnotation, AnnotationIdentifierDefaultPin);
+                    }
+                }
+                else
+                {
+                    annotationView.Annotation = customAnnotation;
+                }
+                annotationView.CanShowCallout = customAnnotation.CustomPin.ShowCallout;
+                annotationView.Draggable = customAnnotation.CustomPin.IsDraggable;
+                annotationView.Selected = _selectedAnnotation != null && customAnnotation.Equals(_selectedAnnotation);
+                annotationView.Transform = CGAffineTransform.MakeRotation((float)customAnnotation.CustomPin.Rotation.ToRadian());
+
+                SetAnnotationViewVisibility(annotationView, customAnnotation.CustomPin);
+                UpdateImage(annotationView, customAnnotation.CustomPin);
+                UpdateAccessoryView(customAnnotation.CustomPin, annotationView);
+            }
 
             return annotationView;
         }
@@ -583,9 +616,9 @@ namespace TK.CustomMap.iOSUnified
                 Map.RemoveAnnotations(Map.Annotations);
             }
 
-            if (FormsMap.CustomPins == null) return;
+            if (FormsMap.Pins == null) return;
 
-            foreach (var i in FormsMap.CustomPins)
+            foreach (var i in FormsMap.Pins)
             {
                 i.PropertyChanged -= OnPinPropertyChanged;
                 AddPin(i);
@@ -593,7 +626,7 @@ namespace TK.CustomMap.iOSUnified
 
             if (firstUpdate)
             {
-                var observAble = FormsMap.CustomPins as INotifyCollectionChanged;
+                var observAble = FormsMap.Pins as INotifyCollectionChanged;
                 if (observAble != null)
                 {
                     observAble.CollectionChanged += OnCollectionChanged;
@@ -830,18 +863,18 @@ namespace TK.CustomMap.iOSUnified
             var item = _polygons.SingleOrDefault(i => i.Value.Overlay.Equals(poly));
             if (item.Key == null) return;
 
-            if (e.PropertyName != TKPolygon.CoordinatesPropertyName)
+            if (e.PropertyName != nameof(TKPolygon.Coordinates))
             {
                 if (item.Value.Renderer == null) return;
-                if (e.PropertyName == TKPolygon.StrokeColorPropertyName)
+                if (e.PropertyName == nameof(TKPolygon.StrokeColor))
                 {
                     item.Value.Renderer.StrokeColor = item.Value.Overlay.StrokeColor.ToUIColor();
                 }
-                else if (e.PropertyName == TKPolygon.ColorPropertyName)
+                else if (e.PropertyName == nameof(TKPolygon.Color))
                 {
                     item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
                 }
-                else if (e.PropertyName == TKPolygon.StrokeWidthPropertyName)
+                else if (e.PropertyName == nameof(TKPolygon.StrokeWidth))
                 {
                     item.Value.Renderer.LineWidth = item.Value.Overlay.StrokeWidth;
                 }
@@ -1012,17 +1045,17 @@ namespace TK.CustomMap.iOSUnified
             var item = _routes.SingleOrDefault(i => i.Value.Overlay.Equals(route));
             if (item.Key == null) return;
 
-            if (e.PropertyName != TKRoute.TravelModelProperty &&
-                e.PropertyName != TKRoute.SourceProperty &&
-                e.PropertyName != TKRoute.DestinationProperty)
+            if (e.PropertyName != nameof(TKRoute.TravelMode) &&
+                e.PropertyName != nameof(TKRoute.Source) &&
+                e.PropertyName != nameof(TKRoute.Destination))
             {
                 if (item.Value.Renderer == null) return;
-                if (e.PropertyName == TKPolyline.ColorPropertyName)
+                if (e.PropertyName == nameof(TKRoute.Color))
                 {
                     item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
                     item.Value.Renderer.StrokeColor = item.Value.Overlay.Color.ToUIColor();
                 }
-                else if (e.PropertyName == TKPolyline.LineWidthProperty)
+                else if (e.PropertyName == nameof(TKPolyline.LineWidth))
                 {
                     item.Value.Renderer.LineWidth = item.Value.Overlay.LineWidth;
                 }
@@ -1063,19 +1096,19 @@ namespace TK.CustomMap.iOSUnified
             var item = _circles.SingleOrDefault(i => i.Value.Overlay.Equals(circle));
             if (item.Key == null) return;
 
-            if (e.PropertyName != TKCircle.CenterPropertyName &&
-                e.PropertyName != TKCircle.RadiusPropertyName)
+            if (e.PropertyName != nameof(TKCircle.Center) &&
+                e.PropertyName != nameof(TKCircle.Radius))
             {
                 if (item.Value.Renderer == null) return;
-                if (e.PropertyName == TKCircle.ColorPropertyName)
+                if (e.PropertyName == nameof(TKCircle.Color))
                 {
                     item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
                 }
-                else if (e.PropertyName == TKCircle.StrokeColorPropertyName)
+                else if (e.PropertyName == nameof(TKCircle.StrokeColor))
                 {
                     item.Value.Renderer.StrokeColor = item.Value.Overlay.StrokeColor.ToUIColor();
                 }
-                else if (e.PropertyName == TKCircle.StrokeWidthPropertyName)
+                else if (e.PropertyName == nameof(TKCircle.StrokeWidth))
                 {
                     item.Value.Renderer.LineWidth = item.Value.Overlay.StrokeWidth;
                 }
@@ -1103,15 +1136,15 @@ namespace TK.CustomMap.iOSUnified
             var item = _lines.SingleOrDefault(i => i.Value.Overlay.Equals(line));
             if (item.Key == null) return;
 
-            if (e.PropertyName != TKPolyline.LineCoordinatesPropertyName)
+            if (e.PropertyName != nameof(TKPolyline.LineCoordinates))
             {
                 if (item.Value.Renderer == null) return;
-                if (e.PropertyName == TKPolyline.ColorPropertyName)
+                if (e.PropertyName == nameof(TKOverlay.Color))
                 {
                     item.Value.Renderer.FillColor = item.Value.Overlay.Color.ToUIColor();
                     item.Value.Renderer.StrokeColor = item.Value.Overlay.Color.ToUIColor();
                 }
-                else if (e.PropertyName == TKPolyline.LineWidthProperty)
+                else if (e.PropertyName == nameof(TKPolyline.LineWidth))
                 {
                     item.Value.Renderer.LineWidth = item.Value.Overlay.LineWidth;
                 }
@@ -1132,9 +1165,9 @@ namespace TK.CustomMap.iOSUnified
         /// <param name="e">Event Arguments</param>
         void OnPinPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == TKCustomMapPin.TitlePropertyName ||
-                e.PropertyName == TKCustomMapPin.SubititlePropertyName ||
-                (e.PropertyName == TKCustomMapPin.PositionPropertyName && _isDragging))
+            if (e.PropertyName == nameof(TKCustomMapPin.Title) ||
+                e.PropertyName == nameof(TKCustomMapPin.Subtitle) ||
+                (e.PropertyName == nameof(TKCustomMapPin.Position) && _isDragging))
                 return;
 
             var formsPin = (TKCustomMapPin)sender;
@@ -1148,35 +1181,35 @@ namespace TK.CustomMap.iOSUnified
 
             switch (e.PropertyName)
             {
-                case TKCustomMapPin.ImagePropertyName:
+                case nameof(TKCustomMapPin.Image):
                     UpdateImage(annotationView, formsPin);
                     break;
-                case TKCustomMapPin.DefaultPinColorPropertyName:
+                case nameof(TKCustomMapPin.DefaultPinColor):
                     UpdateImage(annotationView, formsPin);
                     break;
-                case TKCustomMapPin.IsDraggablePropertyName:
+                case nameof(TKCustomMapPin.IsDraggable):
                     annotationView.Draggable = formsPin.IsDraggable;
                     break;
-                case TKCustomMapPin.IsVisiblePropertyName:
+                case nameof(TKCustomMapPin.IsVisible):
                     SetAnnotationViewVisibility(annotationView, formsPin);
                     break;
-                case TKCustomMapPin.PositionPropertyName:
+                case nameof(TKCustomMapPin.Position):
                     annotationView.Annotation.SetCoordinate(formsPin.Position.ToLocationCoordinate());
                     annotation.SetCoordinateInternal(formsPin.Position.ToLocationCoordinate(), true);
                     break;
-                case TKCustomMapPin.ShowCalloutPropertyName:
+                case nameof(TKCustomMapPin.ShowCallout):
                     annotationView.CanShowCallout = formsPin.ShowCallout;
                     break;
-                case TKCustomMapPin.AnchorPropertyName:
+                case nameof(TKCustomMapPin.Anchor):
                     if (formsPin.Image != null)
                     {
                         annotationView.Layer.AnchorPoint = new CGPoint(formsPin.Anchor.X, formsPin.Anchor.Y);
                     }
                     break;
-                case TKCustomMapPin.RotationPropertyName:
+                case nameof(TKCustomMapPin.Rotation):
                     annotationView.Transform = CGAffineTransform.MakeRotation((float)formsPin.Rotation);
                     break;
-                case TKCustomMapPin.IsCalloutClickablePropertyName:
+                case nameof(TKCustomMapPin.IsCalloutClickable):
                     UpdateAccessoryView(formsPin, annotationView);
                     break;
             }
@@ -1398,7 +1431,7 @@ namespace TK.CustomMap.iOSUnified
                 }
 
                 Map.RemoveAnnotations(Map.Annotations);
-                foreach (var pin in FormsMap.CustomPins)
+                foreach (var pin in FormsMap.Pins)
                 {
                     AddPin(pin);
                 }
@@ -1407,7 +1440,7 @@ namespace TK.CustomMap.iOSUnified
             else
             {
                 _clusterMap.ClusterManager.RemoveAnnotations(_clusterMap.ClusterManager.Annotations);
-                foreach (var pin in FormsMap.CustomPins)
+                foreach (var pin in FormsMap.Pins)
                 {
                     AddPin(pin);
                 }
@@ -1550,7 +1583,7 @@ namespace TK.CustomMap.iOSUnified
         /// </summary>
         void UnregisterCollections(TKCustomMap map)
         {
-            UnregisterCollection(map.CustomPins, OnCollectionChanged, OnPinPropertyChanged);
+            UnregisterCollection(map.Pins, OnCollectionChanged, OnPinPropertyChanged);
             UnregisterCollection(map.Routes, OnRouteCollectionChanged, OnRoutePropertyChanged);
             UnregisterCollection(map.Polylines, OnLineCollectionChanged, OnLinePropertyChanged);
             UnregisterCollection(map.Circles, OnCirclesCollectionChanged, OnCirclePropertyChanged);

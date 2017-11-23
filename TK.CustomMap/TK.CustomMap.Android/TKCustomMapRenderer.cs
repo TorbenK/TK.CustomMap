@@ -175,7 +175,7 @@ namespace TK.CustomMap.Droid
 
             switch(e.PropertyName)
             {
-                case nameof(TKCustomMap.CustomPins):
+                case nameof(TKCustomMap.Pins):
                     UpdatePins();
                     break;
                 case nameof(TKCustomMap.SelectedPin):
@@ -427,7 +427,7 @@ namespace TK.CustomMap.Droid
             {
                 foreach (TKCustomMapPin pin in e.OldItems)
                 {
-                    if (!FormsMap.CustomPins.Contains(pin))
+                    if (!FormsMap.Pins.Contains(pin))
                     {
                         RemovePin(pin);
                     }
@@ -500,7 +500,7 @@ namespace TK.CustomMap.Droid
         {
             var line = (TKPolyline)sender;
 
-            if (e.PropertyName == TKPolyline.LineCoordinatesPropertyName)
+            if (e.PropertyName == nameof(TKPolyline.LineCoordinates))
             {
                 if (line.LineCoordinates != null && line.LineCoordinates.Count > 1)
                 {
@@ -511,11 +511,11 @@ namespace TK.CustomMap.Droid
                     _polylines[line].Points = null;
                 }
             }
-            else if (e.PropertyName == TKPolyline.ColorPropertyName)
+            else if (e.PropertyName == nameof(TKPolyline.Color))
             {
                 _polylines[line].Color = line.Color.ToAndroid().ToArgb();
             }
-            else if (e.PropertyName == TKPolyline.LineWidthProperty)
+            else if (e.PropertyName == nameof(TKPolyline.LineWidth))
             {
                 _polylines[line].Width = line.LineWidth;
             }
@@ -532,15 +532,15 @@ namespace TK.CustomMap.Droid
                 RemovePin(i.Key, false);
             }
             _markers.Clear();
-            if (FormsMap.CustomPins != null)
+            if (FormsMap.Pins != null)
             {
-                foreach (var pin in FormsMap.CustomPins)
+                foreach (var pin in FormsMap.Pins)
                 {
                     AddPin(pin);
                 }
                 if (firstUpdate)
                 {
-                    var observAble = FormsMap.CustomPins as INotifyCollectionChanged;
+                    var observAble = FormsMap.Pins as INotifyCollectionChanged;
                     if (observAble != null)
                     {
                         observAble.CollectionChanged += OnCustomPinsCollectionChanged;
@@ -790,9 +790,9 @@ namespace TK.CustomMap.Droid
         {
             var route = (TKRoute)sender;
 
-            if (e.PropertyName == TKRoute.SourceProperty ||
-                e.PropertyName == TKRoute.DestinationProperty ||
-                e.PropertyName == TKRoute.TravelModelProperty)
+            if (e.PropertyName == nameof(TKRoute.Source) ||
+                e.PropertyName == nameof(TKRoute.Destination) ||
+                e.PropertyName == nameof(TKRoute.TravelMode))
             {
                 route.PropertyChanged -= OnRoutePropertyChanged;
                 _routes[route].Remove();
@@ -800,11 +800,11 @@ namespace TK.CustomMap.Droid
 
                 AddRoute(route);
             }
-            else if (e.PropertyName == TKPolyline.ColorPropertyName)
+            else if (e.PropertyName == nameof(TKPolyline.Color))
             {
                 _routes[route].Color = route.Color.ToAndroid().ToArgb();
             }
-            else if (e.PropertyName == TKPolyline.LineWidthProperty)
+            else if (e.PropertyName == nameof(TKPolyline.LineWidth))
             {
                 _routes[route].Width = route.LineWidth;
             }
@@ -877,16 +877,16 @@ namespace TK.CustomMap.Droid
 
             switch (e.PropertyName)
             {
-                case TKPolygon.CoordinatesPropertyName:
+                case nameof(TKPolygon.Coordinates):
                     _polygons[tkPolygon].Points = tkPolygon.Coordinates.Select(i => i.ToLatLng()).ToList();
                     break;
-                case TKPolygon.ColorPropertyName:
+                case nameof(TKPolygon.Color):
                     _polygons[tkPolygon].FillColor = tkPolygon.Color.ToAndroid().ToArgb();
                     break;
-                case TKPolygon.StrokeColorPropertyName:
+                case nameof(TKPolygon.StrokeColor):
                     _polygons[tkPolygon].StrokeColor = tkPolygon.StrokeColor.ToAndroid().ToArgb();
                     break;
-                case TKPolygon.StrokeWidthPropertyName:
+                case nameof(TKPolygon.StrokeWidth):
                     _polygons[tkPolygon].StrokeWidth = tkPolygon.StrokeWidth;
                     break;
             }
@@ -958,16 +958,16 @@ namespace TK.CustomMap.Droid
 
             switch (e.PropertyName)
             {
-                case TKCircle.RadiusPropertyName:
+                case nameof(TKCircle.Radius):
                     circle.Radius = tkCircle.Radius;
                     break;
-                case TKCircle.CenterPropertyName:
+                case nameof(TKCircle.Center):
                     circle.Center = tkCircle.Center.ToLatLng();
                     break;
-                case TKCircle.ColorPropertyName:
+                case nameof(TKCircle.Color):
                     circle.FillColor = tkCircle.Color.ToAndroid().ToArgb();
                     break;
-                case TKCircle.StrokeColorPropertyName:
+                case nameof(TKCircle.StrokeColor):
                     circle.StrokeColor = tkCircle.StrokeColor.ToAndroid().ToArgb();
                     break;
             }
@@ -1316,7 +1316,7 @@ namespace TK.CustomMap.Droid
         /// </summary>
         void UnregisterCollections(TKCustomMap map)
         {
-            UnregisterCollection(map.CustomPins, OnCustomPinsCollectionChanged, OnPinPropertyChanged);
+            UnregisterCollection(map.Pins, OnCustomPinsCollectionChanged, OnPinPropertyChanged);
             UnregisterCollection(map.Routes, OnRouteCollectionChanged, OnRoutePropertyChanged);
             UnregisterCollection(map.Polylines, OnLineCollectionChanged, OnLinePropertyChanged);
             UnregisterCollection(map.Circles, CirclesCollectionChanged, CirclePropertyChanged);

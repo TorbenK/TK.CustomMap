@@ -8,7 +8,6 @@ namespace TK.CustomMap.Overlays
     /// </summary>
     public abstract class TKOverlay : TKBase
     {
-        public const string ColorPropertyName = "Color";
 
          Color _color;
 

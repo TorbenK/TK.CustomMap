@@ -5,16 +5,6 @@
     /// </summary>
     public class TKRoute : TKOverlay, IRouteFunctions
     {
-        public const string SourceProperty = "Source";
-        public const string DestinationProperty = "Destination";
-        public const string LineWidthProperty = "LineWidth";
-        public const string SelectableProperty = "Selectable";
-        public const string TravelModelProperty = "TravelMode";
-        public const string BoundsProperty = "Bounds";
-        public const string StepsProperty = "Steps";
-        public const string DistanceProperty = "Distance";
-        public const string TravelTimeProperty = "TravelTime";
-        public const string IsCalculatedProperty = "IsCalculated";
 
          Position _source;
          Position _destination;

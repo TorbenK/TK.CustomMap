@@ -4,8 +4,6 @@ namespace TK.CustomMap.Overlays
 {
     public class TKPolyline : TKOverlay
     {
-        public const string LineCoordinatesPropertyName = "LineCoordinates";
-        public const string LineWidthProperty = "LineWidth";
 
          List<Position> _lineCoordinates;
          float _lineWidth;

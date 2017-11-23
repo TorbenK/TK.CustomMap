@@ -7,10 +7,6 @@ namespace TK.CustomMap.Overlays
     /// </summary>
     public class TKCircle : TKOverlay
     {
-        public const string RadiusPropertyName = "Radius";
-        public const string StrokeColorPropertyName = "StrokeColor";
-        public const string CenterPropertyName = "Center";
-        public const string StrokeWidthPropertyName = "StrokeWidth";
 
          double _radius;
          Color _strokeColor;

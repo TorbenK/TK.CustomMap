@@ -8,10 +8,6 @@ namespace TK.CustomMap.Overlays
     /// </summary>
     public class TKPolygon : TKOverlay
     {
-        public const string CoordinatesPropertyName = "Coordinates";
-        public const string StrokeColorPropertyName = "StrokeColor";
-        public const string StrokeWidthPropertyName = "StrokeWidth";
-
          List<Position> _coordinates;
          Color _strokeColor;
          float _strokeWidth;
