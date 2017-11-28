@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>TK.CustomMap</id>
-    <version>2.0.0-pre1</version>
+    <version>2.0.0-pre2</version>
     <title>Rich and bindable Map control for Xamarin.Forms</title>
     <authors>Torben Sudau</authors>
     <owners>Torben Sudau</owners>
@@ -43,6 +43,9 @@
       - Removed property name constants
       - MapCenter is now read-only
       - Probably more but I forgot
+      
+      - 2.0.0-pre2:
+      - Fixed disposing issue on Android
     </releaseNotes>
   </metadata>
   <files>
