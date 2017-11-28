@@ -34,6 +34,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.UWP", "TK.Cust
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.Sample.UWP", "Sample\TK.CustomMap.Sample\TK.CustomMap.Sample.UWP\TK.CustomMap.Sample.UWP.csproj", "{D6CB4C2F-5F40-4D76-8C5C-6453ED829743}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{ABC98CC7-8A96-4D81-B142-B16BE0642C08}"
+	ProjectSection(SolutionItems) = preProject
+		docs\README.md = docs\README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Ad-Hoc|Any CPU = Ad-Hoc|Any CPU
