@@ -1,6 +1,0 @@
-framework module OCMapView {
-  umbrella header "OCMapView-umbrella.h"
-
-  export *
-  module * { export * }
-}
