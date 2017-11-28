@@ -156,9 +156,9 @@ namespace TK.CustomMap.Droid
                     _googleMap.SetOnCameraIdleListener(null);
 
                     _clusterManager?.Dispose();
+                    _clusterManager = null;
                     _googleMap.Dispose();
                     _googleMap = null;
-                    Control.Dispose();
                 }
             }
 
