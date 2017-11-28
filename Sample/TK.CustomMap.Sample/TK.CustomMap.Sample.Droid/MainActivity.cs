@@ -21,6 +21,7 @@ namespace TK.CustomMap.Sample.Droid
 
             //ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, errors) => true;
 
+            TKGoogleMaps.Init(this, bundle);
             global::Xamarin.Forms.Forms.Init(this, bundle);
 
             ToolbarResource = Resource.Layout.toolbar;

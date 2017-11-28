@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xamarin.Forms;
-using Xamarin.Forms.Maps;
+
 
 namespace TK.CustomMap.Interfaces
 {
@@ -19,7 +19,7 @@ namespace TK.CustomMap.Interfaces
         /// Moves the visible region of the map to cover all positions
         /// </summary>
         /// <param name="positions">The positions to fit the visible region</param>
-        void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false);
+        void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false, int padding = 0);
         /// <summary>
         /// Moves the visible region to the specified <see cref="MapSpan"/>
         /// </summary>
@@ -31,7 +31,7 @@ namespace TK.CustomMap.Interfaces
         /// </summary>
         /// <param name="regions">Regions to move the map to</param>
         /// <param name="animate">If the region change should be animated or not</param>
-        void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate);
+        void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate = false, int padding = 0);
         /// <summary>
         /// Converts an array of <see cref="Point"/> into geocoordinates
         /// </summary>

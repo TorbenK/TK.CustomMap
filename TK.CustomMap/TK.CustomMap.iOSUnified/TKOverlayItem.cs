@@ -21,7 +21,7 @@ namespace TK.CustomMap.iOSUnified
 
         public TKOverlayItem(TOverlay overlay)
         {
-            this.Overlay = overlay;
+            Overlay = overlay;
         }
 
     }

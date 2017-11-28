@@ -7,7 +7,6 @@ using MapKit;
 using TK.CustomMap.Api;
 using TK.CustomMap.iOSUnified;
 using Xamarin.Forms;
-using Xamarin.Forms.Maps;
 
 [assembly: Dependency(typeof(NativePlacesApi))]
 

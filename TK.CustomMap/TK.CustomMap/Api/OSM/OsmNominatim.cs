@@ -16,8 +16,8 @@ namespace TK.CustomMap.Api.OSM
     {
         const string BaseUrl = "http://nominatim.openstreetmap.org/search/";
 
-        private static OsmNominatim _instance;
-        private readonly HttpClient _httpClient;
+         static OsmNominatim _instance;
+         readonly HttpClient _httpClient;
         /// <summary>
         /// Gets the API Instance
         /// </summary>
@@ -35,18 +35,18 @@ namespace TK.CustomMap.Api.OSM
         /// <summary>
         /// Gets/Sets country codes
         /// </summary>
-        public Collection<string> CountryCodes { get; private set; }
+        public Collection<string> CountryCodes { get;  set; }
 
         /// <summary>
         /// Creates a new instance of <see cref="OsmNominatim"/>
         /// </summary>
-        private OsmNominatim()
+         OsmNominatim()
         {
-            this._httpClient = new HttpClient();
-            this._httpClient.BaseAddress = new Uri(BaseUrl);
+            _httpClient = new HttpClient();
+            _httpClient.BaseAddress = new Uri(BaseUrl);
 
-            this.Limit = 5;
-            this.CountryCodes = new Collection<string>();
+            Limit = 5;
+            CountryCodes = new Collection<string>();
         }
         /// <summary>
         /// Calls the OSM Niminatim API to get predictions
@@ -57,7 +57,7 @@ namespace TK.CustomMap.Api.OSM
         {
             if(string.IsNullOrWhiteSpace(searchTerm)) return null;
 
-            var result = await this._httpClient.GetAsync(this.BuildQueryString(searchTerm));
+            var result = await _httpClient.GetAsync(BuildQueryString(searchTerm));
 
             if (result.IsSuccessStatusCode)
             {
@@ -70,20 +70,20 @@ namespace TK.CustomMap.Api.OSM
         /// </summary>
         /// <param name="searchTerm">Term to search for</param>
         /// <returns>Query string</returns>
-        private string BuildQueryString(string searchTerm)
+         string BuildQueryString(string searchTerm)
         {
             StringBuilder str = new StringBuilder();
 
             if (CountryCodes.Any())
             {
-                str.AppendFormat("{0}/", string.Join(",", this.CountryCodes));
+                str.AppendFormat("{0}/", string.Join(",", CountryCodes));
             }
 
             str.AppendFormat("{0}?", searchTerm);
 
-            if (this.Limit > 0)
+            if (Limit > 0)
             {
-                str.AppendFormat("{0}={1}&", "limit", this.Limit);
+                str.AppendFormat("{0}={1}&", "limit", Limit);
             }
             str.AppendFormat("{0}={1}", "format", "json");
 

@@ -4,7 +4,6 @@ using Android.Gms.Maps.Model;
 using Android.Graphics;
 using TK.CustomMap.Overlays;
 using Xamarin.Forms;
-using Xamarin.Forms.Maps;
 using Xamarin.Forms.Platform.Android;
 using TK.CustomMap.Api.Google;
 using TK.CustomMap.Utilities;

@@ -5,34 +5,34 @@
     /// </summary>
     public sealed class TKRouteStep : TKBase, IRouteStepFunctions
     {
-        private double _distance;
-        private string _instructions;
+         double _distance;
+         string _instructions;
 
         /// <summary>
         /// Gets the distance of the step
         /// </summary>
         public double Distance
         {
-            get { return this._distance; }
-            private set { this.SetField(ref this._distance, value); }
+            get { return _distance; }
+             set { SetField(ref _distance, value); }
         }
         /// <summary>
         /// Gets the instructions of the step
         /// </summary>
         public string Instructions
         {
-            get { return this._instructions; }
-            private set { this.SetField(ref this._instructions, value); }
+            get { return _instructions; }
+             set { SetField(ref _instructions, value); }
         }
         ///<inheritdoc/>
         void IRouteStepFunctions.SetDistance(double distance)
         {
-            this.Distance = distance;
+            Distance = distance;
         }
         ///<inheritdoc/>
         void IRouteStepFunctions.SetInstructions(string instructions)
         {
-            this.Instructions = instructions;
+            Instructions = instructions;
         }
     }
 }

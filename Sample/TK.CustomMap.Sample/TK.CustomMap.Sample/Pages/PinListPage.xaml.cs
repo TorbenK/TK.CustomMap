@@ -12,35 +12,35 @@ namespace TK.CustomMap.Sample.Pages
     {
         public event EventHandler<PinSelectedEventArgs> PinSelected;
 
-        private readonly IEnumerable<TKCustomMapPin> _pins;
+         readonly IEnumerable<TKCustomMapPin> _pins;
 
 
         public PinListPage(IEnumerable<TKCustomMapPin> pins)
         {
             InitializeComponent();
 
-            this._pins = pins;
-            this.BindingContext = this._pins;
+            _pins = pins;
+            BindingContext = _pins;
 
-            this._lvPins.ItemSelected += (o, e) =>
+            _lvPins.ItemSelected += (o, e) =>
             {
-                if (this._lvPins.SelectedItem == null) return;
+                if (_lvPins.SelectedItem == null) return;
 
-                this.OnPinSelected((TKCustomMapPin)this._lvPins.SelectedItem);
+                OnPinSelected((TKCustomMapPin)_lvPins.SelectedItem);
             };
         }
         protected virtual void OnPinSelected(TKCustomMapPin pin)
         {
-            this.PinSelected?.Invoke(this, new PinSelectedEventArgs(pin));
+            PinSelected?.Invoke(this, new PinSelectedEventArgs(pin));
         }
     }
     public class PinSelectedEventArgs : EventArgs
     {
-        public TKCustomMapPin Pin { get; private set; }
+        public TKCustomMapPin Pin { get;  set; }
 
         public PinSelectedEventArgs(TKCustomMapPin pin)
         {
-            this.Pin = pin;
+            Pin = pin;
         }
         
     }

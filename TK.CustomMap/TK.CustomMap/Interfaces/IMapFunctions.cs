@@ -1,6 +1,6 @@
 ﻿using TK.CustomMap.Models;
 using TK.CustomMap.Overlays;
-using Xamarin.Forms.Maps;
+
 namespace TK.CustomMap.Interfaces
 {
     /// <summary>
@@ -61,5 +61,9 @@ namespace TK.CustomMap.Interfaces
         /// Raises the callout clicked event and command
         /// </summary>
         void RaiseCalloutClicked(TKCustomMapPin pin);
+        /// <summary>
+        /// Raises the map ready event and command
+        /// </summary>
+        void RaiseMapReady();
     }
 }

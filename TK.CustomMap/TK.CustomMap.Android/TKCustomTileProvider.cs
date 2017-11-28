@@ -9,7 +9,7 @@ namespace TK.CustomMap.Droid
     /// </summary>
     public class TKCustomTileProvider : UrlTileProvider
     {
-        private readonly TKTileUrlOptions _options;
+         readonly TKTileUrlOptions _options;
         /// <summary>
         /// Creates a new instance of <see cref="TKCustomTileProvider" />
         /// </summary>
@@ -17,14 +17,14 @@ namespace TK.CustomMap.Droid
         public TKCustomTileProvider(TKTileUrlOptions options) 
             : base(options.TileWidth, options.TileHeight)
         {
-            this._options = options;
+            _options = options;
         }
         /// <inheritdoc />
         public override URL GetTileUrl(int x, int y, int zoom)
         {
-            if (this.CheckTileExists(zoom))
+            if (CheckTileExists(zoom))
             {
-                return new URL(string.Format(this._options.TilesUrl, x, y, zoom));
+                return new URL(string.Format(_options.TilesUrl, x, y, zoom));
             }
             return null;
         }
@@ -33,9 +33,9 @@ namespace TK.CustomMap.Droid
         /// </summary>
         /// <param name="zoom">The zoom to request the tile</param>
         /// <returns><value>False</value> if tile in the specified zoom is not available</returns>
-        private bool CheckTileExists(int zoom)
+         bool CheckTileExists(int zoom)
         {
-            return !(zoom > this._options.MaximumZoomLevel || zoom < this._options.MinimumZoomLevel);
+            return !(zoom > _options.MaximumZoomLevel || zoom < _options.MinimumZoomLevel);
         }
     }
 }

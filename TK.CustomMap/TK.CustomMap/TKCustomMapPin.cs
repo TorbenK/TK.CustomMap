@@ -1,6 +1,5 @@
 ﻿using System;
 using Xamarin.Forms;
-using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap
 {
@@ -9,31 +8,19 @@ namespace TK.CustomMap
     /// </summary>
     public class TKCustomMapPin : TKBase
     {
-        private bool _isVisible;
-        private string _id;
-        private string _title;
-        private string _subtitle;
-        private bool _showCallout;
-        private Position _position;
-        private ImageSource _image;
-        private bool _isDraggable;
-        private Color _defaultPinColor;
-        private Point _anchor;
-        private double _rotation;
-        private bool _isCalloutClickable;
-
-        public const string IDPropertyName = "ID";
-        public const string TitlePropertyName = "Title";
-        public const string SubititlePropertyName = "Subtitle";
-        public const string PositionPropertyName = "Position";
-        public const string ImagePropertyName = "Image";
-        public const string IsVisiblePropertyName = "IsVisible";
-        public const string IsDraggablePropertyName = "IsDraggable";
-        public const string ShowCalloutPropertyName = "ShowCallout";
-        public const string DefaultPinColorPropertyName = "DefaultPinColor";
-        public const string AnchorPropertyName = "Anchor";
-        public const string RotationPropertyName = "Rotation";
-        public const string IsCalloutClickablePropertyName = "IsCalloutClickable";
+         bool _isVisible;
+         string _id;
+         string _title;
+         string _subtitle;
+         string _group;
+         bool _showCallout;
+         Position _position;
+         ImageSource _image;
+         bool _isDraggable;
+         Color _defaultPinColor;
+         Point _anchor = new Point(0.5, 0.5);
+         double _rotation;
+         bool _isCalloutClickable;
 
         /// <summary>
         /// Gets the id of the <see cref="TKCustomMapPin"/>
@@ -42,105 +29,113 @@ namespace TK.CustomMap
         /// <summary>
         /// Gets/Sets visibility of a pin
         /// </summary>
-        public bool IsVisible 
+        public bool IsVisible
         {
-            get { return this._isVisible; }
-            set { this.SetField(ref this._isVisible, value); }
+            get { return _isVisible; }
+            set { SetField(ref _isVisible, value); }
         }
         /// <summary>
         /// Gets/Sets ID of the pin, used for client app reference (optional)
         /// </summary>
         public string ID
         {
-            get { return this._id; }
-            set { this.SetField(ref this._id, value); }
+            get { return _id; }
+            set { SetField(ref _id, value); }
         }
         /// <summary>
         /// Gets/Sets title of the pin displayed in the callout
         /// </summary>
-        public string Title 
+        public string Title
         {
-            get { return this._title; }
-            set { this.SetField(ref this._title, value); }
+            get { return _title; }
+            set { SetField(ref _title, value); }
         }
         /// <summary>
         /// Gets/Sets the subtitle of the pin displayed in the callout
         /// </summary>
-        public string Subtitle 
+        public string Subtitle
         {
-            get { return this._subtitle; }
-            set { this.SetField(ref this._subtitle, value); }
+            get { return _subtitle; }
+            set { SetField(ref _subtitle, value); }
         }
         /// <summary>
         /// Gets/Sets if the callout should be displayed when a pin gets selected
         /// </summary>
-        public bool ShowCallout 
+        public bool ShowCallout
         {
-            get { return this._showCallout; }
-            set { this.SetField(ref this._showCallout, value); }
+            get { return _showCallout; }
+            set { SetField(ref _showCallout, value); }
         }
         /// <summary>
         /// Gets/Sets the position of the pin
         /// </summary>
-        public Position Position 
+        public Position Position
         {
-            get { return this._position; }
-            set { this.SetField(ref this._position, value); }
+            get { return _position; }
+            set { SetField(ref _position, value); }
         }
         /// <summary>
         /// Gets/Sets the image of the pin. If null the default is used
         /// </summary>
-        public ImageSource Image 
+        public ImageSource Image
         {
-            get { return this._image; }
-            set { this.SetField(ref this._image, value); }
+            get { return _image; }
+            set { SetField(ref _image, value); }
         }
         /// <summary>
         /// Gets/Sets if the pin is draggable
         /// </summary>
-        public bool IsDraggable 
+        public bool IsDraggable
         {
-            get { return this._isDraggable; }
-            set { this.SetField(ref this._isDraggable, value); }
+            get { return _isDraggable; }
+            set { SetField(ref _isDraggable, value); }
         }
         /// <summary>
         /// Gets/Sets the color of the default pin. Only applies when no <see cref="Image"/> is set
         /// </summary>
         public Color DefaultPinColor
         {
-            get { return this._defaultPinColor; }
-            set { this.SetField(ref this._defaultPinColor, value); }
+            get { return _defaultPinColor; }
+            set { SetField(ref _defaultPinColor, value); }
         }
         /// <summary>
         /// Gets/Sets the anchor point of the pin when using a custom pin image
         /// </summary>
         public Point Anchor
         {
-            get { return this._anchor; }
-            set { this.SetField(ref this._anchor, value); }
+            get { return _anchor; }
+            set { SetField(ref _anchor, value); }
         }
         /// <summary>
         /// Gets/Sets the rotation angle of the pin in degrees
         /// </summary>
         public double Rotation
         {
-            get { return this._rotation; }
-            set { this.SetField(ref this._rotation, value); }
+            get { return _rotation; }
+            set { SetField(ref _rotation, value); }
         }
         /// <summary>
         /// Gets/Sets whether the callout is clickable or not. This adds/removes the accessory control on iOS
         /// </summary>
         public bool IsCalloutClickable
         {
-            get { return this._isCalloutClickable; }
-            set { this.SetField(ref this._isCalloutClickable, value); }
+            get { return _isCalloutClickable; }
+            set { SetField(ref _isCalloutClickable, value); }
+        }
+        /// <summary>
+        /// Gets/Sets the group identifier
+        /// </summary>
+        public string Group
+        {
+            get => _group;
+            set { SetField(ref _group, value); }
         }
         /// <summary>
         /// Creates a new instance of <see cref="TKCustomMapPin" />
         /// </summary>
         public TKCustomMapPin()
         {
-            this.IsVisible = true;
+            IsVisible = true;
         }
 
         /// <summary>

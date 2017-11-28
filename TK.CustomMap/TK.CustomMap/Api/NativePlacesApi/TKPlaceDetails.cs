@@ -1,4 +1,4 @@
-﻿using Xamarin.Forms.Maps;
+﻿
 
 namespace TK.CustomMap.Api
 {

@@ -1,6 +1,4 @@
-﻿using Xamarin.Forms.Maps;
-
-namespace TK.CustomMap.Overlays
+﻿namespace TK.CustomMap.Overlays
 {
     /// <summary>
     /// Internally used functions to set read-only properties on the <see cref="TKRoute"/>

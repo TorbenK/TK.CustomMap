@@ -20,7 +20,7 @@ namespace CalloutSample.iOS
             var annotationView = base.GetViewForAnnotation(mapView, annotation);
             if (annotationView == null) return null;
 
-            var customAnnotation = this.GetPinByAnnotation(annotation);
+            var customAnnotation = GetPinByAnnotation(annotation);
             annotationView.LeftCalloutAccessoryView = new UIImageView(UIImage.FromFile("Icon-60.png"));
 
             return annotationView;

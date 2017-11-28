@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.Api.Google
 {
@@ -24,7 +23,7 @@ namespace TK.CustomMap.Api.Google
         /// <returns><see cref="Position"/></returns>
         public Position ToPosition()
         {
-            return new Position(this.Latitude, this.Longitude);
+            return new Position(Latitude, Longitude);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -16,22 +17,24 @@ namespace TK.CustomMap.Sample
 {
     public class SampleViewModel : INotifyPropertyChanged
     {
-        private TKTileUrlOptions _tileUrlOptions;
+         TKTileUrlOptions _tileUrlOptions;
 
-        private MapSpan _mapRegion;
-        private Position _mapCenter;
-        private TKCustomMapPin _selectedPin;
-        private ObservableCollection<TKCustomMapPin> _pins;
-        private ObservableCollection<TKRoute> _routes;
-        private ObservableCollection<TKCircle> _circles;
-        private ObservableCollection<TKPolyline> _lines;
-        private ObservableCollection<TKPolygon> _polygons;
+         MapSpan _mapRegion = MapSpan.FromCenterAndRadius(new Position(40.7142700, -74.0059700), Distance.FromKilometers(2));
+         Position _mapCenter;
+         TKCustomMapPin _selectedPin;
+         bool _isClusteringEnabled;
+         ObservableCollection<TKCustomMapPin> _pins;
+         ObservableCollection<TKRoute> _routes;
+         ObservableCollection<TKCircle> _circles;
+         ObservableCollection<TKPolyline> _lines;
+         ObservableCollection<TKPolygon> _polygons;
+         Random _random = new Random(1984);
 
         public TKTileUrlOptions TilesUrlOptions
         {
             get
             {
-                return this._tileUrlOptions;
+                return _tileUrlOptions;
                 //return new TKTileUrlOptions(
                 //    "http://a.basemaps.cartocdn.com/dark_all/{2}/{0}/{1}.png", 256, 256, 0, 18);
                 //return new TKTileUrlOptions(
@@ -39,10 +42,10 @@ namespace TK.CustomMap.Sample
             }
             set
             {
-                if (this._tileUrlOptions != value)
+                if (_tileUrlOptions != value)
                 {
-                    this._tileUrlOptions = value;
-                    this.OnPropertyChanged("TilesUrlOptions");
+                    _tileUrlOptions = value;
+                    OnPropertyChanged("TilesUrlOptions");
                 }
             }
         }
@@ -57,6 +60,34 @@ namespace TK.CustomMap.Sample
                 {
                     if (!(await Application.Current.MainPage.DisplayAlert("Start Test?", "Start simulation test?", "Yes", "No")))
                         return;
+
+                    Pins.Clear();
+
+                    #region Clustering Test
+
+                    for (int i = 0; i < 20; i++)
+                    {
+                        var newPin = new TKCustomMapPin
+                        {
+                            Position = GetDummyPosition(),
+                            Title = "Cluster Test"
+                        };
+                        Pins.Add(newPin);
+                    }
+                    MapFunctions.FitMapRegionToPositions(Pins.Select(i => i.Position), false);
+                    IsClusteringEnabled = true;
+                    MapRegion = MapSpan.FromCenterAndRadius(MapRegion.Center, Distance.FromKilometers(100));
+                    await Task.Delay(2000);
+                    IsClusteringEnabled = false;
+                    await Task.Delay(2000);
+                    IsClusteringEnabled = true;
+                    await Task.Delay(2000);
+                    IsClusteringEnabled = false;
+                    await Task.Delay(2000);
+
+                    Pins.Clear();
+
+                    #endregion Clustering Test
 
                     #region PinTest
 
@@ -92,9 +123,9 @@ namespace TK.CustomMap.Sample
                     pin.Image = null;
                     await Task.Delay(1000);
 
-                    this._pins.Remove(pin);
+                    _pins.Remove(pin);
                     await Task.Delay(1000);
-                    this._pins.Add(pin);
+                    _pins.Add(pin);
                     await Task.Delay(1000);
                     pin.Position = new Position(40.718281, -74.085179);
                     await Task.Delay(1000);
@@ -102,7 +133,7 @@ namespace TK.CustomMap.Sample
                     await Task.Delay(1000);
                     pin.Position = new Position(40.718577, -74.083754);
                     await Task.Delay(1000);
-                    this._pins.Clear();
+                    _pins.Clear();
 
                     #endregion PinTest
 
@@ -114,7 +145,7 @@ namespace TK.CustomMap.Sample
                         Color = Color.Red,
                         Radius = 1000
                     };
-                    this._circles.Add(circle);
+                    _circles.Add(circle);
                     await Task.Delay(1000);
 
                     circle.Color = Color.Green;
@@ -130,17 +161,17 @@ namespace TK.CustomMap.Sample
                     circle.Center = new Position(40.718577, -74.083754);
                     await Task.Delay(1000);
 
-                    this._circles.Remove(circle);
+                    _circles.Remove(circle);
                     await Task.Delay(1000);
-                    this._circles.Add(circle);
+                    _circles.Add(circle);
                     await Task.Delay(1000);
-                    this._circles.Clear();
+                    _circles.Clear();
 
                     #endregion Circles Test
 
                     #region Lines Test
 
-                    this.Lines = new ObservableCollection<TKPolyline>();
+                    Lines = new ObservableCollection<TKPolyline>();
 
                     var line = new TKPolyline
                     {
@@ -153,7 +184,7 @@ namespace TK.CustomMap.Sample
                         })
                     };
 
-                    this._lines.Add(line);
+                    _lines.Add(line);
                     await Task.Delay(1000);
 
                     line.Color = Color.Red;
@@ -168,17 +199,17 @@ namespace TK.CustomMap.Sample
                         new Position(40.690602, -74.017309)
                     });
                     await Task.Delay(1000);
-                    this._lines.Remove(line);
+                    _lines.Remove(line);
                     await Task.Delay(1000);
-                    this._lines.Add(line);
+                    _lines.Add(line);
                     await Task.Delay(1000);
-                    this._lines.Clear();
+                    _lines.Clear();
 
                     #endregion Lines Test
 
                     #region Polygon Test
 
-                    this.Polygons = new ObservableCollection<TKPolygon>();
+                    Polygons = new ObservableCollection<TKPolygon>();
 
                     var poly = new TKPolygon
                     {
@@ -193,7 +224,7 @@ namespace TK.CustomMap.Sample
                         })
                     };
 
-                    this._polygons.Add(poly);
+                    _polygons.Add(poly);
                     await Task.Delay(1000);
 
                     poly.StrokeColor = Color.Purple;
@@ -208,26 +239,36 @@ namespace TK.CustomMap.Sample
                     poly.Color = Color.Yellow;
                     await Task.Delay(1000);
 
-                    this._polygons.Remove(poly);
+                    _polygons.Remove(poly);
                     await Task.Delay(1000);
-                    this._polygons.Add(poly);
+                    _polygons.Add(poly);
                     await Task.Delay(1000);
-                    this._polygons.Clear();
+                    _polygons.Clear();
 
                     #endregion Polygon Test
 
                     #region Tiles Test
 
-                    this.TilesUrlOptions = new TKTileUrlOptions(
+                    TilesUrlOptions = new TKTileUrlOptions(
                         "http://a.basemaps.cartocdn.com/dark_all/{2}/{0}/{1}.png", 256, 256, 0, 18);
                     await Task.Delay(5000);
-                    this.TilesUrlOptions = null;
+                    TilesUrlOptions = null;
                     await Task.Delay(5000);
-                    this.TilesUrlOptions = new TKTileUrlOptions(
+                    TilesUrlOptions = new TKTileUrlOptions(
                         "http://a.tile.openstreetmap.org/{2}/{0}/{1}.png", 256, 256, 0, 18);
 
                     #endregion Tiles Test
                 });
+            }
+        }
+
+        public bool IsClusteringEnabled
+        {
+            get => _isClusteringEnabled;
+            set
+            {
+                _isClusteringEnabled = value;
+                OnPropertyChanged(nameof(IsClusteringEnabled));
             }
         }
 
@@ -237,15 +278,15 @@ namespace TK.CustomMap.Sample
             {
                 return new Command(async () =>
                 {
-                    if (this._pins == null || !this._pins.Any())
+                    if (_pins == null || !_pins.Any())
                     {
                         Application.Current.MainPage.DisplayAlert("Nothing there!", "No pins to show!", "OK");
                         return;
                     }
-                    var listPage = new PinListPage(this.Pins);
+                    var listPage = new PinListPage(Pins);
                     listPage.PinSelected += async (o, e) =>
                     {
-                        this.SelectedPin = e.Pin;
+                        SelectedPin = e.Pin;
                         await Application.Current.MainPage.Navigation.PopAsync();
                     };
                     await Application.Current.MainPage.Navigation.PushAsync(listPage);
@@ -258,13 +299,13 @@ namespace TK.CustomMap.Sample
         /// </summary>
         public MapSpan MapRegion
         {
-            get { return this._mapRegion; }
+            get { return _mapRegion; }
             set
             {
-                if (this._mapRegion != value)
+                if (_mapRegion != value)
                 {
-                    this._mapRegion = value;
-                    this.OnPropertyChanged("MapRegion");
+                    _mapRegion = value;
+                    OnPropertyChanged("MapRegion");
                 }
             }
         }
@@ -274,13 +315,13 @@ namespace TK.CustomMap.Sample
         /// </summary>
         public ObservableCollection<TKCustomMapPin> Pins
         {
-            get { return this._pins; }
+            get { return _pins; }
             set
             {
-                if (this._pins != value)
+                if (_pins != value)
                 {
-                    this._pins = value;
-                    this.OnPropertyChanged("Pins");
+                    _pins = value;
+                    OnPropertyChanged("Pins");
                 }
             }
         }
@@ -290,13 +331,13 @@ namespace TK.CustomMap.Sample
         /// </summary>
         public ObservableCollection<TKRoute> Routes
         {
-            get { return this._routes; }
+            get { return _routes; }
             set
             {
-                if (this._routes != value)
+                if (_routes != value)
                 {
-                    this._routes = value;
-                    this.OnPropertyChanged("Routes");
+                    _routes = value;
+                    OnPropertyChanged("Routes");
                 }
             }
         }
@@ -306,13 +347,13 @@ namespace TK.CustomMap.Sample
         /// </summary>
         public ObservableCollection<TKCircle> Circles
         {
-            get { return this._circles; }
+            get { return _circles; }
             set
             {
-                if (this._circles != value)
+                if (_circles != value)
                 {
-                    this._circles = value;
-                    this.OnPropertyChanged("Circles");
+                    _circles = value;
+                    OnPropertyChanged("Circles");
                 }
             }
         }
@@ -322,13 +363,13 @@ namespace TK.CustomMap.Sample
         /// </summary>
         public ObservableCollection<TKPolyline> Lines
         {
-            get { return this._lines; }
+            get { return _lines; }
             set
             {
-                if (this._lines != value)
+                if (_lines != value)
                 {
-                    this._lines = value;
-                    this.OnPropertyChanged("Lines");
+                    _lines = value;
+                    OnPropertyChanged("Lines");
                 }
             }
         }
@@ -338,13 +379,13 @@ namespace TK.CustomMap.Sample
         /// </summary>
         public ObservableCollection<TKPolygon> Polygons
         {
-            get { return this._polygons; }
+            get { return _polygons; }
             set
             {
-                if (this._polygons != value)
+                if (_polygons != value)
                 {
-                    this._polygons = value;
-                    this.OnPropertyChanged("Polygons");
+                    _polygons = value;
+                    OnPropertyChanged("Polygons");
                 }
             }
         }
@@ -354,13 +395,13 @@ namespace TK.CustomMap.Sample
         /// </summary>
         public Position MapCenter
         {
-            get { return this._mapCenter; }
+            get { return _mapCenter; }
             set
             {
-                if (this._mapCenter != value)
+                if (_mapCenter != value)
                 {
-                    this._mapCenter = value;
-                    this.OnPropertyChanged("MapCenter");
+                    _mapCenter = value;
+                    OnPropertyChanged("MapCenter");
                 }
             }
         }
@@ -370,13 +411,13 @@ namespace TK.CustomMap.Sample
         /// </summary>
         public TKCustomMapPin SelectedPin
         {
-            get { return this._selectedPin; }
+            get { return _selectedPin; }
             set
             {
-                if (this._selectedPin != value)
+                if (_selectedPin != value)
                 {
-                    this._selectedPin = value;
-                    this.OnPropertyChanged("SelectedPin");
+                    _selectedPin = value;
+                    OnPropertyChanged("SelectedPin");
                 }
             }
         }
@@ -406,7 +447,7 @@ namespace TK.CustomMap.Sample
                             ShowCallout = true,
                             IsDraggable = true
                         };
-                        this._pins.Add(pin);
+                        _pins.Add(pin);
                     }
                     else if (action == "Add Circle")
                     {
@@ -416,7 +457,7 @@ namespace TK.CustomMap.Sample
                             Radius = 10000,
                             Color = Color.FromRgba(100, 0, 0, 80)
                         };
-                        this._circles.Add(circle);
+                        _circles.Add(circle);
                     }
                 });
             }
@@ -431,10 +472,10 @@ namespace TK.CustomMap.Sample
             {
                 return new Command<Position>((positon) =>
                 {
-                    this.SelectedPin = null;
+                    SelectedPin = null;
 
                     // Determine if a point was inside a circle
-                    if ((from c in this._circles let distanceInMeters = c.Center.DistanceTo(positon) * 1000 where distanceInMeters <= c.Radius select c).Any())
+                    if ((from c in _circles let distanceInMeters = c.Center.DistanceTo(positon) * 1000 where distanceInMeters <= c.Radius select c).Any())
                     {
                         Application.Current.MainPage.DisplayAlert("Circle tap", "Circle was tapped", "OK");
                     }
@@ -455,13 +496,13 @@ namespace TK.CustomMap.Sample
                     if (gmsResult != null)
                     {
                         var details = await GmsPlace.Instance.GetDetails(gmsResult.PlaceId);
-                        this.MapCenter = new Position(details.Item.Geometry.Location.Latitude, details.Item.Geometry.Location.Longitude);
+                        MapCenter = new Position(details.Item.Geometry.Location.Latitude, details.Item.Geometry.Location.Longitude);
                         return;
                     }
                     var osmResult = p as OsmNominatimResult;
                     if (osmResult != null)
                     {
-                        this.MapCenter = new Position(osmResult.Latitude, osmResult.Longitude);
+                        MapCenter = new Position(osmResult.Latitude, osmResult.Longitude);
                         return;
                     }
 
@@ -471,13 +512,13 @@ namespace TK.CustomMap.Sample
 
                         var details = await TKNativePlacesApi.Instance.GetDetails(prediction.PlaceId);
 
-                        this.MapCenter = details.Coordinate;
+                        MapCenter = details.Coordinate;
                     }
                     else if (Device.OS == TargetPlatform.iOS)
                     {
                         var prediction = (TKNativeiOSPlaceResult)p;
 
-                        this.MapCenter = prediction.Details.Coordinate;
+                        MapCenter = prediction.Details.Coordinate;
                     }
                 });
             }
@@ -492,16 +533,7 @@ namespace TK.CustomMap.Sample
             {
                 return new Command<TKCustomMapPin>((TKCustomMapPin pin) =>
                 {
-                    // Chose one
-
-                    // 1. First possibility
-                    //this.MapCenter = this.SelectedPin.Position;
-                    // 2. Possibility
-                    this.MapRegion = MapSpan.FromCenterAndRadius(this.SelectedPin.Position, this.MapRegion.Radius);
-                    // 3. Possibility
-                    //this.MapFunctions.MoveToMapRegion(
-                    //    MapSpan.FromCenterAndRadius(this.SelectedPin.Position, Distance.FromMeters(this.MapRegion.Radius.Meters)),
-                    //    true);
+                    MapRegion = MapSpan.FromCenterAndRadius(SelectedPin.Position, Distance.FromKilometers(1));
                 });
             }
         }
@@ -571,7 +603,7 @@ namespace TK.CustomMap.Sample
 
                     if (action == "Remove Pin")
                     {
-                        this._pins.Remove(pin);
+                        _pins.Remove(pin);
                     }
                 });
             }
@@ -583,10 +615,10 @@ namespace TK.CustomMap.Sample
             {
                 return new Command(() =>
                 {
-                    this._pins.Clear();
-                    this._circles.Clear();
-                    if (this._routes != null)
-                        this._routes.Clear();
+                    _pins.Clear();
+                    _circles.Clear();
+                    if (_routes != null)
+                        _routes.Clear();
                 });
             }
         }
@@ -600,9 +632,9 @@ namespace TK.CustomMap.Sample
             {
                 return new Command(() =>
                 {
-                    if (this.Routes == null) this.Routes = new ObservableCollection<TKRoute>();
+                    if (Routes == null) Routes = new ObservableCollection<TKRoute>();
 
-                    var addRoutePage = new AddRoutePage(this.Routes, this.Pins, this.MapRegion);
+                    var addRoutePage = new AddRoutePage(Routes, Pins, MapRegion);
                     Application.Current.MainPage.Navigation.PushAsync(addRoutePage);
                 });
             }
@@ -618,22 +650,42 @@ namespace TK.CustomMap.Sample
                 return new Command<TKRoute>(r =>
                 {
                     // move to the bounds of the route
-                    this.MapRegion = r.Bounds;
+                    MapRegion = r.Bounds;
                 });
             }
         }
 
+        public Func<string, IEnumerable<TKCustomMapPin>, TKCustomMapPin> GetClusteredPin => (group, clusteredPins) => 
+        {
+            return null;
+            //return new TKCustomMapPin
+            //{
+            //    DefaultPinColor = Color.Blue,
+            //    Title = clusteredPins.Count().ToString(),
+            //    ShowCallout = true
+            //};
+        };
+
         public SampleViewModel()
         {
-            this._mapCenter = new Position(40.7142700, -74.0059700);
+            _mapCenter = new Position(40.7142700, -74.0059700);
 
-            this._pins = new ObservableCollection<TKCustomMapPin>();
-            this._circles = new ObservableCollection<TKCircle>();
+            _pins = new ObservableCollection<TKCustomMapPin>();
+            _circles = new ObservableCollection<TKCircle>();
         }
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+         Position GetDummyPosition()
+        {
+            return new Position(Random(51.6723432, 51.38494009999999), Random(0.148271, -0.3514683));
+        }
+         double Random(double min, double max)
+        {
+            return _random.NextDouble() * (max - min) + min;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

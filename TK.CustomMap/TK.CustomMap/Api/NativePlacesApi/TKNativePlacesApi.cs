@@ -7,7 +7,7 @@ namespace TK.CustomMap.Api
     /// </summary>
     public static class TKNativePlacesApi
     {
-        private static INativePlacesApi _instance;
+         static INativePlacesApi _instance;
 
         /// <summary>
         /// Gets an instance of <see cref="INativePlacesApi"/>

@@ -25,22 +25,22 @@ namespace TK.CustomMap.Sample
 
             if (Device.OS == TargetPlatform.Android)
             {
-                this._baseLayout.Children.Add(
+                _baseLayout.Children.Add(
                     googleImage,
                     Constraint.Constant(10),
                     Constraint.RelativeToParent(l => l.Height - 30));
             }
 
-            this._baseLayout.Children.Add(
+            _baseLayout.Children.Add(
                 searchTo,
                 yConstraint: Constraint.RelativeToView(searchFrom, (l, v) => searchFrom.HeightOfSearchBar + 10));
 
-            this._baseLayout.Children.Add(
+            _baseLayout.Children.Add(
                 searchFrom,
                 Constraint.Constant(0),
                 Constraint.Constant(10));
 
-            this.BindingContext = new AddRouteViewModel(routes, pins, bounds);
+            BindingContext = new AddRouteViewModel(routes, pins, bounds);
         }
     }
 }

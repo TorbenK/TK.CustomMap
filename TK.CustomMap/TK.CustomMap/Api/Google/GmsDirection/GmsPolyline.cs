@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.Api.Google
 {
@@ -21,7 +20,7 @@ namespace TK.CustomMap.Api.Google
         {
             get
             {
-                return GooglePoints.Decode(this.Points);
+                return GooglePoints.Decode(Points);
             }
         }
     }

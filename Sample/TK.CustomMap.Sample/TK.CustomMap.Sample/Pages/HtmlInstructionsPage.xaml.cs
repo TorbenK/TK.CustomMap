@@ -9,7 +9,7 @@ namespace TK.CustomMap.Sample
         {
             InitializeComponent();
 
-            this.BindingContext = new HtmlInstructionsViewModel(route);
+            BindingContext = new HtmlInstructionsViewModel(route);
         }
     }
 }

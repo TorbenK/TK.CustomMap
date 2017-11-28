@@ -2,10 +2,24 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TK.CustomMap.Sample.SamplePage"
+             xmlns:tk="clr-namespace:TK.CustomMap;assembly=TK.CustomMap"
              Title="TKCustomMap">
 
     <!--<RelativeLayout x:Name="_baseLayout" VerticalOptions="FillAndExpand" />-->
-
+    <tk:TKCustomMap 
+        MapRegion="{Binding MapRegion}"
+        IsShowingUser="{Binding IsShowingUser}"
+        IsClusteringEnabled="{Binding IsClusteringEnabled}"
+        Pins="{Binding Pins}"
+        PinSelectedCommand="{Binding PinSelectedCommand}"
+        Routes="{Binding Routes}"
+        RouteClickedCommand="{Binding RouteClickedCommand}"
+        Polylines="{Binding Polylines}"
+        Polygons="{Binding Polygons}"
+        TilesUrlOptions="{Binding TileOptions}"
+        PinDragEndCommand="{Binding PinDragEndCommand}"
+        MapFunctions="{Binding MapFunctions}"
+        SelectedPin="{Binding SelectedPin}"
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Add Route" Command="{Binding AddRouteCommand}">
             <ToolbarItem.Icon>

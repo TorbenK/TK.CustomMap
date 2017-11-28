@@ -8,7 +8,7 @@ namespace TK.CustomMap.Api.Google
     public class GmsDetailsResult
     {
         [JsonProperty("status")]
-        private string StatusText { get; set; }
+         string StatusText { get; set; }
         /// <summary>
         /// Status of the API call
         /// </summary>
@@ -16,7 +16,7 @@ namespace TK.CustomMap.Api.Google
         {
             get
             {
-                switch (this.StatusText)
+                switch (StatusText)
                 {
                     case "OK":
                         return GmsDetailsResultStatus.Ok;

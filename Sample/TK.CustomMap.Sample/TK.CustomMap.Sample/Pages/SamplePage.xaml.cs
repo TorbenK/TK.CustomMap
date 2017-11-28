@@ -9,22 +9,23 @@ namespace TK.CustomMap.Sample
         {
             InitializeComponent();
 
-            this.CreateView();
-            this.BindingContext = new SampleViewModel();
+            CreateView();
+            BindingContext = new SampleViewModel();
         }
 
-        private async void CreateView()
+         async void CreateView()
         {
             var autoComplete = new PlacesAutoComplete { ApiToUse = PlacesAutoComplete.PlacesApi.Native };
             autoComplete.SetBinding(PlacesAutoComplete.PlaceSelectedCommandProperty, "PlaceSelectedCommand");
 
             var newYork = new Position(40.7142700, -74.0059700);
             var mapView = new TKCustomMap(MapSpan.FromCenterAndRadius(newYork, Distance.FromKilometers(2)));
-            mapView.IsShowingUser = true;
-            mapView.SetBinding(TKCustomMap.CustomPinsProperty, "Pins");
+            mapView.SetBinding(TKCustomMap.IsClusteringEnabledProperty, "IsClusteringEnabled");
+            mapView.SetBinding(TKCustomMap.GetClusteredPinProperty, "GetClusteredPin");
+            mapView.SetBinding(TKCustomMap.PinsProperty, "Pins");
             mapView.SetBinding(TKCustomMap.MapClickedCommandProperty, "MapClickedCommand");
             mapView.SetBinding(TKCustomMap.MapLongPressCommandProperty, "MapLongPressCommand");
-            mapView.SetBinding(TKCustomMap.MapCenterProperty, "MapCenter");
+            
             mapView.SetBinding(TKCustomMap.PinSelectedCommandProperty, "PinSelectedCommand");
             mapView.SetBinding(TKCustomMap.SelectedPinProperty, "SelectedPin");
             mapView.SetBinding(TKCustomMap.RoutesProperty, "Routes");
@@ -42,15 +43,15 @@ namespace TK.CustomMap.Sample
 
             autoComplete.SetBinding(PlacesAutoComplete.BoundsProperty, "MapRegion");
 
-            this.Content = mapView;
-            //this._baseLayout.Children.Add(
+            Content = mapView;
+            //_baseLayout.Children.Add(
             //    mapView,
             //    Constraint.RelativeToView(autoComplete, (r, v) => v.X),
             //    Constraint.RelativeToView(autoComplete, (r, v) => autoComplete.HeightOfSearchBar),
             //    heightConstraint: Constraint.RelativeToParent((r) => r.Height - autoComplete.HeightOfSearchBar),
             //    widthConstraint: Constraint.RelativeToView(autoComplete, (r, v) => v.Width));
 
-            //this._baseLayout.Children.Add(
+            //_baseLayout.Children.Add(
             //    autoComplete,
             //    Constraint.Constant(0),
             //    Constraint.Constant(0));

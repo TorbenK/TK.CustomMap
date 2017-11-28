@@ -5,7 +5,6 @@ using TK.CustomMap.Api;
 using TK.CustomMap.UWP;
 using Xamarin.Forms;
 using Xamarin.Forms.Internals;
-using Xamarin.Forms.Maps;
 
 [assembly: Dependency(typeof(NativePlacesApi))]
 
