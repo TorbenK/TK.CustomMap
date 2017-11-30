@@ -26,7 +26,6 @@ namespace TK.CustomMap.Sample.Droid
 		
 		public static void UpdateIdValues()
 		{
-			global::Xamarin.Forms.Platform.Android.Resource.Attribute.actionBarSize = global::TK.CustomMap.Sample.Droid.Resource.Attribute.actionBarSize;
 		}
 		
 		public partial class Animation
