@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using TK.CustomMap.Api;
 using TK.CustomMap.Overlays;
 using Xamarin.Forms;
-using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.Sample
 {

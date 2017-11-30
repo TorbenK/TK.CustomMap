@@ -21,6 +21,7 @@ using Color = Xamarin.Forms.Color;
 using System.Collections;
 using Com.Google.Maps.Android.Clustering;
 using Android.OS;
+using Android.Content;
 
 [assembly: ExportRenderer(typeof(TKCustomMap), typeof(TKCustomMapRenderer))]
 namespace TK.CustomMap.Droid
@@ -65,6 +66,12 @@ namespace TK.CustomMap.Droid
             get { return Element as IMapFunctions; }
         }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="TKCustomMapRenderer"/>
+        /// </summary>
+        /// <param name="context">Android context</param>
+        public TKCustomMapRenderer(Context context) : base(context)
+        { }
 
         /// <inheritdoc />
         protected override void OnElementChanged(ElementChangedEventArgs<TKCustomMap> e)
@@ -127,6 +134,8 @@ namespace TK.CustomMap.Droid
                 _isLayoutPerformed = true;
                 UpdateMapRegion();
                 _isInitialized = true;
+
+                MapFunctions?.RaiseMapReady();
             }
         }
         /// <inheritdoc />
@@ -258,8 +267,6 @@ namespace TK.CustomMap.Droid
                 UpdateIsShowingUser();
                 UpdateHasZoomEnabled();
                 UpdateHasScrollEnabled();
-
-                MapFunctions.RaiseMapReady();
             }
         }
         /// <summary>

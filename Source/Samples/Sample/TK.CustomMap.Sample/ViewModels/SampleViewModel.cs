@@ -11,7 +11,6 @@ using TK.CustomMap.Interfaces;
 using TK.CustomMap.Overlays;
 using TK.CustomMap.Sample.Pages;
 using Xamarin.Forms;
-using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.Sample
 {

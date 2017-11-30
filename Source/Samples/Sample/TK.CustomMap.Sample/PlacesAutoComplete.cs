@@ -5,7 +5,6 @@ using TK.CustomMap.Api;
 using TK.CustomMap.Api.Google;
 using TK.CustomMap.Api.OSM;
 using Xamarin.Forms;
-using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.Sample
 {

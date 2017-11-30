@@ -553,13 +553,13 @@ namespace TK.CustomMap
         /// </summary>
         /// <param name="positions">Positions to fit inside the MapRegion</param>
         /// <param name="animate">If the camera change should be animated</param>
-        public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false) => MapFunctions.FitMapRegionToPositions(positions, animate);
+        public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false, int padding = 0) => MapFunctions.FitMapRegionToPositions(positions, animate, padding);
         /// <summary>
         /// Fit all regions on the map
         /// </summary>
         /// <param name="regions">The regions to fit to the map</param>
         /// <param name="animate">Animation on/off</param>
-        public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate = false) => MapFunctions.FitToMapRegions(regions, animate);
+        public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate = false, int padding = 0) => MapFunctions.FitToMapRegions(regions, animate, padding);
         /// <summary>
         /// Converts an array of <see cref="Point"/> into geocoordinates
         /// </summary>

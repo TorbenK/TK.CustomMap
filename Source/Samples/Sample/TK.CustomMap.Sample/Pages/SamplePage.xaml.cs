@@ -1,5 +1,4 @@
 ﻿using Xamarin.Forms;
-using Xamarin.Forms.Maps;
 
 namespace TK.CustomMap.Sample
 {
