@@ -12,6 +12,9 @@
 
       - 2.0.0-pre2:
       - Fixed disposing issue on Android
+
+      - 2.0.0-pre3:
+      - Dependency fixes
     </releaseNotes>
     <id>TK.CustomMap</id>
     <version>2.0.0-pre3</version>
