@@ -29,6 +29,8 @@ namespace CalloutSample.Droid
             googleMap.SetInfoWindowAdapter(this);
         }
 
+        
+
         Android.Views.View Android.Gms.Maps.GoogleMap.IInfoWindowAdapter.GetInfoContents(Android.Gms.Maps.Model.Marker marker)
         {
             var pin = GetPinByMarker(marker);

@@ -223,7 +223,7 @@ namespace TK.CustomMap.Droid
         /// When the map is ready to use
         /// </summary>
         /// <param name="googleMap">The map instance</param>
-        public void OnMapReady(GoogleMap googleMap)
+        public virtual void OnMapReady(GoogleMap googleMap)
         {
             lock (_lockObj)
             {

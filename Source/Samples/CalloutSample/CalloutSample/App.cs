@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using TK.CustomMap;
 using Xamarin.Forms;
-using Xamarin.Forms.Maps;
 
 namespace CalloutSample
 {
@@ -21,8 +20,8 @@ namespace CalloutSample
                     {
                         new MyMap
                         {
-                            MapCenter = new Position(40.7142700, -74.0059700),
-                            CustomPins = new List<TKCustomMapPin>(new[] 
+                            MapRegion = MapSpan.FromCenterAndRadius(new Position(40.7142700, -74.0059700), Distance.FromKilometers(1)),
+                            Pins = new List<TKCustomMapPin>(new[] 
                             {
                                 new TKCustomMapPin
                                 {

@@ -11,9 +11,9 @@
     <PackageReference Include="Xamarin.Forms.Maps" Version="2.4.0.282" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\TK.CustomMap\TK.CustomMap\TK.CustomMap.csproj" />
+    <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <ProjectReference Include="..\..\..\TK.CustomMap\TK.CustomMap.csproj" />
   </ItemGroup>
 </Project>
