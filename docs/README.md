@@ -7,13 +7,14 @@
 
 Add your Google Maps API key to your `AndroidManifest.xml`.
 
-```XAML
+```XML
 <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="YOUR API KEY" />
 ```
 
 Following permissions should be added to your `AndroidManifest.xml`
 
-```XAML
+
+```XML
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -23,12 +24,14 @@ If you plan to use the automatic route calculation, a valid key for the [Google 
 
 If you plan to use the `NativePlacesApi` make sure you have a valid key for the [Google Places API](https://developers.google.com/places/) and set the key in your `AndroidManifest.xml`. Replace the following line
 
-```XAML
+
+```XML
 <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="YOUR API KEY" />
 ``` 
 with
 
-```XAML
+
+```XML
 <meta-data android:name="com.google.android.geo.API_KEY" android:value="YOUR API KEY" />
 ```
 Make sure you call 
