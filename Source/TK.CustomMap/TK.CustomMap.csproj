@@ -7,6 +7,7 @@
     <Configurations>Debug;Release;AppVeyor</Configurations>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <FileVersion>2.0.0.0</FileVersion>
+    <Copyright>Copyright © 2018 - Torben Sudau</Copyright>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>0</WarningLevel>

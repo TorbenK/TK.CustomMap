@@ -53,6 +53,7 @@ namespace TK.CustomMap.iOSUnified
         UIGestureRecognizer _longPressGestureRecognizer;
         UIGestureRecognizer _tapGestureRecognizer;
         UIGestureRecognizer _doubleTapGestureRecognizer;
+        CLLocationManager _locationManager;
 
         TKClusterMap _clusterMap;
 
@@ -149,6 +150,10 @@ namespace TK.CustomMap.iOSUnified
                 UpdatePolygons();
                 UpdateShowTraffic();
                 UpdateMapRegion();
+                UpdateMapType();
+                UpdateIsShowingUser();
+                UpdateHasScrollEnabled();
+                UpdateHasZoomEnabled();
                 FormsMap.PropertyChanged += OnMapPropertyChanged;
 
                 MapFunctions.RaiseMapReady();
@@ -1474,6 +1479,12 @@ namespace TK.CustomMap.iOSUnified
         {
             if (FormsMap == null || Map == null) return;
 
+            if(FormsMap.IsShowingUser && UIDevice.CurrentDevice.CheckSystemVersion(8, 0))
+            {
+                _locationManager = new CLLocationManager();
+                _locationManager.RequestWhenInUseAuthorization();
+            }
+
             Map.ShowsUserLocation = FormsMap.IsShowingUser;
         }
         /// <summary>
@@ -1721,15 +1732,20 @@ namespace TK.CustomMap.iOSUnified
         /// <returns>The forms pin</returns>
         protected TKCustomMapPin GetPinByAnnotation(IMKAnnotation annotation)
         {
-            var customAnnotation = annotation as CKCluster;
-            if (customAnnotation.Annotations.Count() > 1)
+            if (FormsMap.IsClusteringEnabled)
             {
-                return FormsMap.GetClusteredPin?.Invoke(null, customAnnotation.Annotations.OfType<TKCustomMapAnnotation>().Select(i => i.CustomPin));
+                var customAnnotation = annotation as CKCluster;
+                if (customAnnotation.Annotations.Count() > 1)
+                {
+                    return FormsMap.GetClusteredPin?.Invoke(null, customAnnotation.Annotations.OfType<TKCustomMapAnnotation>().Select(i => i.CustomPin));
+                }
+                else
+                {
+                    return customAnnotation.Annotations.OfType<TKCustomMapAnnotation>().FirstOrDefault()?.CustomPin;
+                }
             }
-            else
-            {
-                return customAnnotation.Annotations.OfType<TKCustomMapAnnotation>().FirstOrDefault()?.CustomPin;
-            }
+
+            return (annotation as TKCustomMapAnnotation)?.CustomPin;
         }
         /// <summary>
         /// Remove all annotations before disposing

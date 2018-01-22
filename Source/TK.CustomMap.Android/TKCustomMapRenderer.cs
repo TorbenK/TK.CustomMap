@@ -52,6 +52,7 @@ namespace TK.CustomMap.Droid
         TileOverlay _tileOverlay;
         GoogleMap _googleMap;
         ClusterManager _clusterManager;
+        
 
         static Bundle s_bundle;
         internal static Bundle Bundle { set { s_bundle = value; } }

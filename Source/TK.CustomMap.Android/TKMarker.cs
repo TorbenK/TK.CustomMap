@@ -7,26 +7,48 @@ using Xamarin.Forms.Platform.Android;
 
 namespace TK.CustomMap.Droid
 {
+    /// <summary>
+    /// Internal Marker extension class for clustering
+    /// </summary>
     internal class TKMarker : Java.Lang.Object, IClusterItem
     {
         Context _context;
-
+        /// <summary>
+        /// Creates a new instance of <see cref="TKMarker"/>
+        /// </summary>
+        /// <param name="pin">The intnernal pin</param>
+        /// <param name="context">Android context</param>
         public TKMarker(TKCustomMapPin pin, Context context)
         {
             Pin = pin;
             _context = context;
         }
-
+        /// <summary>
+        /// Gets/Sets the custom pin
+        /// </summary>
         public TKCustomMapPin Pin { get;  set; }
-
+        /// <summary>
+        /// Gets the current pin position
+        /// </summary>
         public LatLng Position => Pin.Position.ToLatLng();
-
+        /// <summary>
+        /// Gets the current snippet
+        /// </summary>
         public string Snippet => Pin.Subtitle;
-
+        /// <summary>
+        /// Gets the current title
+        /// </summary>
         public string Title => Pin.Title;
-
+        /// <summary>
+        /// Gets the <see cref="Marker"/>
+        /// </summary>
         public Marker Marker { get; internal set; }
-
+        /// <summary>
+        /// Handles the property changed event
+        /// </summary>
+        /// <param name="e">Event arguments</param>
+        /// <param name="isDragging">If the pin is dragging or not</param>
+        /// <returns>Task</returns>
         public async Task HandlePropertyChangedAsync(PropertyChangedEventArgs e, bool isDragging)
         {
             switch (e.PropertyName)
@@ -66,7 +88,12 @@ namespace TK.CustomMap.Droid
                     break;
             }
         }
-
+        /// <summary>
+        /// initializes the <see cref="MarkerOptions"/>
+        /// </summary>
+        /// <param name="markerOptions">Instance of the marker options</param>
+        /// <param name="setPosition">if <value>true</value>, the position will be updated</param>
+        /// <returns><see cref="Task"/></returns>
         public async Task InitializeMarkerOptionsAsync(MarkerOptions markerOptions, bool setPosition = true)
         {
             if (setPosition)
@@ -87,8 +114,6 @@ namespace TK.CustomMap.Droid
             {
                 markerOptions.Anchor((float)Pin.Anchor.X, (float)Pin.Anchor.Y);
             }
-            markerOptions.Flat(true);
-
         }
         /// <summary>
         /// Updates the image of a pin

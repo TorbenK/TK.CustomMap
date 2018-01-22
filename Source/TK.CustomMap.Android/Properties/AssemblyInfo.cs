@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("TK.CustomMap")]
-[assembly: AssemblyCopyright("Copyright © 2017 - Torben Sudau")]
+[assembly: AssemblyCopyright("Copyright © 2018 - Torben Sudau")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
