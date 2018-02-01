@@ -39,6 +39,7 @@ namespace TK.CustomMap.Sample
             mapView.SetBinding(TKCustomMap.TilesUrlOptionsProperty, "TilesUrlOptions");
             mapView.SetBinding(TKCustomMap.MapFunctionsProperty, "MapFunctions");
             mapView.IsRegionChangeAnimated = true;
+            mapView.IsShowingUser = true;
 
             autoComplete.SetBinding(PlacesAutoComplete.BoundsProperty, "MapRegion");
 

@@ -200,7 +200,7 @@ namespace TK.CustomMap.Droid
                 case nameof(TKCustomMap.Polygons):
                     UpdatePolygons();
                     break;
-                case nameof(TKCustomMap.RoutesProperty):
+                case nameof(TKCustomMap.Routes):
                     UpdateRoutes();
                     break;
                 case nameof(TKCustomMap.TilesUrlOptions):

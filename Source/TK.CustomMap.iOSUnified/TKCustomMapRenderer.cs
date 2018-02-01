@@ -283,7 +283,7 @@ namespace TK.CustomMap.iOSUnified
                 case nameof(TKCustomMap.Polygons):
                     UpdatePolygons();
                     break;
-                case nameof(TKCustomMap.RoutesProperty):
+                case nameof(TKCustomMap.Routes):
                     UpdateRoutes();
                     break;
                 case nameof(TKCustomMap.TilesUrlOptions):
@@ -435,6 +435,8 @@ namespace TK.CustomMap.iOSUnified
         public virtual void OnDidSelectAnnotationView(object sender, MKAnnotationViewEventArgs e)
         {
             var pin = GetCustomAnnotation(e.View);
+
+            if (pin == null) return;
 
             _selectedAnnotation = e.View.Annotation;
             FormsMap.SelectedPin = pin.CustomPin;
