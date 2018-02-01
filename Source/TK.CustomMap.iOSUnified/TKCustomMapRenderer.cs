@@ -436,6 +436,8 @@ namespace TK.CustomMap.iOSUnified
         {
             var pin = GetCustomAnnotation(e.View);
 
+            if (pin == null) return;
+
             _selectedAnnotation = e.View.Annotation;
             FormsMap.SelectedPin = pin.CustomPin;
 

@@ -65,5 +65,7 @@
 	</dict>
 	<key>CFBundleShortVersionString</key>
 	<string></string>
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>Can we use your position?</string>
 </dict>
 </plist>
