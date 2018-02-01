@@ -2,27 +2,6 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.3">
     <releaseNotes>
-      - Added clustering support
-      - Added padding parameter to FitMapRegionToPositions and FitToMapRegions
-      - Removed dependency on Xamarin.Forms.Maps
-      - Renamed CustomPins to Pins
-      - Removed property name constants
-      - MapCenter is now read-only
-      - Probably more but I forgot
-
-      - 2.0.0-pre2:
-      - Fixed disposing issue on Android
-
-      - 2.0.0-pre3:
-      - Dependency fixes
-
-      - 2.0.0
-      - #298 device location not displaying
-      - #301 Missing UpdateMapType call
-      - #294 Prevent Pin (map marker) from rotating with map
-      - #286 Click on callout crashes iOS app with NullReferenceException
-      - #279 Build failed for iOS simulator
-
       - 2.0.1
       - #308 Issues with Route Calculation
       - #309 NullReferenceException when I click in the current position (blue dot)
