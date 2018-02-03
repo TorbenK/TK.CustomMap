@@ -131,6 +131,7 @@
     </ProjectReference>
     <ProjectReference Include="..\CalloutSample\CalloutSample.csproj">
       <Name>CalloutSample</Name>
+      <Project>{8F65210E-18B6-403C-92B6-596EB665C5FE}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

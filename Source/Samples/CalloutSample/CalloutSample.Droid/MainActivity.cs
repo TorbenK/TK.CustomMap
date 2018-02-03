@@ -6,6 +6,8 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
+using TK.CustomMap;
+using TK.CustomMap.Droid;
 
 namespace CalloutSample.Droid
 {
@@ -21,6 +23,8 @@ namespace CalloutSample.Droid
             TabLayoutResource = Resource.Layout.tabs;
 
             Xamarin.FormsMaps.Init(this, bundle);
+            TKGoogleMaps.Init(this, bundle);
+
             LoadApplication(new App());
         }
     }

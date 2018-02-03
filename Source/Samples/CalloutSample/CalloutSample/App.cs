@@ -14,24 +14,22 @@ namespace CalloutSample
             // The root page of your application
             MainPage = new ContentPage
             {
-                Content = new StackLayout
+                Content = new TKCustomMap
                 {
-                    Children = 
+                    MapRegion = MapSpan.FromCenterAndRadius(new Position(40.7142700, -74.0059700), Distance.FromKilometers(1)),
+                    Pins = new List<TKCustomMapPin>(new[] 
                     {
-                        new MyMap
+                        new TKCustomMapPin
                         {
-                            MapRegion = MapSpan.FromCenterAndRadius(new Position(40.7142700, -74.0059700), Distance.FromKilometers(1)),
-                            Pins = new List<TKCustomMapPin>(new[] 
-                            {
-                                new TKCustomMapPin
-                                {
-                                    Title = "Custom Callout Sample",
-                                    Position = new Position(40.7142700, -74.0059700),
-                                    ShowCallout = true
-                                }
-                            })
+                            Title = "Custom Callout Sample",
+                            Position = new Position(40.7142700, -74.0059700),
+                            ShowCallout = true,
+                            IsCalloutClickable = true
                         }
-                    }
+                    }),
+                    CalloutClickedCommand = new Command<TKCustomMapPin>(pin => {
+                        System.Diagnostics.Debug.WriteLine(pin.Title);
+                    })
                 }
             };
         }

@@ -537,7 +537,7 @@ namespace TK.CustomMap.iOSUnified
             if (createDefaultClusterAnnotatioView)
             {
                 annotationView = mapView.DequeueReusableAnnotation(AnnotationIdentifierDefaultClusterPin);
-                if(annotationView == null)
+                if (annotationView == null)
                 {
                     annotationView = new TKDefaultClusterAnnotationView(clusterAnnotation, AnnotationIdentifierDefaultClusterPin);
                 }
@@ -1481,7 +1481,7 @@ namespace TK.CustomMap.iOSUnified
         {
             if (FormsMap == null || Map == null) return;
 
-            if(FormsMap.IsShowingUser && UIDevice.CurrentDevice.CheckSystemVersion(8, 0))
+            if (FormsMap.IsShowingUser && UIDevice.CurrentDevice.CheckSystemVersion(8, 0))
             {
                 _locationManager = new CLLocationManager();
                 _locationManager.RequestWhenInUseAuthorization();
@@ -1507,7 +1507,7 @@ namespace TK.CustomMap.iOSUnified
 
             Map.ZoomEnabled = FormsMap.HasZoomEnabled;
         }
-        
+
         /// <summary>
         /// Calculates the closest distance of a point to a polyline
         /// </summary>
@@ -1736,7 +1736,7 @@ namespace TK.CustomMap.iOSUnified
         {
             if (FormsMap.IsClusteringEnabled)
             {
-                var customAnnotation = annotation as CKCluster;
+                var customAnnotation = (CKCluster)FromObject(annotation); ;
                 if (customAnnotation.Annotations.Count() > 1)
                 {
                     return FormsMap.GetClusteredPin?.Invoke(null, customAnnotation.Annotations.OfType<TKCustomMapAnnotation>().Select(i => i.CustomPin));
