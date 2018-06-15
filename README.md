@@ -6,3 +6,7 @@
     <b>Getting Started</b>
   </a>
 </p>
+
+***
+# Looking for someone to help me out
+Sorry that I have been quiet for such a long time now. I want to pick this project up again, but I really struggle to find time. If there is anybody out there who would like to help me out fixing the issues and merging PRs, please feel free to contact me. 
