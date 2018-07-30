@@ -2,12 +2,11 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.3">
     <releaseNotes>
-      - 2.0.1
-      - #308 Issues with Route Calculation
-      - #309 NullReferenceException when I click in the current position (blue dot)
+      - 2.0.1.2
+      - #286 - Invalid cast object
     </releaseNotes>
     <id>TK.CustomMap</id>
-    <version>2.0.1</version>
+    <version>2.0.1.2</version>
     <title>Rich and bindable Map control for Xamarin.Forms</title>
     <authors>Torben Sudau</authors>
     <owners>Torben Sudau</owners>
