@@ -403,7 +403,7 @@ namespace TK.CustomMap.iOSUnified
 
                 if (FormsMap.IsClusteringEnabled)
                 {
-                    var ckCluster = e.AnnotationView.Annotation as CKCluster;
+                    var ckCluster = Runtime.GetNSObject(e.AnnotationView.Annotation.Handle) as CKCluster;
                     annotation.SetCoordinateInternal(ckCluster.Coordinate, true);
                 }
 
@@ -1798,7 +1798,7 @@ namespace TK.CustomMap.iOSUnified
         {
             if (FormsMap.IsClusteringEnabled)
             {
-                var cluster = view.Annotation as CKCluster;
+                var cluster = Runtime.GetNSObject(view.Annotation.Handle) as CKCluster;
 
                 if (cluster?.Annotations.Count() != 1) return null;
 
