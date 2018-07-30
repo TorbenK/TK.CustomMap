@@ -303,7 +303,7 @@ namespace TK.CustomMap.Droid
         /// <param name="e">Event Arguments</param>
         void OnMarkerDrag(object sender, GoogleMap.MarkerDragEventArgs e)
         {
-            var item = _markers.SingleOrDefault(i => i.Value.Marker.Id.Equals(e.Marker.Id));
+            var item = _markers.SingleOrDefault(i => true == i.Value.Marker?.Id.Equals(e.Marker.Id));
             if (item.Key == null) return;
 
             item.Key.Position = e.Marker.Position.ToPosition();
@@ -341,7 +341,7 @@ namespace TK.CustomMap.Droid
         void OnMarkerClick(object sender, GoogleMap.MarkerClickEventArgs e)
         {
             if (FormsMap == null) return;
-            var item = _markers.SingleOrDefault(i => i.Value.Marker.Id.Equals(e.Marker.Id));
+            var item = _markers.SingleOrDefault(i => true == i.Value.Marker?.Id.Equals(e.Marker.Id));
             if (item.Key == null) return;
 
             _selectedMarker = e.Marker;
@@ -362,7 +362,7 @@ namespace TK.CustomMap.Droid
 
             if (FormsMap == null) return;
 
-            var pin = _markers.SingleOrDefault(i => i.Value.Marker.Id.Equals(e.Marker.Id));
+            var pin = _markers.SingleOrDefault(i => true == i.Value.Marker?.Id.Equals(e.Marker.Id));
             if (pin.Key == null) return;
 
             if (FormsMap.IsClusteringEnabled)
@@ -1457,7 +1457,7 @@ namespace TK.CustomMap.Droid
         /// <returns>The forms pin</returns>
         protected TKCustomMapPin GetPinByMarker(Marker marker)
         {
-            return _markers.SingleOrDefault(i => i.Value.Marker.Id == marker.Id).Key;
+            return _markers.SingleOrDefault(i => i.Value.Marker?.Id == marker.Id).Key;
         }
 
         public void OnCameraIdle()

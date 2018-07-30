@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 14.0.25123.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TK.CustomMap", "TK.CustomMap\TK.CustomMap.csproj", "{14C534B6-1984-41A9-A384-D3A5508588E3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap", "TK.CustomMap\TK.CustomMap.csproj", "{14C534B6-1984-41A9-A384-D3A5508588E3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.iOSUnified", "TK.CustomMap.iOSUnified\TK.CustomMap.iOSUnified.csproj", "{D525F236-6A2D-4010-B1CC-4A4B8581C90B}"
 EndProject
@@ -22,13 +22,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CalloutSample", "CalloutSam
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{C99F90EA-9C47-4084-995E-E7F03BF837D5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CalloutSample", "Samples\CalloutSample\CalloutSample\CalloutSample.csproj", "{8F65210E-18B6-403C-92B6-596EB665C5FE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalloutSample", "Samples\CalloutSample\CalloutSample\CalloutSample.csproj", "{8F65210E-18B6-403C-92B6-596EB665C5FE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalloutSample.Droid", "Samples\CalloutSample\CalloutSample.Droid\CalloutSample.Droid.csproj", "{2802F0FB-F22C-437A-9832-E3EC09AC6853}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalloutSample.iOS", "Samples\CalloutSample\CalloutSample.iOS\CalloutSample.iOS.csproj", "{F7976027-FDBD-47FA-917D-AD6DDB0CCE04}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TK.CustomMap.Sample", "Samples\Sample\TK.CustomMap.Sample\TK.CustomMap.Sample.csproj", "{3BC7362E-DFEF-4A5F-BDF1-592ACAEA5377}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.Sample", "Samples\Sample\TK.CustomMap.Sample\TK.CustomMap.Sample.csproj", "{3BC7362E-DFEF-4A5F-BDF1-592ACAEA5377}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.Sample.Droid", "Samples\Sample\TK.CustomMap.Sample.Droid\TK.CustomMap.Sample.Droid.csproj", "{5AA8381E-2CC7-46FD-93A2-00B03041F113}"
 EndProject
@@ -340,8 +340,8 @@ Global
 		{2F5AB4AE-2A2F-4700-A05B-FF2F96212581}.Release|x64.Build.0 = Release|x64
 		{2F5AB4AE-2A2F-4700-A05B-FF2F96212581}.Release|x86.ActiveCfg = Release|x86
 		{2F5AB4AE-2A2F-4700-A05B-FF2F96212581}.Release|x86.Build.0 = Release|x86
-		{8F65210E-18B6-403C-92B6-596EB665C5FE}.Ad-Hoc|Any CPU.ActiveCfg = AppVeyor|Any CPU
-		{8F65210E-18B6-403C-92B6-596EB665C5FE}.Ad-Hoc|Any CPU.Build.0 = AppVeyor|Any CPU
+		{8F65210E-18B6-403C-92B6-596EB665C5FE}.Ad-Hoc|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F65210E-18B6-403C-92B6-596EB665C5FE}.Ad-Hoc|Any CPU.Build.0 = Debug|Any CPU
 		{8F65210E-18B6-403C-92B6-596EB665C5FE}.Ad-Hoc|ARM.ActiveCfg = AppVeyor|Any CPU
 		{8F65210E-18B6-403C-92B6-596EB665C5FE}.Ad-Hoc|ARM.Build.0 = AppVeyor|Any CPU
 		{8F65210E-18B6-403C-92B6-596EB665C5FE}.Ad-Hoc|iPhone.ActiveCfg = AppVeyor|Any CPU
@@ -565,8 +565,9 @@ Global
 		{F7976027-FDBD-47FA-917D-AD6DDB0CCE04}.Release|Mixed Platforms.Build.0 = Release|iPhone
 		{F7976027-FDBD-47FA-917D-AD6DDB0CCE04}.Release|x64.ActiveCfg = Release|iPhone
 		{F7976027-FDBD-47FA-917D-AD6DDB0CCE04}.Release|x86.ActiveCfg = Release|iPhone
-		{3BC7362E-DFEF-4A5F-BDF1-592ACAEA5377}.Ad-Hoc|Any CPU.ActiveCfg = AppVeyor|Any CPU
-		{3BC7362E-DFEF-4A5F-BDF1-592ACAEA5377}.Ad-Hoc|Any CPU.Build.0 = AppVeyor|Any CPU
+		{F7976027-FDBD-47FA-917D-AD6DDB0CCE04}.Ad-Hoc|Any CPU.Build.0 = Ad-Hoc|iPhone
+		{3BC7362E-DFEF-4A5F-BDF1-592ACAEA5377}.Ad-Hoc|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BC7362E-DFEF-4A5F-BDF1-592ACAEA5377}.Ad-Hoc|Any CPU.Build.0 = Debug|Any CPU
 		{3BC7362E-DFEF-4A5F-BDF1-592ACAEA5377}.Ad-Hoc|ARM.ActiveCfg = AppVeyor|Any CPU
 		{3BC7362E-DFEF-4A5F-BDF1-592ACAEA5377}.Ad-Hoc|ARM.Build.0 = AppVeyor|Any CPU
 		{3BC7362E-DFEF-4A5F-BDF1-592ACAEA5377}.Ad-Hoc|iPhone.ActiveCfg = AppVeyor|Any CPU
@@ -790,6 +791,7 @@ Global
 		{AEC1EF18-E62F-4DB0-B94D-4CBF9F191192}.Release|Mixed Platforms.Build.0 = Release|iPhone
 		{AEC1EF18-E62F-4DB0-B94D-4CBF9F191192}.Release|x64.ActiveCfg = Release|iPhone
 		{AEC1EF18-E62F-4DB0-B94D-4CBF9F191192}.Release|x86.ActiveCfg = Release|iPhone
+		{AEC1EF18-E62F-4DB0-B94D-4CBF9F191192}.Ad-Hoc|Any CPU.Build.0 = Ad-Hoc|iPhone
 		{D6CB4C2F-5F40-4D76-8C5C-6453ED829743}.Ad-Hoc|Any CPU.ActiveCfg = AppVeyor|x64
 		{D6CB4C2F-5F40-4D76-8C5C-6453ED829743}.Ad-Hoc|Any CPU.Build.0 = AppVeyor|x64
 		{D6CB4C2F-5F40-4D76-8C5C-6453ED829743}.Ad-Hoc|Any CPU.Deploy.0 = AppVeyor|x64
