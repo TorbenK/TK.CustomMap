@@ -17,6 +17,14 @@ namespace TK.CustomMap
             LongitudeDegrees = Math.Min(Math.Max(longitudeDegrees, MinimumRangeDegrees), 180.0);
         }
 
+        public MapSpan(Position ne, Position sw)
+        {
+            Center = new Position((ne.Latitude + sw.Latitude) / 2, (ne.Longitude + sw.Longitude) / 2);
+            var radius = Distance.FromKilometers(Center.DistanceTo(ne, false));
+            LatitudeDegrees = 2 * DistanceToLatitudeDegrees(radius);
+            LongitudeDegrees = 2 * DistanceToLongitudeDegrees(Center, radius);
+        }
+
         public Position Center { get; }
 
         public double LatitudeDegrees { get; }

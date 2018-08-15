@@ -45,6 +45,7 @@ namespace TK.CustomMap.Droid
         readonly Dictionary<TKCustomMapPin, TKMarker> _markers = new Dictionary<TKCustomMapPin, TKMarker>();
 
         Marker _selectedMarker;
+        bool _cameraBusy;
         bool _isDragging;
         bool _disposed;
         byte[] _snapShot;
@@ -52,7 +53,7 @@ namespace TK.CustomMap.Droid
         TileOverlay _tileOverlay;
         GoogleMap _googleMap;
         ClusterManager _clusterManager;
-        
+
 
         static Bundle s_bundle;
         internal static Bundle Bundle { set { s_bundle = value; } }
@@ -183,7 +184,7 @@ namespace TK.CustomMap.Droid
         {
             if (_googleMap == null) return;
 
-            switch(e.PropertyName)
+            switch (e.PropertyName)
             {
                 case nameof(TKCustomMap.Pins):
                     UpdatePins();
@@ -1205,7 +1206,7 @@ namespace TK.CustomMap.Droid
         {
             if (FormsMap == null || _googleMap == null || !_isLayoutPerformed) return;
 
-            if (!FormsMap.MapRegion.Equals(GetCurrentMapRegion(_googleMap.CameraPosition.Target)))
+            if (FormsMap.MapRegion?.Equals(GetCurrentMapRegion(_googleMap.CameraPosition.Target)) == false)
             {
                 MoveToMapRegion(FormsMap.MapRegion, FormsMap.IsRegionChangeAnimated);
             }
@@ -1260,7 +1261,7 @@ namespace TK.CustomMap.Droid
         {
             if (FormsMap == null || _googleMap == null) return;
 
-            switch(FormsMap.MapType)
+            switch (FormsMap.MapType)
             {
                 case MapType.Hybrid:
                     Map.MapType = GoogleMap.MapTypeHybrid;
@@ -1280,7 +1281,7 @@ namespace TK.CustomMap.Droid
         {
             if (FormsMap == null || _googleMap == null) return;
 
-            Map.MyLocationEnabled = Map.UiSettings.MyLocationButtonEnabled = FormsMap.IsShowingUser;   
+            Map.MyLocationEnabled = Map.UiSettings.MyLocationButtonEnabled = FormsMap.IsShowingUser;
         }
         /// <summary>
         /// Updates scroll gesture
@@ -1465,7 +1466,6 @@ namespace TK.CustomMap.Droid
             if (FormsMap == null) return;
 
             FormsMap.MapRegion = GetCurrentMapRegion(Map.CameraPosition.Target);
-
             if (FormsMap.IsClusteringEnabled)
             {
                 _clusterManager.OnCameraIdle();
