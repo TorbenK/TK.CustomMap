@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<uses-sdk android:minSdkVersion="15" />
+	<uses-sdk android:minSdkVersion="15" android:targetSdkVersion="27" />
 	<application>
 		<!--<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="YOUR API KEY" />-->
-    <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDjDMjjMsbQ8RoRfGtpEMl6QtxtD_dxnAE" />
+		<meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDjDMjjMsbQ8RoRfGtpEMl6QtxtD_dxnAE" />
 	</application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
