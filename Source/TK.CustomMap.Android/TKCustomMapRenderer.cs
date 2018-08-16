@@ -44,8 +44,7 @@ namespace TK.CustomMap.Droid
         readonly Dictionary<TKPolygon, Polygon> _polygons = new Dictionary<TKPolygon, Polygon>();
         readonly Dictionary<TKCustomMapPin, TKMarker> _markers = new Dictionary<TKCustomMapPin, TKMarker>();
 
-        Marker _selectedMarker;
-        bool _cameraBusy;
+        Marker _selectedMarker; 
         bool _isDragging;
         bool _disposed;
         byte[] _snapShot;
