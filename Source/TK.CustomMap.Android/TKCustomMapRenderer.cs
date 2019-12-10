@@ -1203,7 +1203,7 @@ namespace TK.CustomMap.Droid
         /// </summary>
         void UpdateMapRegion()
         {
-            if (FormsMap == null || _googleMap == null || !_isLayoutPerformed) return;
+            if (FormsMap == null || _googleMap == null || !_isLayoutPerformed || FormsMap.MapRegion==null || !FormsMap.IsVisible) return;
 
             if (!FormsMap.MapRegion.Equals(GetCurrentMapRegion(_googleMap.CameraPosition.Target)))
             {
