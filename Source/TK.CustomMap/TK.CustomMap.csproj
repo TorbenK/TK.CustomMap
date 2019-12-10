@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard1.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>Torben Sudau</Authors>
     <Company />
     <Version>2.0.1</Version>
@@ -24,6 +24,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="Xamarin.Forms" Version="2.5.0.91635" />
+    <PackageReference Include="Xamarin.Forms" Version="4.0.0.709238" />
   </ItemGroup>
 </Project>
