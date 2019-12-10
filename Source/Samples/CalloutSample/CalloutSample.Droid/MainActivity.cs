@@ -22,7 +22,7 @@ namespace CalloutSample.Droid
             ToolbarResource = Resource.Layout.toolbar;
             TabLayoutResource = Resource.Layout.tabs;
 
-            Xamarin.FormsMaps.Init(this, bundle);
+            // Xamarin.FormsMaps.Init(this, bundle);
             TKGoogleMaps.Init(this, bundle);
 
             LoadApplication(new App());
