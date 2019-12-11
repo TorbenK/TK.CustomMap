@@ -16,6 +16,8 @@ using Windows.UI.Xaml.Controls.Maps;
 using Windows.UI.Xaml.Media.Imaging;
 using Xamarin.Forms;
 using Xamarin.Forms.Internals;
+using Xamarin.Forms.Maps;
+using Xamarin.Forms.Maps.UWP;
 using Xamarin.Forms.Platform.UWP;
 using Point = Xamarin.Forms.Point;
 
@@ -1015,6 +1017,16 @@ namespace TK.CustomMap.UWP
         protected virtual TKCustomBingMapsPin GetPinControlByPin(TKCustomMapPin pin)
         {
             return _pins[pin];
+        }
+
+        public void FitMapRegionToPositions(IEnumerable<Position> positions, bool animate = false, int padding = 0)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void FitToMapRegions(IEnumerable<MapSpan> regions, bool animate = false, int padding = 0)
+        {
+            throw new NotImplementedException();
         }
     }
 }
