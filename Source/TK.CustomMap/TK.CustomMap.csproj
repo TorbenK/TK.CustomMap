@@ -26,4 +26,5 @@
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Xamarin.Forms" Version="4.0.0.709238" />
   </ItemGroup>
+  <ProjectExtensions><VisualStudio><UserProperties XamarinHotReloadXFormsNugetUpgradeInfoBarTKCustomMapHideInfoBar="True" /></VisualStudio></ProjectExtensions>
 </Project>

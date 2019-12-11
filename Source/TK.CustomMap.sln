@@ -9,8 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.iOSUnified", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.Android", "TK.CustomMap.Android\TK.CustomMap.Android.csproj", "{AD2D2DB4-E781-4CF1-9B62-3AAD264F196D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.UWP", "TK.CustomMap.UWP\TK.CustomMap.UWP.csproj", "{2F5AB4AE-2A2F-4700-A05B-FF2F96212581}"
-EndProject
+
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{ABC98CC7-8A96-4D81-B142-B16BE0642C08}"
 	ProjectSection(SolutionItems) = preProject
 		..\docs\README.md = ..\docs\README.md
@@ -34,8 +33,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.Sample.Droid",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.Sample.iOS", "Samples\Sample\TK.CustomMap.Sample.iOS\TK.CustomMap.Sample.iOS.csproj", "{AEC1EF18-E62F-4DB0-B94D-4CBF9F191192}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TK.CustomMap.Sample.UWP", "Samples\Sample\TK.CustomMap.Sample.UWP\TK.CustomMap.Sample.UWP.csproj", "{D6CB4C2F-5F40-4D76-8C5C-6453ED829743}"
-EndProject
+
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{EF81005D-4B75-4A8C-ACBA-192A6988DD63}"
 	ProjectSection(SolutionItems) = preProject
 		..\nuget\TK.CustomMap.nuspec = ..\nuget\TK.CustomMap.nuspec
