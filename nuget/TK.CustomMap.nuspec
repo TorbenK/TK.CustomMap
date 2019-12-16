@@ -43,20 +43,20 @@
   </metadata>
   <files>
     <!--Core-->
-    <file src="..\Source\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.dll" target="lib\netstandard1.1" />
-    <file src="..\Source\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.xml" target="lib\netstandard1.1" />
+    <file src="..\Source\TK.CustomMap\bin\Release\netstandard2.0\TK.CustomMap.dll" target="lib\netstandard2.0" />
+    <file src="..\Source\TK.CustomMap\bin\Release\netstandard2.0\TK.CustomMap.xml" target="lib\netstandard2.0" />
 
     <!--Xamarin.Android-->
     <file src="..\Source\TK.CustomMap.Android\bin\Release\TK.CustomMap.Android.dll" target="lib\MonoAndroid10" />
     <file src="..\Source\TK.CustomMap.Android\bin\Release\TK.CustomMap.Android.xml" target="lib\MonoAndroid10" />
-    <file src="..\Source\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.dll" target="lib\MonoAndroid10" />
-    <file src="..\Source\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.xml" target="lib\MonoAndroid10" />
+    <file src="..\Source\TK.CustomMap\bin\Release\netstandard2.0\TK.CustomMap.dll" target="lib\MonoAndroid10" />
+    <file src="..\Source\TK.CustomMap\bin\Release\netstandard2.0\TK.CustomMap.xml" target="lib\MonoAndroid10" />
 
     <!--Xamarin.iOS Unified-->
     <file src="..\Source\TK.CustomMap.iOSUnified\bin\Release\TK.CustomMap.iOSUnified.dll" target="lib\Xamarin.iOS10" />
     <file src="..\Source\TK.CustomMap.iOSUnified\bin\Release\TK.CustomMap.iOSUnified.xml" target="lib\Xamarin.iOS10" />
-    <file src="..\Source\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.dll" target="lib\Xamarin.iOS10" />
-    <file src="..\Source\TK.CustomMap\bin\Release\netstandard1.1\TK.CustomMap.xml" target="lib\Xamarin.iOS10" />
+    <file src="..\Source\TK.CustomMap\bin\Release\netstandard2.0\TK.CustomMap.dll" target="lib\Xamarin.iOS10" />
+    <file src="..\Source\TK.CustomMap\bin\Release\netstandard2.0\TK.CustomMap.xml" target="lib\Xamarin.iOS10" />
 
     <!--UWP-->
     <!--<file src="TK.CustomMap\TK.CustomMap.UWP\bin\Release\TK.CustomMap.UWP.dll" target="lib\uap10.0" />
