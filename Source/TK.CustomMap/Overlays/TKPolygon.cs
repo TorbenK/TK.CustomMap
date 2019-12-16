@@ -12,12 +12,6 @@ namespace TK.CustomMap.Overlays
     {
         // ReSharper disable once InconsistentNaming
         private const int wgs84RADIUS = 6378137;
-        private const double _hectaresPerSquareMeter = 0.0001;
-        private const double _squareFeetPerSquareMeter = 10.7639;
-        private const double _squareYardPerSquareMeter = 1.19599;
-        private const double _sectionPerSquareMeter = 3.86102e-7;
-        private const double _squareKilometerPerSquareMeter = 1e-6;
-        private const double _acresPerSquareMeter = 0.000247105;
         private List<Position> _coordinates;
         private Color _strokeColor;
         private float _strokeWidth;
@@ -58,44 +52,13 @@ namespace TK.CustomMap.Overlays
         }
 
         /// <summary>
-        ///     Calculate the area of this <see cref="TKPolygon" />
+        ///     Calculate the area of this <see cref="TKPolygon" /> in m^2
         /// </summary>
-        /// <param name="areaUnit">Area unit to calculate, defaults to m^2</param>
-        /// <returns>An instance of <see cref="Area" /></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public Area GetArea(AreaUnit areaUnit = AreaUnit.SquareMeter)
+        public double GetArea()
         {
             var coords = EnsureCorrectWinding(Coordinates).ToList();
             var area = CalculateAreaInSquareMeters(coords);
-            double calculated;
-            switch (areaUnit)
-            {
-                case AreaUnit.SquareMeter:
-                    calculated = area; // m^2
-                    break;
-                case AreaUnit.Acre:
-                    calculated = area * _acresPerSquareMeter; // m^2 to acres
-                    break;
-                case AreaUnit.Hectare:
-                    calculated = area * _hectaresPerSquareMeter; // m^2 to hectares
-                    break;
-                case AreaUnit.SquareFoot:
-                    calculated = area * _squareFeetPerSquareMeter; // m^2 to foot^2
-                    break;
-                case AreaUnit.SquareYard:
-                    calculated = area * _squareYardPerSquareMeter; // m^2 to yard^2
-                    break;
-                case AreaUnit.Section:
-                    calculated = area * _sectionPerSquareMeter; // m^2 to section
-                    break;
-                case AreaUnit.SquareKilometer:
-                    calculated = area * _squareKilometerPerSquareMeter; // m^2 to km^2
-                    break;
-                default:
-                    throw new ArgumentException($"Unable to convert m^2 to {areaUnit}");
-            }
-
-            return new Area(calculated, areaUnit);
+            return area;
         }
 
         private static double CalculateAreaInSquareMeters(IReadOnlyList<Position> path, double radius = wgs84RADIUS)
