@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.3">
-    <AppVeyorNotes>
-      - #308 Issues with Route Calculation
-      - #309 NullReferenceException when I click in the current position (blue dot)
-    </AppVeyorNotes>
     <id>TK.CustomMap</id>
     <version>2.0.1</version>
     <title>Rich and bindable Map control for Xamarin.Forms</title>
