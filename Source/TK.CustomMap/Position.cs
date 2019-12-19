@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Globalization;
 
 namespace TK.CustomMap
 {
@@ -13,8 +12,10 @@ namespace TK.CustomMap
         }
 
         public double Latitude { get; }
-
         public double Longitude { get; }
+
+        public override string ToString() => 
+            string.Format(CultureInfo.InvariantCulture, "{0},{1}", Latitude, Longitude);
 
         public override bool Equals(object obj)
         {
@@ -23,27 +24,23 @@ namespace TK.CustomMap
             if (obj.GetType() != GetType())
                 return false;
             var other = (Position)obj;
-            return Latitude == other.Latitude && Longitude == other.Longitude;
+            return Math.Abs(Latitude - other.Latitude) <= 0 && Math.Abs(Longitude - other.Longitude) <= 0;
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                int hashCode = Latitude.GetHashCode();
+                var hashCode = Latitude.GetHashCode();
                 hashCode = (hashCode * 397) ^ Longitude.GetHashCode();
                 return hashCode;
             }
         }
 
-        public static bool operator ==(Position left, Position right)
-        {
-            return Equals(left, right);
-        }
+        public static bool operator ==(Position left, Position right) => 
+            Equals(left, right);
 
-        public static bool operator !=(Position left, Position right)
-        {
-            return !Equals(left, right);
-        }
+        public static bool operator !=(Position left, Position right) => 
+            !Equals(left, right);
     }
 }

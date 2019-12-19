@@ -23,6 +23,5 @@ namespace TK.CustomMap.iOSUnified
         {
             Overlay = overlay;
         }
-
     }
 }

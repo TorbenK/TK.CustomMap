@@ -74,8 +74,8 @@ namespace TK.CustomMap.Api.Google
             StringBuilder strBuilder = new StringBuilder(
                 string.Format(
                     "json?origin={0}&destination={1}&mode={2}",
-                    origin.AsString(),
-                    destination.AsString(),
+                    origin.ToString(),
+                    destination.ToString(),
                     mode.ToString().ToLower()));
 
             if (!string.IsNullOrWhiteSpace(language))
