@@ -1728,6 +1728,7 @@ namespace TK.CustomMap.iOSUnified
 
             if (disposing)
             {
+                DisposeRenderers();
                 if (Map != null)
                 {
                     _clusterMap?.ClusterManager?.RemoveAnnotations(_clusterMap.ClusterManager.Annotations);
@@ -1758,26 +1759,45 @@ namespace TK.CustomMap.iOSUnified
                     UnregisterCollections(FormsMap);
                 }
             }
+            
+            base.Dispose(disposing); 
+            
+            void DisposeRenderers()
+            {
+                foreach (var route in _routes.Select(x => x.Value)) 
+                    DisposeTkOverlayItem(route);
 
-            foreach(var route in _routes.Select(x => x.Value))
-                route?.Renderer?.Dispose();
+                foreach (var line in _lines.Select(x => x.Value)) 
+                    DisposeTkOverlayItem(line);
+
+                foreach (var circle in _circles.Select(x => x.Value)) 
+                    DisposeTkOverlayItem(circle);
+
+                foreach (var polygon in _polygons.Select(x => x.Value)) 
+                    DisposeTkOverlayItem(polygon);
             
-            foreach(var line in _lines.Select(x => x.Value))
-                line?.Renderer?.Dispose();
-            
-            foreach(var circle in _circles.Select(x => x.Value))
-                circle?.Renderer?.Dispose();
-            
-            foreach(var polygon in _polygons.Select(x => x.Value))
-                polygon?.Renderer?.Dispose();
-            
-            _polygonRenderer?.Renderer?.Dispose();
-            _lineRenderer?.Renderer?.Dispose();
-            _circleRenderer?.Renderer?.Dispose();
-            _routeRenderer?.Renderer?.Dispose();
-            
-            base.Dispose(disposing);
+                _routes.Clear();
+                _lines.Clear();
+                _circles.Clear();
+                _polygons.Clear();
+
+                DisposeTkOverlayItem(_polygonRenderer);
+                DisposeTkOverlayItem(_lineRenderer);
+                DisposeTkOverlayItem(_circleRenderer);
+                DisposeTkOverlayItem(_routeRenderer);
+
+                void DisposeTkOverlayItem<TRenderer,TOverlay>(TKOverlayItem<TOverlay,TRenderer> overlay)
+                    where TRenderer: MKOverlayPathRenderer
+                    where TOverlay : TKOverlay
+                {
+                    if (overlay is null) return;
+                    overlay.Renderer?.Dispose();
+                    overlay.Renderer = null;
+                    overlay.Overlay = null;
+                }
+            }
         }
+
         TKCustomMapAnnotation GetCustomAnnotation(MKAnnotationView view)
         {
             if (!FormsMap.IsClusteringEnabled) return view.Annotation as TKCustomMapAnnotation;
