@@ -54,6 +54,10 @@ namespace TK.CustomMap.iOSUnified
         UIGestureRecognizer _doubleTapGestureRecognizer;
         CLLocationManager _locationManager;
         TKClusterMap _clusterMap;
+        private TKOverlayItem<TKPolygon, MKPolygonRenderer> _polygonRenderer;
+        private TKOverlayItem<TKRoute, MKPolylineRenderer> _routeRenderer;
+        private TKOverlayItem<TKPolyline, MKPolylineRenderer> _lineRenderer;
+        private TKOverlayItem<TKCircle, MKCircleRenderer> _circleRenderer;
 
         MKMapView Map => Control as MKMapView;
 
@@ -166,56 +170,58 @@ namespace TK.CustomMap.iOSUnified
             {
                 case MKPolyline polyline when _routes.TryGetValue(polyline, out var route):
                 {
-                    if (route.Renderer == null)
+                    _routeRenderer = route;
+                    if (_routeRenderer.Renderer == null)
                     {
-                        route.Renderer = new MKPolylineRenderer(polyline);
+                        _routeRenderer.Renderer = new MKPolylineRenderer(polyline);
                     }
 
-                    route.Renderer.FillColor = route.Overlay.Color.ToUIColor();
-                    route.Renderer.LineWidth = route.Overlay.LineWidth;
-                    route.Renderer.StrokeColor = route.Overlay.Color.ToUIColor();
-                    return route.Renderer;
+                    _routeRenderer.Renderer.FillColor = route.Overlay.Color.ToUIColor();
+                    _routeRenderer.Renderer.LineWidth = route.Overlay.LineWidth;
+                    _routeRenderer.Renderer.StrokeColor = route.Overlay.Color.ToUIColor();
+                    return _routeRenderer.Renderer;
                 }
                 case MKPolyline polyline when _lines.TryGetValue(polyline, out var line):
                 {
-                    if (line.Renderer == null)
+                    _lineRenderer = line;
+                    if (_lineRenderer.Renderer == null)
                     {
-                        line.Renderer = new MKPolylineRenderer(polyline);
+                        _lineRenderer.Renderer = new MKPolylineRenderer(polyline);
                     }
 
-                    line.Renderer.FillColor = line.Overlay.Color.ToUIColor();
-                    line.Renderer.LineWidth = line.Overlay.LineWidth;
-                    line.Renderer.StrokeColor = line.Overlay.Color.ToUIColor();
+                    _lineRenderer.Renderer.FillColor = _lineRenderer.Overlay.Color.ToUIColor();
+                    _lineRenderer.Renderer.LineWidth = _lineRenderer.Overlay.LineWidth;
+                    _lineRenderer.Renderer.StrokeColor = _lineRenderer.Overlay.Color.ToUIColor();
 
                     // return renderer for the line
-                    return line.Renderer;
+                    return _lineRenderer.Renderer;
                 }
                 case MKCircle mkCircle:
                 {
-                    var circle = _circles[mkCircle];
+                    _circleRenderer = _circles[mkCircle];
 
-                    if (circle.Renderer == null)
+                    if (_circleRenderer.Renderer == null)
                     {
-                        circle.Renderer = new MKCircleRenderer(mkCircle);
+                        _circleRenderer.Renderer = new MKCircleRenderer(mkCircle);
                     }
-                    circle.Renderer.FillColor = circle.Overlay.Color.ToUIColor();
-                    circle.Renderer.StrokeColor = circle.Overlay.StrokeColor.ToUIColor();
-                    circle.Renderer.LineWidth = circle.Overlay.StrokeWidth;
-                    return circle.Renderer;
+                    _circleRenderer.Renderer.FillColor = _circleRenderer.Overlay.Color.ToUIColor();
+                    _circleRenderer.Renderer.StrokeColor = _circleRenderer.Overlay.StrokeColor.ToUIColor();
+                    _circleRenderer.Renderer.LineWidth = _circleRenderer.Overlay.StrokeWidth;
+                    return _circleRenderer.Renderer;
                 }
                 case MKPolygon mkPolygon:
                 {
-                    var polygon = _polygons[mkPolygon];
+                    _polygonRenderer = _polygons[mkPolygon];
 
-                    if (polygon.Renderer == null)
+                    if (_polygonRenderer.Renderer == null)
                     {
-                        polygon.Renderer = new MKPolygonRenderer(mkPolygon);
+                        _polygonRenderer.Renderer = new MKPolygonRenderer(mkPolygon);
                     }
 
-                    polygon.Renderer.FillColor = polygon.Overlay.Color.ToUIColor();
-                    polygon.Renderer.StrokeColor = polygon.Overlay.StrokeColor.ToUIColor();
-                    polygon.Renderer.LineWidth = polygon.Overlay.StrokeWidth;
-                    return polygon.Renderer;
+                    _polygonRenderer.Renderer.FillColor = _polygonRenderer.Overlay.Color.ToUIColor();
+                    _polygonRenderer.Renderer.StrokeColor = _polygonRenderer.Overlay.StrokeColor.ToUIColor();
+                    _polygonRenderer.Renderer.LineWidth = _polygonRenderer.Overlay.StrokeWidth;
+                    return _polygonRenderer.Renderer;
                 }
                 case MKTileOverlay _:
                     _tileOverlayRenderer?.Dispose();
@@ -1753,6 +1759,23 @@ namespace TK.CustomMap.iOSUnified
                 }
             }
 
+            foreach(var route in _routes.Select(x => x.Value))
+                route?.Renderer?.Dispose();
+            
+            foreach(var line in _lines.Select(x => x.Value))
+                line?.Renderer?.Dispose();
+            
+            foreach(var circle in _circles.Select(x => x.Value))
+                circle?.Renderer?.Dispose();
+            
+            foreach(var polygon in _polygons.Select(x => x.Value))
+                polygon?.Renderer?.Dispose();
+            
+            _polygonRenderer?.Renderer?.Dispose();
+            _lineRenderer?.Renderer?.Dispose();
+            _circleRenderer?.Renderer?.Dispose();
+            _routeRenderer?.Renderer?.Dispose();
+            
             base.Dispose(disposing);
         }
         TKCustomMapAnnotation GetCustomAnnotation(MKAnnotationView view)
